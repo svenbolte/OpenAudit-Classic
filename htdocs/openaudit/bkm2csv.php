@@ -5,7 +5,7 @@ include_once("include.php");
 	echo "<div class=\"main_each\">";
 	echo "<table ><tr><td class=\"contenthead\">\n";
 	echo 'Batch: HTML Browser Bookmarks nach CSV (Excel) exportieren</td></tr></table>';
-	echo "<table ><tr><td>";
+	echo "<table ><tr><td style=\"padding:3em\">";
 
 ?>
 

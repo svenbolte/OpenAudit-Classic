@@ -1,8 +1,8 @@
 <?php
 /*
 * This file is part of the imageToURI.
-*
-* (c) Daniel Rodrigues (geekcom)
+* Version 1.0.1
+* (c) Daniel Rodrigues (geekcom) und PBMOd
 */
 
 declare(strict_types=1);

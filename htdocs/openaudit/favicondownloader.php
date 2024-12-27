@@ -1,13 +1,13 @@
 <?php
 /**
  * FaviconDownloader - find favicon URL and download it easy
- * Requirements : PHP 5.3+ with curl extension
+ * Requirements : PHP 8+ with curl extension
  *
  * @author Vincent Paré (www.finalclap.com)
  * @copyright © 2014-2015 Vincent Paré
  * @license http://opensource.org/licenses/Apache-2.0
  * @package FaviconDownloader
- * @version 1.0.0
+ * @version 1.0.1
  * @tutorial http://www.finalclap.com/faq/477-php-favicon-find-download
  */
 
