@@ -259,7 +259,7 @@ $menue_array = array(
                     "title"=>"CSV-Dateien in Excel konvertieren (Batch)",
                     "childs"=>array(
 						"10"=>array("name"=>"Bookmarks2CSV", "link"=>"./bkm2csv.php", "image"=>"fa-list", "title"=>"Bookmarks nach CSV (Ecxel)",),
-						"20"=>array("name"=>"FaviconURLtoDATAURL", "link"=>"favico.php", "image"=>"fa-list", "title"=>"Favicons herunterladen und als DATA-URL in Textdatei speichern",),
+						"20"=>array("name"=>"FaviconURLtoDATAURL", "link"=>"favico/favico.php", "image"=>"fa-list", "title"=>"Favicons herunterladen und als DATA-URL in Textdatei speichern",),
                               ),
               ),
 
@@ -290,8 +290,10 @@ $menue_array = array(
 if ((isset($use_ldap_integration))and($use_ldap_integration == 'y')) {
  $menue_array['misc']['60']['childs']['100']=array("name"=>"Audit LDAP Directory", "link"=>"ldap_audit_script.php", "image"=>"fa-phone", "title"=>"Audit the LDAP Directory.",);
 };
-if ((isset($show_lenovo_warranty ))and($show_lenovo_warranty  == 'y')) {
+
+// Lenovo Garantiestatus und Hardwaredetails online anzeigen
+//if ((isset($show_lenovo_warranty ))and($show_lenovo_warranty  == 'y')) {
  $menue_array['misc']['10']['childs']['230']=array("name"=>"All lenovo Warranty", "link"=>"./list.php?view=all_lenovo_warranty", "image"=>"fa-dollar", "title"=>"All lenovo Warranty.",);
-};
+//};
 
 ?>
