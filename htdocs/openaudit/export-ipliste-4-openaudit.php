@@ -30,6 +30,23 @@ echo "<table ><tr><td class=\"contenthead\">\n";
 echo 'Openaudit IP-Liste erzeugen</td></tr></table>';
 echo "<table ><tr><td>";
 
+// pc_list_file_text auslesen und Netzwerke extrahieren in /24
+$filearr = file($outfile, FILE_IGNORE_NEW_LINES);
+// $filearr = array('10.10.10.1','10.10.10.2','10.10.10.3','10.10.10.4','10.10.23.5','10.10.20.2','10.10.20.3','10.10.10.4',);
+$networks=array();
+$networklist='';
+
+foreach ($filearr as $ip) {
+	$nums = explode('.', $ip);
+	$cnet = $nums[0]. '.' .$nums[1]. '.' .$nums[2];
+	if (!in_array($cnet, $networks)) { $networks[] = $cnet; }
+}
+foreach ($networks as $network) {
+	$networklist .= $network . '.0/24,';
+}
+$networklist = substr($networklist, 0, -1);
+echo '<b>Netzwerke aus der Datei pc_list_file_txt eingelesen:</b><br><input type="text" style="width:70%" value="'.$networklist.'"><br>';
+
 $trimmed = implode(".", array_slice(explode(".", $ip), 0, 3)).'.0/24';
 echo '<p>Ihre IP-Adresse ist: <code>'.$ip.'</code> im Netzwerk: <code>' .$trimmed.'</code></p>';
 
