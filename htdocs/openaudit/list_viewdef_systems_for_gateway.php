@@ -1,7 +1,7 @@
 <?php
     if (!empty($_GET["headline_addition"])) $filtered = 'AND net.net_gateway = \'' . $_GET["headline_addition"].'\''; else $filtered='';
 	$query_array=array("headline"=>__("List Systems with Gateway and Network speed"),
-                       "sql"=>"SELECT DISTINCT sys.system_uuid, sys.net_ip_address, sys.system_name, net.net_gateway, net.net_speed, net.net_dns_server, net.net_dns_server_2, sys.net_domain,
+                       "sql"=>"SELECT DISTINCT sys.system_uuid, sys.net_ip_address, sys.system_name, net.net_gateway, net.net_description, net.net_speed, net.net_dns_server, net.net_dns_server_2, sys.net_domain,
                                       sys.system_os_name, sys.system_service_pack, sys.system_timestamp, sys.system_system_type, sys.system_description
                                FROM system sys, network_card net
                                WHERE net.net_uuid  = sys.system_uuid
@@ -36,6 +36,11 @@
                                                   ),
                                        "42"=>array("name"=>"net_speed",
                                                    "head"=>__("Speed"),
+                                                   "show"=>"y",
+                                                   "link"=>"n",
+                                                  ),
+                                       "43"=>array("name"=>"net_description",
+                                                   "head"=>__("Adaptername"),
                                                    "show"=>"y",
                                                    "link"=>"n",
                                                   ),
