@@ -2,7 +2,7 @@
 #define MyDateString GetDateTimeString('yyyy/mm/dd', '.', '');
 #define MyAppPublisher "OpenAudit Classic GPL3 Projekt"
 #define MyAppURL "https://github.com/svenbolte/Open-Audit-Classic"
-#define Inhalte "Apache 2.4.62x64-VS17/libcurl8.12, MySQLMariaDB 10.11.10x64(LTS), PHP 8.3.16x64-thsafe, phpMyAdmin 5.2.2x64, NMap 7.95, NPCap 1.80 (für nmap), Wordpress 6.7.1, VC17Runtimes 12/24, MariaDB ODBC 3.2.4"
+#define Inhalte "Apache 2.4.63x64-VS17/libcurl8.12, MySQLMariaDB 10.11.11x64(LTS), PHP 8.3.16x64-thsafe, phpMyAdmin 5.2.2x64, NMap 7.95, NPCap 1.80 (für nmap), Wordpress 6.7.1, VC17Runtimes 12/24, MariaDB ODBC 3.2.4"
 
 [Setup]
 PrivilegesRequired=admin
