@@ -26,30 +26,37 @@ $outfile = dirname(__DIR__, 1).'\openaudit\scripts\pc_list_file.txt';
 	
 echo "<td style=\"vertical-align:top;width:100%\">\n";
 echo "<div class=\"main_each\">";
-echo "<table ><tr><td class=\"contenthead\">\n";
+echo "<table><tr><td class=\"contenthead\">\n";
 echo 'Openaudit IP-Liste erzeugen</td></tr></table>';
-echo "<table ><tr><td>";
+echo "<table ><tr><td style=\"padding:2rem\">";
 
 // pc_list_file_text auslesen und Netzwerke extrahieren in /24
+
 $filearr = file($outfile, FILE_IGNORE_NEW_LINES);
-// $filearr = array('10.10.10.1','10.10.10.2','10.10.10.3','10.10.10.4','10.10.23.5','10.10.20.2','10.10.20.3','10.10.10.4',);
+// to debug: 
+//  $filearr = array('10.10.10.1','10.10.10.2','10.10.10.3','10.10.10.4','10.10.23.5','10.10.20.2','10.10.20.3','10.10.10.4',);
+//  $filearr = array('.');
+
 $networks=array();
 $networklist='';
 
-foreach ($filearr as $ip) {
-	$nums = explode('.', $ip);
-	$cnet = $nums[0]. '.' .$nums[1]. '.' .$nums[2];
-	if (!in_array($cnet, $networks)) { $networks[] = $cnet; }
+if (count($filearr)>1) {
+	foreach ($filearr as $fip) {
+		$nums = explode('.', $fip);
+		$cnet = $nums[0]. '.' .$nums[1]. '.' .$nums[2];
+		if (!in_array($cnet, $networks)) { $networks[] = $cnet; }
+	}
+	foreach ($networks as $network) {
+		$networklist .= $network . '.0/24,';
+	}
+	$networklist = substr($networklist, 0, -1);
+	echo '<b>'.count($networks).' Netzwerk(e) mit '.count($filearr).' IPs aus der Datei pc_list_file_txt eingelesen:</b><br><input type="text" style="width:70%" value="'.$networklist.'"><br>';
 }
-foreach ($networks as $network) {
-	$networklist .= $network . '.0/24,';
-}
-$networklist = substr($networklist, 0, -1);
-echo '<b>Netzwerke aus der Datei pc_list_file_txt eingelesen:</b><br><input type="text" style="width:70%" value="'.$networklist.'"><br>';
 
 $trimmed = implode(".", array_slice(explode(".", $ip), 0, 3)).'.0/24';
 echo '<p>Ihre IP-Adresse ist: <code>'.$ip.'</code> im Netzwerk: <code>' .$trimmed.'</code></p>';
 
+// Neue Liste erzeugen
 function ipListFromRange($range){
     $parts = explode('/',$range);
     $exponent = 32-$parts[1];
@@ -59,6 +66,7 @@ function ipListFromRange($range){
     return array_map('long2ip', range($start, $end) );
 }
 
+// Wenn submit button gedrückt
 if (isset($_GET['ipliste'])) {
 	echo '<div style="font-family:monospace;width:500px;max-width:80%">';
 	$outputliste='';
@@ -75,16 +83,16 @@ if (isset($_GET['ipliste'])) {
 	echo '</div>';
 	// write to file
 	file_put_contents($outfile, $outputliste, LOCK_EX);
-	echo '<br><br>Datei '.$outfile.' erzeugt und alte Datei überschrieben.';
+	echo '<br><br><div style="color:green;font-weight:700">Datei '.$outfile.' erzeugt und alte Datei überschrieben!</div>';
 } else {	
 	echo '<p style="color:red"> Die Datei: <b>' . $outfile . '</b> wird dabei überschrieben!</p>';
 	// input networks like 192.168.2.0/24 in list, comma separated
 	echo '<form method="get"><b>Liste der IP-Netze, kommagetrennt (Beispiel: 172.26.18.0/24,192.168.1.0/24 ):</b><br>';
-	echo '<input style="width:60%;max-width:80%" id="ipliste" name="ipliste" type="text" size="5000" value="'.$trimmed.'">';
+	echo '<input style="width:60%;max-width:80%" id="ipliste" name="ipliste" type="text" size="5000" value="'.$networklist.'">';
 	echo '<br><input type="submit" value="Liste erzeugen"></form>';
 }	
 
-echo '</td></tr><tr><td colspan=2 style="padding-left:50px"> <h2>IP-Rechner</h2>';
+echo '</td></tr><tr><td colspan=2 style="padding:1em"> <h3>IP-Rechner</h3>';
 
 ?>
 <script>

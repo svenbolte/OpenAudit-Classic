@@ -1,8 +1,10 @@
+; Innosetup Compiler 6.4.0
+
 #define MyAppName "Open-Audit Classic"
 #define MyDateString GetDateTimeString('yyyy/mm/dd', '.', '');
 #define MyAppPublisher "OpenAudit Classic GPL3 Projekt"
 #define MyAppURL "https://github.com/svenbolte/Open-Audit-Classic"
-#define Inhalte "Apache 2.4.63x64-VS17/libcurl8.12, MySQLMariaDB 10.11.11x64(LTS), PHP 8.3.16x64-thsafe, phpMyAdmin 5.2.2x64, NMap 7.95, NPCap 1.80 (für nmap), Wordpress 6.7.1, VC17Runtimes 12/24, MariaDB ODBC 3.2.4"
+#define Inhalte "Apache 2.4.63x64-VS17/libcurl8.12, MySQLMariaDB 10.11.11x64(LTS), PHP 8.3.17x64-thsafe, phpMyAdmin 5.2.2x64, NMap 7.95, NPCap 1.80 (für nmap), Wordpress 6.7.2, VC17Runtimes 2/25, MariaDB ODBC 3.2.4"
 
 [Setup]
 PrivilegesRequired=admin
@@ -63,14 +65,14 @@ Name: "{commondesktop}\PC-List-File erzeugen"; Filename: "https://{code:GetCompu
 Name: "{commondesktop}\Aufgabenplanung"; Filename: "%windir%\system32\taskschd.msc"; Parameters: "/s"; Tasks: desktopicon; Comment: "OpenAudit Aufgaben auf Domain-admin umstellen: PC-Scan und optional NMAP Scan bearbeiten"
 
 [Run]
-Filename: "{sys}\schtasks.exe"; Parameters: "/create /RU SYSTEM /XML ""{app}\htdocs\openaudit\scripts\Open-Audit PC Inventar taeglich.xml"" /TN Openaudit-PCScan"; Flags: runascurrentuser; Description: "PC Scan Aufgabe importieren"; Tasks: Aufgabepcscan
-Filename: "{sys}\schtasks.exe"; Parameters: "/create /RU SYSTEM /XML ""{app}\htdocs\openaudit\scripts\Open-Audit NMAP Inventar taeglich.xml"" /TN Openaudit-NMAPScan"; Flags: runascurrentuser; Description: "NMAP Scan Aufgabe importieren"; Tasks: AufgabeNMAPScan
+Filename: "{sys}\schtasks.exe"; Parameters: "/create /RU SYSTEM /XML ""{app}\htdocs\openaudit\scripts\Open-Audit PC Inventar taeglich.xml"" /TN Openaudit-PCScan"; Flags: runascurrentuser; Description: "PC Scan Aufgabe importieren"; Tasks: Aufgabepcscan; Check: NoRunSwitch
+Filename: "{sys}\schtasks.exe"; Parameters: "/create /RU SYSTEM /XML ""{app}\htdocs\openaudit\scripts\Open-Audit NMAP Inventar taeglich.xml"" /TN Openaudit-NMAPScan"; Flags: runascurrentuser; Description: "NMAP Scan Aufgabe importieren"; Tasks: AufgabeNMAPScan; Check: NoRunSwitch
 Filename: "{app}\vcruntimes\vc_redist.x64.exe"; Parameters: "/install /quiet /norestart"; Flags: waituntilterminated shellexec; StatusMsg: "Installing VC2019/X64 Redist for Apache"; Check: VC2017RedistNeedsInstall
-Filename: "{app}\apache\makecert2.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Apache SSL Zertifikat auf Openaudit Server ausstellen"
-Filename: "{app}\apache\oa-importcert.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Zertifikat in Browser importieren"
-Filename: "{app}\apache\apache_installservice-win10.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Apache ab Win10 als Dienst und starten"
-Filename: "{app}\mysql\mysql_installservice-win10.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "MySQL ab Win10 als Dienst und starten"
-Filename: "{app}\nmap\npcap-1.80.exe"; Flags: shellexec postinstall runascurrentuser; Description: "für NMAP benötigtes NPCap installieren"
+Filename: "{app}\apache\makecert2.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Apache SSL Zertifikat auf Openaudit Server ausstellen"; Check: NoRunSwitch
+Filename: "{app}\apache\oa-importcert.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Zertifikat in Browser importieren"; Check: NoRunSwitch
+Filename: "{app}\apache\apache_installservice-win10.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Apache ab Win10 als Dienst und starten"; Check: NoRunSwitch
+Filename: "{app}\mysql\mysql_installservice-win10.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "MySQL ab Win10 als Dienst und starten"; Check: NoRunSwitch
+Filename: "{app}\nmap\npcap-1.80.exe"; Flags: shellexec postinstall runascurrentuser; Description: "für NMAP benötigtes NPCap installieren"; Check: NoRunSwitch
 Filename: "{app}\vcruntimes\vc_redist.x86.exe"; Parameters: "/q /norestart"; Flags: waituntilterminated shellexec postinstall; Description: "VC Runtime 2019 x86 für NMAP installieren"; StatusMsg: "Installing VC2019/x86 Redist for NMAP"; Check: VC2013RedistNeedsInstall
 
 [Types]
@@ -140,5 +142,20 @@ begin
   begin
     // Not even an old version installed
     Result := True;
+  end;
+end;
+
+// Wenn parameter /NORUN gesetzt, werden die run befehle nicht ausgeführt bei postinstall
+function NoRunSwitch: boolean;
+var
+  i: integer;
+begin
+  // Return TRUE to show the checkbox on the final page, return FALSE to hide it.
+  Result := True; // In case there are no parameters
+  for i := 1 to ParamCount do
+  begin
+    // Tweak the switch parsing to suit your needs here
+    Result := not (UpperCase(ParamStr(i)) = '/NORUN');
+    if not Result then break;
   end;
 end;
