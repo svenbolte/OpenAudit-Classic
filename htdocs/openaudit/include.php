@@ -72,7 +72,7 @@ function svversionenimport($aftertime) {
 	$sql_all = "truncate table softwareversionen";
 	$result_all = mysqli_query($db,$sql_all);
 	// Daten schreiben in Tabelle
-	while (($emapData = fgetcsv($file, 1000000, ";")) !== FALSE) {
+	while (($emapData = fgetcsv($file, 1000000, ";", escape: "")) !== FALSE) {
 		if($flag) { $flag = false; continue; }
 		if (isset($emapData[0])) {
 			$emapData[5] = htmlentities($emapData[5]);

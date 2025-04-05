@@ -44,7 +44,7 @@ function csvToArray($csv) {
     $csvToRead = fopen($csv, 'r');
     // read CSV file using comma as delimiter
     while (! feof($csvToRead)) {
-        $csvArray[] = fgetcsv($csvToRead, 1000, $trenner);
+        $csvArray[] = fgetcsv($csvToRead, 1000, $trenner, escape: "");
     }
     fclose($csvToRead);
     return $csvArray;
