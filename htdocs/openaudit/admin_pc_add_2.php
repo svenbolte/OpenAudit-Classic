@@ -1398,6 +1398,7 @@ function insert_printer ($split){
     $printer_system_name = strtoupper(str_replace('\\','',trim($extended[6])));
     $printer_location = trim($extended[7]);
 	$printer_driver_name = trim($extended[8]);
+	$printer_comment = trim($extended[9]);
     $printer_name = NULL;
     //if (strpos($printer_system_name,'\\\\') !== false ) { $printer_system_name = substr($printer_system_name, 2); }
 
@@ -1422,10 +1423,10 @@ function insert_printer ($split){
       $myrow = mysqli_fetch_array($result);
       if ($myrow['count'] == "0"){
         // Insert
-        $sql  = "INSERT INTO other (other_ip_address, other_description, other_location, other_type, other_model, ";
+        $sql  = "INSERT INTO other (other_ip_address, other_description, other_location, other_value, other_type, other_model, ";
         $sql .= "other_network_name, other_p_port_name, other_p_shared, other_p_share_name, ";
         $sql .= "other_timestamp, other_first_timestamp) VALUES (";
-        $sql .= "'" . ip_trans_to($printer_ip) . "', '$printer_caption', '$printer_location', 'printer', '$printer_driver_name', ";
+        $sql .= "'" . ip_trans_to($printer_ip) . "', '$printer_caption', '$printer_location', '$printer_comment', 'printer', '$printer_driver_name', ";
         $sql .= "'$printer_network_name', '$printer_port_name', '$printer_shared', '$printer_share_name', ";
         $sql .= "'$timestamp', '$timestamp')";
         if ($verbose == "y"){echo $sql . "<br />\n\n";}
@@ -1433,7 +1434,7 @@ function insert_printer ($split){
       } else {
         // Update
        $sql  = "UPDATE other SET other_timestamp = '$timestamp', other_p_port_name = '$printer_network_name', ";
-       $sql .= "       other_location = '$printer_location', other_description = '$printer_caption', ";
+       $sql .= "       other_location = '$printer_location', other_value = '$printer_comment', other_description = '$printer_caption', ";
        $sql .= "       other_p_shared = '$printer_shared', other_p_share_name = '$printer_share_name', ";
        $sql .= "       other_model = '$printer_driver_name' ";
        $sql .= "WHERE other_ip_address = '" . ip_trans_to($printer_ip) . "'";
@@ -1463,18 +1464,18 @@ function insert_printer ($split){
         $sql  = "INSERT INTO other (other_linked_pc, other_description, other_type, ";
         $sql .= "other_model, other_p_port_name, ";
         $sql .= "other_p_shared, other_p_share_name, ";
-        $sql .= "other_network_name, other_location,";
+        $sql .= "other_network_name, other_location, other_value";
         $sql .= "other_timestamp, other_first_timestamp ) VALUES (";
         $sql .= "'$uuid', '$printer_caption', 'printer', ";
         $sql .= "'$printer_driver_name', '$printer_port_name',";
         $sql .= "'$printer_shared', '$printer_share_name', ";
-        $sql .= "'$printer_system_name', '$printer_location', ";
+        $sql .= "'$printer_system_name', '$printer_location', '$printer_comment', ";
         $sql .= "'$timestamp', '$timestamp')";
         if ($verbose == "y"){echo $sql . "<br />\n\n";}
         $db=GetOpenAuditDbConnection(); $result = mysqli_query($db,$sql) or die ('Insert Failed: ' . mysqli_error($db) . '<br />' . $sql);
       } else {
         // Already present in database - update timestamp and dynamic values
-        $sql =  "UPDATE other SET other_timestamp = '$timestamp', other_location = '$printer_location', ";
+        $sql =  "UPDATE other SET other_timestamp = '$timestamp', other_location = '$printer_location', other_value = '$printer_comment', ";
 		$sql .= "                 other_p_shared = '$printer_shared', other_p_share_name = '$printer_share_name', ";
 		$sql .= "                 other_model = '$printer_driver_name' ";
 		$sql .= "WHERE other_linked_pc = '$uuid' AND other_description = '$printer_caption' AND other_p_port_name = '$printer_port_name' ";

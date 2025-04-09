@@ -50,6 +50,13 @@ $query_array=array("headline"=>__("List All Printers/Networks with IP v4 Portnam
                                                "show"=>"y",
                                                "link"=>"n",
                                               ),
+
+                                   "62"=>array("name"=>"other_value",
+                                               "head"=>__("Value"),
+                                               "show"=>"y",
+                                               "link"=>"n",
+                                              ),
+
                                    "70"=>array("name"=>"other_location",
                                                "head"=>__("Location"),
                                                "show"=>"y",

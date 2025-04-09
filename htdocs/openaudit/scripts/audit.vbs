@@ -2009,6 +2009,7 @@ For Each objItem in colItems
    printer_port_name = clean(objItem.PortName)
    printer_shared = clean(objItem.Shared)
    printer_share_name = clean(objItem.ShareName)
+   printer_comment = clean(objItem.comment)
    printer_vertical_resolution = objItem.VerticalResolution
    if (objItem.SystemName) then printer_system_name = clean(objItem.SystemName) else printer_system_name = "" end if
    if (objItem.Location) then printer_location = clean(objItem.Location) else printer_location = "" end if
@@ -2016,7 +2017,7 @@ For Each objItem in colItems
      & printer_caption        & "^^^" & printer_local        & "^^^" _
      & printer_port_name      & "^^^" & printer_shared       & "^^^" _
      & printer_share_name     & "^^^" & printer_system_name  & "^^^" _
-     & printer_location       & "^^^" & printer_driver_name  & "^^^"
+     & printer_location       & "^^^" & printer_driver_name  & "^^^" & printer_comment  & "^^^"
      entry form_input,comment,objTextFile,oAdd,oComment
      form_input = ""
 Next

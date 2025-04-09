@@ -1,10 +1,10 @@
-; Innosetup Compiler 6.4.0
+; Innosetup Compiler 6.4.2
 
 #define MyAppName "Open-Audit Classic"
 #define MyDateString GetDateTimeString('yyyy/mm/dd', '.', '');
 #define MyAppPublisher "OpenAudit Classic GPL3 Projekt"
 #define MyAppURL "https://github.com/svenbolte/Open-Audit-Classic"
-#define Inhalte "Apache 2.4.63x64-VS17/libcurl8.12, MySQLMariaDB 10.11.11x64(LTS), PHP 8.3.19x64-thsafe, phpMyAdmin 5.2.2x64, NMap 7.95, NPCap 1.81 (für nmap), Wordpress 6.7.2, VC17Runtimes 03/25, MariaDB ODBC 3.2.4"
+#define Inhalte "Apache 2.4.63x64-VS17/libcurl8.12, MySQLMariaDB 10.11.11x64(LTS), PHP 8.4.5x64-thsafe, phpMyAdmin 5.2.2x64, NMap 7.95, NPCap 1.81 (für nmap), Wordpress 6.7.2, VC17Runtimes 03/25, MariaDB ODBC 3.2.5"
 
 [Setup]
 PrivilegesRequired=admin
