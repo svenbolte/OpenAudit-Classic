@@ -1464,7 +1464,7 @@ function insert_printer ($split){
         $sql  = "INSERT INTO other (other_linked_pc, other_description, other_type, ";
         $sql .= "other_model, other_p_port_name, ";
         $sql .= "other_p_shared, other_p_share_name, ";
-        $sql .= "other_network_name, other_location, other_value";
+        $sql .= "other_network_name, other_location, other_value, ";
         $sql .= "other_timestamp, other_first_timestamp ) VALUES (";
         $sql .= "'$uuid', '$printer_caption', 'printer', ";
         $sql .= "'$printer_driver_name', '$printer_port_name',";
