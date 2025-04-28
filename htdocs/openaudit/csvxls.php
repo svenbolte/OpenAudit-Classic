@@ -32,7 +32,7 @@ function detectDelimiter($csvFile) {
     $firstLine = fgets($handle);
     fclose($handle); 
     foreach ($delimiters as $delimiter => &$count) {
-        $count = count(str_getcsv($firstLine, $delimiter));
+        $count = count(str_getcsv($firstLine, $delimiter, escape: ""));
     }
     return array_search(max($delimiters), $delimiters);
 }
