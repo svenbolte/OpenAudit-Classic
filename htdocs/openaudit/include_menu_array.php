@@ -236,7 +236,8 @@ $menue_array = array(
                     "link"=>"import_svversion.php",
                     "class"=>"menuparent",
                     "childs"=>array(
-                    				"8"=>array("name"=>"IP-Liste erzeugen", "link"=>"export-ipliste-4-openaudit.php", "image"=>"fa-plus", "title"=>"pc_list_file_text aus Netzwerkliste erstellen",),
+                    				"6"=>array("name"=>"IP-Liste erzeugen", "link"=>"export-ipliste-4-openaudit.php", "image"=>"fa-plus", "title"=>"pc_list_file_text aus Netzwerkliste erstellen",),
+                    				"8"=>array("name"=>"IP-Liste aus Druckern", "link"=>"ip-list-from-printers.php", "image"=>"fa-plug", "title"=>"pc_list_file_text aus Netzwerkliste erstellen",),
 									"10"=>array("name"=>"Import SVVersionen", "link"=>"import_svversion.php", "image"=>"fa-download", "title"=>"Softwareversions and license Database import",),
                     				"12"=>array("name"=>"Select Database", "link"=>"changedatabase.php", "image"=>"fa-database", "title"=>"Select what database of installed dbs to use",),
 									"14"=>array("name"=>"Delete/Create new database", "link"=>"./setup.php", "image"=>"fa-times-circle", "title"=>"",),

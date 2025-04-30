@@ -54,7 +54,7 @@ if (count($filearr)>1) {
 }
 
 $trimmed = implode(".", array_slice(explode(".", $ip), 0, 3)).'.0/24';
-echo '<p>Ihre IP-Adresse ist: <code>'.$ip.'</code> im Netzwerk: <code>' .$trimmed.'</code></p>';
+echo '<h3>Ihre IP-Adresse ist: <code>'.$ip.'</code> im Netzwerk: <code>' .$trimmed.'</code></h3>';
 
 // Neue Liste erzeugen
 function ipListFromRange($range){

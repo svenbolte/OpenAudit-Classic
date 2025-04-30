@@ -1399,11 +1399,21 @@ function insert_printer ($split){
     $printer_location = trim($extended[7]);
 	$printer_driver_name = trim($extended[8]);
 	$printer_comment = trim($extended[9]);
+	
+	// XXXXX Neue Felder auslesen, wenn Datenbank erweitert
+	
+	// $printer_networked = trim($extended[10]);
+	// $printer_vres = trim($extended[11]);
+	// $printer_default= trim($extended[12]);
+	// $printer_status = trim($extended[13]);
+	
+	// Neue Felder Ende
+	
     $printer_name = NULL;
     //if (strpos($printer_system_name,'\\\\') !== false ) { $printer_system_name = substr($printer_system_name, 2); }
 
-    if ((strpos($printer_caption,'PDF') !== false) OR (strpos($printer_caption,'__') !== false) OR 
-		(strpos($printer_caption,'Microsoft') !== false) OR (strpos($printer_caption,'in session') !== false)) {
+    if ( (strpos($printer_caption,'__') !== false) OR 
+		(strpos($printer_caption,'Microsoft') !== false) OR (strpos($printer_caption,'in session') !== false) ) {
     // A pdf, Terminal Server, Citrix or MS Office printer - Not physical, not inserted.
     } else {
     // A physical printer - insert
@@ -1414,7 +1424,6 @@ function insert_printer ($split){
       if (strpos($printer_caption,'\\') !== false ) { $printer_name = substr($printer_caption, 2); }
       $printer_ip = ip_trans_to(substr($printer_port_name, 3));
       $printer_network_name = $printer_ip;
- //     $printer_network_name = nslookup(substr($printer_port_name, 3));
       if ($printer_network_name == ""){ $printer_network_name = $printer_ip; }
       if (strpos($printer_network_name,'\\') !== false ) { $printer_network_name = substr($printer_network_name, 2);}
       $sql = "SELECT count(other_ip_address) AS count FROM other WHERE other_ip_address = '" . ip_trans_to($printer_ip) . "'";
