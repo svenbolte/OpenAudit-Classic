@@ -1,10 +1,10 @@
-; Innosetup Compiler 6.4.2
+; Innosetup Compiler 6.4.3
 
 #define MyAppName "Open-Audit Classic"
 #define MyDateString GetDateTimeString('yyyy/mm/dd', '.', '');
 #define MyAppPublisher "OpenAudit Classic GPL3 Projekt"
 #define MyAppURL "https://github.com/svenbolte/Open-Audit-Classic"
-#define Inhalte "Apache 2.4.63x64-VS17/libcurl8.12, MySQLMariaDB 10.11.11x64(LTS), PHP 8.4.6x64-thsafe, phpMyAdmin 5.2.2x64, NMap 7.95, NPCap 1.81 (für nmap), Wordpress 6.7.2, VC17Runtimes 03/25, MariaDB ODBC 3.2.5"
+#define Inhalte "Apache 2.4.63x64-VS17/libcurl8.12, MySQLMariaDB 10.11.13x64(LTS), PHP 8.4.8x64-thsafe, phpMyAdmin 5.2.2x64, NMap 7.97, NPCap 1.82 (für nmap), Wordpress 6.8.1, VC17Runtimes 06/25, MariaDB ODBC 3.2.6"
 
 [Setup]
 PrivilegesRequired=admin
@@ -57,7 +57,6 @@ Name: "{group}\OpenAudit cl Konsole"; Filename: "cmd.exe"; WorkingDir: "{app}\ht
 Name: "{group}\OpenAudit cl Konsole (Admin)"; Filename: "%windir%\system32\cmd.exe"; Parameters: "/k pushd ""{app}\htdocs\openaudit\scripts\"""; WorkingDir: "{app}\htdocs\openaudit\scripts"; IconFilename: "{app}\openaudit_logo.ico"; Comment: "mit elevated rights"
 Name: "{group}\OpenAudit cl Explorer (Ordner)"; Filename: "%windir%\explorer.exe"; Parameters: "/e,""C:\Program Files (x86)\xampplite\htdocs\openaudit\scripts"" "; WorkingDir: "{app}\htdocs\openaudit\scripts"; IconFilename: "{app}\openaudit_logo.ico"; Comment: "Ordner mit scripts öffnen"
 Name: "{group}\PC-IP-Listfile.txt manuell ändern"; Filename: "{app}\htdocs\openaudit\scripts\pc_list_file.txt";  Comment: "nur im Notfall, lässt sich besser über Oberfläche erzeugen"
-Name: "{group}\ZENMap Gui für NMap"; Filename: "{app}\nmap\zenmap\bin\pythonw.exe"; Parameters: "-c ""from zenmapGUI.App import run;run()""";
 Name: "{group}\SSL-Zertifikat erneuern"; Filename: "{app}\apache/makecert2.cmd"; Comment: "openssl Zertifikat für 2 Jahre"
 Name: "{commondesktop}\OpenAudit cl Oberfläche"; Filename: "https://{code:GetComputerName}:4443/openaudit"; Tasks: desktopicon; Comment: "Netzwerkverknüpfung zum Open-Audit-Server"
 Name: "{commondesktop}\OpenAudit cl Konsole"; Filename: "cmd.exe"; WorkingDir: "{app}\htdocs\openaudit\scripts"; Comment: "als angemeldeter User"; Tasks: desktopicon
@@ -72,7 +71,7 @@ Filename: "{app}\apache\makecert2.cmd"; Flags: shellexec postinstall runascurren
 Filename: "{app}\apache\oa-importcert.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Zertifikat in Browser importieren"; Check: NoRunSwitch
 Filename: "{app}\apache\apache_installservice-win10.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Apache ab Win10 als Dienst und starten"; Check: NoRunSwitch
 Filename: "{app}\mysql\mysql_installservice-win10.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "MySQL ab Win10 als Dienst und starten"; Check: NoRunSwitch
-Filename: "{app}\nmap\npcap-1.81.exe"; Flags: shellexec postinstall runascurrentuser; Description: "für NMAP benötigtes NPCap installieren"; Check: NoRunSwitch
+Filename: "{app}\nmap\npcap-1.82.exe"; Flags: shellexec postinstall runascurrentuser; Description: "für NMAP benötigtes NPCap installieren"; Check: NoRunSwitch
 Filename: "{app}\vcruntimes\vc_redist.x86.exe"; Parameters: "/q /norestart"; Flags: waituntilterminated shellexec postinstall; Description: "VC Runtime 2019 x86 für NMAP installieren"; StatusMsg: "Installing VC2019/x86 Redist for NMAP"; Check: VC2013RedistNeedsInstall
 
 [Types]
