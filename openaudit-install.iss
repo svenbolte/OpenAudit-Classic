@@ -4,7 +4,7 @@
 #define MyDateString GetDateTimeString('yyyy/mm/dd', '.', '');
 #define MyAppPublisher "OpenAudit Classic GPL3 Projekt"
 #define MyAppURL "https://github.com/svenbolte/Open-Audit-Classic"
-#define Inhalte "Apache 2.4.63x64-VS17/libcurl8.12, MySQLMariaDB 10.11.13x64(LTS), PHP 8.4.8x64-thsafe, phpMyAdmin 5.2.2x64, NMap 7.97, NPCap 1.82 (für nmap), Wordpress 6.8.1, VC17Runtimes 06/25, MariaDB ODBC 3.2.6"
+#define Inhalte "Apache 2.4.63x64-VS17/libcurl8.12, MySQLMariaDB 10.11.13x64(LTS), PHP 8.4.10x64-thsafe, phpMyAdmin 5.2.2x64, NMap 7.97, NPCap 1.82 (für nmap), Wordpress 6.8.1, VC17Runtimes 07/25, MariaDB ODBC 3.2.6"
 
 [Setup]
 PrivilegesRequired=admin
@@ -118,7 +118,7 @@ begin
   begin
     // Is the installed version at least 14.29 ? 
     Log('VC Redist Version check : found ' + Version);
-    Result := (CompareStr(Version, 'v14.29.30133.0')<0);
+    Result := (CompareStr(Version, 'v14.42.34433.0')<0);
   end
   else 
   begin
@@ -135,7 +135,7 @@ begin
   begin
     // Is the installed version at least 14.29 ? 
     Log('VC Redist Version check : found ' + Version);
-    Result := (CompareStr(Version, 'v14.29.30133.0')<0);
+    Result := (CompareStr(Version, 'v14.42.34430.0')<0);
   end
   else 
   begin
