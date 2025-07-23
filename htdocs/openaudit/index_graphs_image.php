@@ -34,27 +34,44 @@ imagepng($image);
 
 
 // ****** DrawColorGradient *****************************************************
-function DrawColorGradient($im, $x1, $y1, $width, $height, $start_color, $end_color, $direction) 
-{
-	$start_color = int2rgbarray($start_color);
-	$end_color = int2rgbarray($end_color);
 
-	$length = ($direction == "v") ? $height : $width;
-	if($length<1) return;
-	$color0=($start_color[0]-$end_color[0])/$length;
-	$color1=($start_color[1]-$end_color[1])/$length;
-	$color2=($start_color[2]-$end_color[2])/$length;
-	
-	for ($i=0;$i<=$length;$i++) 
-	{ 
-		$red=$start_color[0]; 
-		$green=$start_color[1]; 
-		$blue=$start_color[2]; 
-		$col= imagecolorallocate($im, $red, $green, $blue);
-		if($direction != "v") {imageline($im, $x1+$i, $y1, $x1+$i, $y1+$height, $col);}
-		else {imageline($im, $x1, $y1+$i, $x1+$width, $y1+$i, $col);}
-	} 
+function DrawColorGradient(
+    GdImage $image,
+    int $x,
+    int $y,
+    int $w,
+    int $h,
+    int $startColor,
+    int $endColor,
+    string $direction = 'v'
+): void {
+    if ($direction === 'v') {
+        for ($i = 0; $i < $h; $i++) {
+            $ratio = $h > 1 ? $i / ($h - 1) : 0;
+
+            $r = (int)((1 - $ratio) * (($startColor >> 16) & 0xFF) + $ratio * (($endColor >> 16) & 0xFF));
+            $g = (int)((1 - $ratio) * (($startColor >> 8) & 0xFF) + $ratio * (($endColor >> 8) & 0xFF));
+            $b = (int)((1 - $ratio) * ($startColor & 0xFF) + $ratio * ($endColor & 0xFF));
+
+            $color = imagecolorallocate($image, $r, $g, $b);
+            imageline($image, $x, $y + $i, $x + $w, $y + $i, $color);
+        }
+    } elseif ($direction === 'h') {
+        for ($i = 0; $i < $w; $i++) {
+            $ratio = $w > 1 ? $i / ($w - 1) : 0;
+
+            $r = (int)((1 - $ratio) * (($startColor >> 16) & 0xFF) + $ratio * (($endColor >> 16) & 0xFF));
+            $g = (int)((1 - $ratio) * (($startColor >> 8) & 0xFF) + $ratio * (($endColor >> 8) & 0xFF));
+            $b = (int)((1 - $ratio) * ($startColor & 0xFF) + $ratio * ($endColor & 0xFF));
+
+            $color = imagecolorallocate($image, $r, $g, $b);
+            imageline($image, $x + $i, $y, $x + $i, $y + $h, $color);
+        }
+    }
 }
+
+
+
 
 // ****** int2rgb *****************************************************
 function int2rgbarray($intcolor)

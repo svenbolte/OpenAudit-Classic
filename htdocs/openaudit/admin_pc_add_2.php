@@ -54,7 +54,7 @@ body {
 
 <?php
 
-include "include_functions.php";
+require_once "include_functions.php";
 
 // Process the form
 $db=GetOpenAuditDbConnection();
@@ -1849,7 +1849,7 @@ function insert_odbc ($split){
       $db=GetOpenAuditDbConnection(); $result = mysqli_query($db,$sql) or die ('Insert Failed: ' . mysqli_error($db) . '<br />' . $sql);
     } else {
       // Already present in database - update timestamp
-      $sql = "UPDATE odbc SET odbc_timestamp = '$timestamp' WHERE odbc = '$uuid' AND bios_timestamp = '$odbc_timestamp'";
+      $sql = "UPDATE odbc SET odbc_timestamp = '$timestamp' WHERE odbc_timestamp = '$odbc_timestamp'";
       if ($verbose == "y"){echo $sql . "<br />\n\n";}
 	$db=GetOpenAuditDbConnection();
       $db=GetOpenAuditDbConnection(); $result = mysqli_query($db,$sql) or die ('Insert Failed: ' . mysqli_error($db) . '<br />' . $sql);

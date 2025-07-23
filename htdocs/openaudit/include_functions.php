@@ -1025,11 +1025,21 @@ Change Log:
 **********************************************************************************************************/
 function GetOpenAuditDbConnection()
 {
-	global $mysqli_server, $mysqli_user, $mysqli_password, $mysqli_database;
+	static $sql_link = null;
 
-	$sql_link = mysqli_connect($mysqli_server,$mysqli_user,$mysqli_password,$mysqli_database);
-	mysqli_select_db($sql_link,$mysqli_database);
-	
+	if ($sql_link === null) {
+		global $mysqli_server, $mysqli_user, $mysqli_password, $mysqli_database;
+
+		mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+		try {
+			$sql_link = mysqli_connect($mysqli_server, $mysqli_user, $mysqli_password, $mysqli_database);
+		} catch (mysqli_sql_exception $e) {
+			error_log("DB connection failed: " . $e->getMessage());
+			die("Datenbankverbindung fehlgeschlagen.");
+		}
+	}
+
 	return $sql_link;
 }
 
