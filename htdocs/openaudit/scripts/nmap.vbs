@@ -127,29 +127,6 @@ for ip = nmap_ip_start to nmap_ip_end
 	 end if
      Err.clear
 
-  on error goto 0
-
-   Echo(strtext)
-   url = nmap_ie_form_page
-   Err.clear
-   XmlObj = "ServerXMLHTTP"
-   Set objHTTP = WScript.CreateObject("MSXML2.ServerXMLHTTP.3.0")
-   objHTTP.SetOption 2, 13056  ' Ignore all SSL errors
-   objHTTP.Open "POST", url, False
-   objHTTP.setRequestHeader "Content-Type","application/x-www-form-urlencoded"
-   objHTTP.Send strtext & vbcrlf
-'   if utf8 = "y" then
-'    objHTTP.Send urlEncode(strText + vbcrlf)
-'   else
-'     objHTTP.Send escape(Deconstruct(strText + vbcrlf))
-'   end if
-	 Echo( "*** NMAP-Ziel-URL-2 : " & url)
-	 if (Err.Number <> 0 or objHTTP.status <> 200) then
-		 Echo("Unable to send XML to server using " & XmlObj & " - HTTP Response: " & objHTTP.status & " (" & objHTTP.statusText & ") - Error " & Err.Number & " " & Err.Description)
-	 else
-		 Echo("XML sent to server using " & XmlObj & ": " & objHTTP.status & " (" & objHTTP.statusText & ")")
-	 end if
-     Err.clear
 
     ' Cleanup the text file if requested 
     if nmap_tmp_cleanup = true then

@@ -662,12 +662,50 @@ For Each objItem in colItems
    system_vendor = clean(objItem.Vendor)
    system_uuid = objItem.UUID
 Next
+Echo("System UUID: " & system_uuid)
+Echo("System ID Num: " & clean(objItem.IdentifyingNumber))
+
+''''''''''''''''''''''
+' Neue system ID intelligent zusammenbasteln auch bei geklonten Maschinen
+''''''''''''''''''''''
+
+' 1. UUID aus Win32_ComputerSystemProduct
+On Error Resume Next
+Set colItems = objWMIService.ExecQuery("SELECT UUID FROM Win32_ComputerSystemProduct")
+For Each objItem In colItems
+    strUUID = Trim(objItem.UUID)
+Next
+
+' 2. BIOS Serial Number
+Set colItems = objWMIService.ExecQuery("SELECT SerialNumber FROM Win32_BIOS")
+For Each objItem In colItems
+    strBIOS = Trim(objItem.SerialNumber)
+Next
+
+' 3. Baseboard Serial Number
+Set colItems = objWMIService.ExecQuery("SELECT SerialNumber FROM Win32_BaseBoard")
+For Each objItem In colItems
+    strBoard = Trim(objItem.SerialNumber)
+Next
+
+' 4. MAC-Adresse der ersten aktiven Netzwerkkarte
+Set colItems = objWMIService.ExecQuery("SELECT MACAddress, IPEnabled FROM Win32_NetworkAdapterConfiguration WHERE MACAddress IS NOT NULL AND IPEnabled = True")
+For Each objItem In colItems
+    If Len(strMAC) = 0 Then strMAC = Trim(objItem.MACAddress)
+Next
+On Error GoTo 0
+
+' Zusammensetzen der ID
+  systemID = strUUID & "-" & strBIOS & "-" & strBoard & "-" & strMAC
+  system_uuid = systemID
+
+' Ausgabe
+Echo("Unique System Identifikation:" & systemID)
 
 Echo("PC name supplied: " & strComputer)
 Echo("PC name from WMI: " & system_name)
 full_system_name = LCase(system_name) & "." & LCase(domain)
 Echo("User executing this script: " & user_name)
-Echo("System UUID: " & system_uuid)
 ns_ip = NSlookup(system_name)
 Echo("IP: " & ns_ip)
 if online = "p" then

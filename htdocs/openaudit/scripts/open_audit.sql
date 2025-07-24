@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS `odbc`;
 CREATE TABLE `odbc` (
   `odbc_id` int(10) unsigned NOT NULL auto_increment,
-  `odbc_uuid` varchar(100) NOT NULL default '',
+  `odbc_uuid` varchar(255) NOT NULL default '',
   `odbc_dsn` varchar(200) NOT NULL default '',
   `odbc_config` varchar(3000) NOT NULL default '',
   `odbc_timestamp` bigint(20) unsigned NOT NULL default '0',
@@ -56,7 +56,7 @@ CREATE TABLE `audit_configurations` (
   `audit_cfg_lin_url` VARCHAR(200) NOT NULL default '',
   `audit_cfg_win_sft` INT(10) UNSIGNED NOT NULL default '0',
   `audit_cfg_win_url` VARCHAR(200) NOT NULL default '',
-  `audit_cfg_win_uuid` VARCHAR(10) NOT NULL default '',
+  `audit_cfg_win_uuid` VARCHAR(255) NOT NULL default '',
   `audit_cfg_nmap_int` INT(10) UNSIGNED NOT NULL default '0',
   `audit_cfg_nmap_srv` INT(10) UNSIGNED NOT NULL default '0',
   `audit_cfg_nmap_udp` INT(10) UNSIGNED NOT NULL default '0',
@@ -158,7 +158,7 @@ CREATE TABLE `auth` (
 DROP TABLE IF EXISTS `auto_updating`;
 CREATE TABLE `auto_updating` (
   `au_id` int(10) unsigned NOT NULL auto_increment,
-  `au_uuid` varchar(100) NOT NULL default '',
+  `au_uuid` varchar(255) NOT NULL default '',
   `au_gpo_configured` varchar(10) NOT NULL default '',
   `au_enabled` varchar(10) NOT NULL default '',
   `au_behaviour` varchar(100) NOT NULL default '',
@@ -183,7 +183,7 @@ CREATE TABLE `auto_updating` (
 DROP TABLE IF EXISTS `battery`;
 CREATE TABLE `battery` (
   `battery_id` int(10) unsigned NOT NULL auto_increment,
-  `battery_uuid` varchar(100) NOT NULL default '',
+  `battery_uuid` varchar(255) NOT NULL default '',
   `battery_description` varchar(100) NOT NULL default '',
   `battery_device_id` varchar(100) NOT NULL default '',
   `battery_timestamp` bigint(20) unsigned NOT NULL default '0',
@@ -196,7 +196,7 @@ CREATE TABLE `battery` (
 DROP TABLE IF EXISTS `bios`;
 CREATE TABLE `bios` (
   `bios_id` int(10) unsigned NOT NULL auto_increment,
-  `bios_uuid` varchar(100) NOT NULL default '',
+  `bios_uuid` varchar(255) NOT NULL default '',
   `bios_description` varchar(200) NOT NULL default '',
   `bios_manufacturer` varchar(200) NOT NULL default '',
   `bios_serial_number` varchar(100) NOT NULL default '',
@@ -213,7 +213,7 @@ CREATE TABLE `bios` (
 DROP TABLE IF EXISTS `browser_helper_objects`;
 CREATE TABLE `browser_helper_objects` (
   `bho_id` int(10) unsigned NOT NULL auto_increment,
-  `bho_uuid` varchar(100) NOT NULL default '',
+  `bho_uuid` varchar(255) NOT NULL default '',
   `bho_code_base` varchar(250) NOT NULL default '',
   `bho_status` varchar(45) NOT NULL default '',
   `bho_program_file` varchar(100) NOT NULL default '',
@@ -234,7 +234,7 @@ CREATE TABLE `config` (
 DROP TABLE IF EXISTS `environment_variable`;
 CREATE TABLE `environment_variable` (
   `env_var_id` INT( 10 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `env_var_uuid` VARCHAR( 100 ) NOT NULL DEFAULT '',
+  `env_var_uuid` varchar(255) NOT NULL DEFAULT '',
   `env_var_name` VARCHAR( 50 ) NOT NULL DEFAULT '',
   `env_var_value` VARCHAR( 250 ) NOT NULL DEFAULT '',
   `env_var_timestamp` BIGINT( 20 ) UNSIGNED NOT NULL DEFAULT '0',
@@ -247,7 +247,7 @@ CREATE TABLE `environment_variable` (
 DROP TABLE IF EXISTS `event_log`;
 CREATE TABLE `event_log` (
   `evt_log_id` INT( 10 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `evt_log_uuid` VARCHAR( 100 ) NOT NULL DEFAULT '',
+  `evt_log_uuid` varchar(255) NOT NULL DEFAULT '',
   `evt_log_name` VARCHAR( 50 ) NOT NULL DEFAULT '',
   `evt_log_file_name` VARCHAR( 100 ) NOT NULL DEFAULT '',
   `evt_log_file_size` INT( 11 ) NOT NULL DEFAULT '0',
@@ -263,7 +263,7 @@ CREATE TABLE `event_log` (
 DROP TABLE IF EXISTS `firewall_auth_app`;
 CREATE TABLE `firewall_auth_app` (
   `firewall_app_id` int(10) unsigned NOT NULL auto_increment,
-  `firewall_app_uuid` varchar(100) NOT NULL default '',
+  `firewall_app_uuid` varchar(255) NOT NULL default '',
   `firewall_app_name` varchar(100) NOT NULL default '',
   `firewall_app_executable` varchar(200) NOT NULL default '',
   `firewall_app_remote_address` varchar(45) NOT NULL default '',
@@ -279,7 +279,7 @@ CREATE TABLE `firewall_auth_app` (
 DROP TABLE IF EXISTS `firewall_ports`;
 CREATE TABLE `firewall_ports` (
   `port_id` int(10) unsigned NOT NULL auto_increment,
-  `port_uuid` varchar(100) NOT NULL default '',
+  `port_uuid` varchar(255) NOT NULL default '',
   `port_number` int(10) unsigned NOT NULL default '0',
   `port_protocol` varchar(45) NOT NULL default '',
   `port_scope` varchar(45) NOT NULL default '',
@@ -295,7 +295,7 @@ CREATE TABLE `firewall_ports` (
 DROP TABLE IF EXISTS `firewire`;
 CREATE TABLE `firewire` (
   `fw_id` int(10) unsigned NOT NULL auto_increment,
-  `fw_uuid` varchar(100) NOT NULL default '',
+  `fw_uuid` varchar(255) NOT NULL default '',
   `fx_description` varchar(200) NOT NULL default '',
   `fw_manufacturer` varchar(100) NOT NULL default '',
   `fw_caption` varchar(200) NOT NULL default '',
@@ -309,7 +309,7 @@ CREATE TABLE `firewire` (
 DROP TABLE IF EXISTS `floppy`;
 CREATE TABLE `floppy` (
   `floppy_id` int(10) unsigned NOT NULL auto_increment,
-  `floppy_uuid` varchar(100) NOT NULL default '',
+  `floppy_uuid` varchar(255) NOT NULL default '',
   `floppy_description` varchar(100) NOT NULL default '',
   `floppy_device_id` varchar(100) NOT NULL default '',
   `floppy_manufacturer` varchar(100) NOT NULL default '',
@@ -324,7 +324,7 @@ CREATE TABLE `floppy` (
 DROP TABLE IF EXISTS `graphs_disk`;
 CREATE TABLE `graphs_disk` (
   `disk_id` int(10) unsigned NOT NULL auto_increment,
-  `disk_uuid` varchar(100) NOT NULL default '',
+  `disk_uuid` varchar(255) NOT NULL default '',
   `disk_timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   `disk_letter` varchar(4) NOT NULL default '',
   `disk_percent` varchar(3) NOT NULL default '',
@@ -336,7 +336,7 @@ CREATE TABLE `graphs_disk` (
 DROP TABLE IF EXISTS `group_members`;
 CREATE TABLE `group_members` (
   `group_id` int(10) unsigned NOT NULL auto_increment,
-  `group_uuid` varchar(100) NOT NULL default '',
+  `group_uuid` varchar(255) NOT NULL default '',
   `group_uuid_type` varchar(10) NOT NULL default '',
   `group_names_id` int(11) unsigned NOT NULL default '0',
   PRIMARY KEY  (`group_id`),
@@ -354,7 +354,7 @@ CREATE TABLE `group_names` (
 DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
   `groups_id` int(10) unsigned NOT NULL auto_increment,
-  `groups_uuid` varchar(100) NOT NULL default '',
+  `groups_uuid` varchar(255) NOT NULL default '',
   `groups_description` varchar(200) NOT NULL default '',
   `groups_name` varchar(100) NOT NULL default '',
   `groups_members` varchar(255) NOT NULL default '',
@@ -376,7 +376,7 @@ CREATE TABLE `groups_details` (
 DROP TABLE IF EXISTS `hard_drive`;
 CREATE TABLE `hard_drive` (
   `hard_drive_id` int(10) unsigned NOT NULL auto_increment,
-  `hard_drive_uuid` varchar(100) NOT NULL default '',
+  `hard_drive_uuid` varchar(255) NOT NULL default '',
   `hard_drive_caption` varchar(100) NOT NULL default '',
   `hard_drive_index` int(11) unsigned NOT NULL default '0',
   `hard_drive_interface_type` varchar(10) NOT NULL default '',
@@ -400,7 +400,7 @@ CREATE TABLE `hard_drive` (
 DROP TABLE IF EXISTS `iis`;
 CREATE TABLE `iis` (
   `iis_id` int(10) unsigned NOT NULL auto_increment,
-  `iis_uuid` varchar(100) NOT NULL default '',
+  `iis_uuid` varchar(255) NOT NULL default '',
   `iis_site` int(10) unsigned NOT NULL default '0',
   `iis_description` varchar(100) NOT NULL default '',
   `iis_logging_enabled` varchar(100) NOT NULL default '',
@@ -430,7 +430,7 @@ CREATE TABLE `iis` (
 DROP TABLE IF EXISTS `iis_ip`;
 CREATE TABLE `iis_ip` (
   `iis_ip_id` int(10) unsigned NOT NULL auto_increment,
-  `iis_ip_uuid` varchar(100) NOT NULL default '',
+  `iis_ip_uuid` varchar(255) NOT NULL default '',
   `iis_ip_site` varchar(100) NOT NULL default '',
   `iis_ip_ip_address` varchar(100) NOT NULL default '',
   `iis_ip_port` varchar(100) NOT NULL default '',
@@ -445,7 +445,7 @@ CREATE TABLE `iis_ip` (
 DROP TABLE IF EXISTS `iis_vd`;
 CREATE TABLE `iis_vd` (
   `iis_vd_id` int(10) unsigned NOT NULL auto_increment,
-  `iis_vd_uuid` varchar(100) NOT NULL default '',
+  `iis_vd_uuid` varchar(255) NOT NULL default '',
   `iis_vd_site` varchar(100) NOT NULL default '',
   `iis_vd_name` varchar(100) NOT NULL default '',
   `iis_vd_path` varchar(100) NOT NULL default '',
@@ -459,7 +459,7 @@ CREATE TABLE `iis_vd` (
 DROP TABLE IF EXISTS `iis_web_ext`;
 CREATE TABLE `iis_web_ext` (
   `iis_web_ext_id` int(10) unsigned NOT NULL auto_increment,
-  `iis_web_ext_uuid` varchar(100) NOT NULL default '',
+  `iis_web_ext_uuid` varchar(255) NOT NULL default '',
   `iis_web_ext_path` varchar(100) NOT NULL default '',
   `iis_web_ext_desc` varchar(100) NOT NULL default '',
   `iis_web_ext_access` varchar(20) NOT NULL default '',
@@ -473,7 +473,7 @@ CREATE TABLE `iis_web_ext` (
 DROP TABLE IF EXISTS `invoice`;
 CREATE TABLE `invoice` (
   `invoice_id` int(10) unsigned NOT NULL auto_increment,
-  `invoice_uuid` varchar(100) NOT NULL default '',
+  `invoice_uuid` varchar(255) NOT NULL default '',
   `invoice_filename` varchar(100) NOT NULL default '',
   `invoice_image` blob,
   PRIMARY KEY  (`invoice_id`),
@@ -483,7 +483,7 @@ CREATE TABLE `invoice` (
 DROP TABLE IF EXISTS `ip_route`;
 CREATE TABLE `ip_route` (
   `ip_route_id` INT( 10 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `ip_route_uuid` VARCHAR( 100 ) NOT NULL DEFAULT '',
+  `ip_route_uuid` varchar(255) NOT NULL DEFAULT '',
   `ip_route_destination` VARCHAR( 20 ) NOT NULL DEFAULT '',
   `ip_route_mask` VARCHAR( 20 ) NOT NULL DEFAULT '',
   `ip_route_metric` VARCHAR( 10 ) NOT NULL DEFAULT '',
@@ -500,7 +500,7 @@ CREATE TABLE `ip_route` (
 DROP TABLE IF EXISTS `keyboard`;
 CREATE TABLE `keyboard` (
   `keyboard_id` int(10) unsigned NOT NULL auto_increment,
-  `keyboard_uuid` varchar(100) NOT NULL default '',
+  `keyboard_uuid` varchar(255) NOT NULL default '',
   `keyboard_description` varchar(100) NOT NULL default '',
   `keyboard_caption` varchar(100) NOT NULL default '',
   `keyboard_connection` varchar(45) NOT NULL default '',
@@ -658,7 +658,7 @@ CREATE TABLE `manual_software` (
   `man_soft_id` int(10) unsigned NOT NULL auto_increment,
   `man_soft_det_id` int(10) unsigned NOT NULL default '0',
   `man_soft_version` varchar(45) NOT NULL default '',
-  `man_soft_uuid` varchar(100) NOT NULL default '',
+  `man_soft_uuid` varchar(255) NOT NULL default '',
   `man_soft_filesize` int(10) unsigned NOT NULL default '0',
   `man_soft_date_detected` date NOT NULL default '0000-00-00',
   `man_soft_date_first_detected` date NOT NULL default '0000-00-00',
@@ -678,7 +678,7 @@ CREATE TABLE `manual_software_detection` (
 DROP TABLE IF EXISTS `mapped`;
 CREATE TABLE `mapped` (
   `mapped_id` int(10) unsigned NOT NULL auto_increment,
-  `mapped_uuid` varchar(100) NOT NULL default '',
+  `mapped_uuid` varchar(255) NOT NULL default '',
   `mapped_device_id` varchar(100) NOT NULL default '',
   `mapped_file_system` varchar(100) NOT NULL default '',
   `mapped_provider_name` varchar(100) NOT NULL default '',
@@ -696,7 +696,7 @@ CREATE TABLE `mapped` (
 DROP TABLE IF EXISTS `media`;
 CREATE TABLE `media` (
   `media_id` int(10) unsigned NOT NULL auto_increment,
-  `media_uuid` varchar(100) NOT NULL default '',
+  `media_uuid` varchar(255) NOT NULL default '',
   `media_type` varchar(45) NOT NULL default '',
   `media_file` varchar(250) NOT NULL default '',
   `media_size` int(10) unsigned NOT NULL default '0',
@@ -709,7 +709,7 @@ CREATE TABLE `media` (
 DROP TABLE IF EXISTS `memory`;
 CREATE TABLE `memory` (
   `memory_id` int(10) unsigned NOT NULL auto_increment,
-  `memory_uuid` varchar(100) NOT NULL default '',
+  `memory_uuid` varchar(255) NOT NULL default '',
   `memory_bank` varchar(45) NOT NULL default '',
   `memory_type` varchar(45) NOT NULL default '',
   `memory_form_factor` varchar(45) NOT NULL default '',
@@ -727,7 +727,7 @@ CREATE TABLE `memory` (
 DROP TABLE IF EXISTS `modem`;
 CREATE TABLE `modem` (
   `modem_id` int(10) unsigned NOT NULL auto_increment,
-  `modem_uuid` varchar(100) NOT NULL default '',
+  `modem_uuid` varchar(255) NOT NULL default '',
   `modem_attached_to` varchar(100) NOT NULL default '',
   `modem_country_selected` varchar(100) NOT NULL default '',
   `modem_description` varchar(100) NOT NULL default '',
@@ -743,7 +743,7 @@ CREATE TABLE `modem` (
 DROP TABLE IF EXISTS `monitor`;
 CREATE TABLE `monitor` (
   `monitor_id` int(10) unsigned NOT NULL auto_increment,
-  `monitor_uuid` varchar(100) NOT NULL default '',
+  `monitor_uuid` varchar(255) NOT NULL default '',
   `monitor_manufacturer` varchar(45) NOT NULL default '',
   `monitor_deviceid` varchar(45) NOT NULL default '',
   `monitor_manufacture_date` varchar(45) NOT NULL default '',
@@ -764,7 +764,7 @@ CREATE TABLE `monitor` (
 DROP TABLE IF EXISTS `motherboard`;
 CREATE TABLE `motherboard` (
   `motherboard_id` INT( 10 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `motherboard_uuid` VARCHAR( 100 ) NOT NULL DEFAULT '',
+  `motherboard_uuid` varchar(255) NOT NULL DEFAULT '',
   `motherboard_manufacturer` VARCHAR( 50 ) NOT NULL DEFAULT '',
   `motherboard_product` VARCHAR( 50 ) NOT NULL DEFAULT '',
   `motherboard_cpu_sockets` INT( 10 ) NOT NULL DEFAULT '0',
@@ -779,7 +779,7 @@ CREATE TABLE `motherboard` (
 DROP TABLE IF EXISTS `mouse`;
 CREATE TABLE `mouse` (
   `mouse_id` int(10) unsigned NOT NULL auto_increment,
-  `mouse_uuid` varchar(100) NOT NULL default '',
+  `mouse_uuid` varchar(255) NOT NULL default '',
   `mouse_description` varchar(100) NOT NULL default '',
   `mouse_number_of_buttons` varchar(45) NOT NULL default '',
   `mouse_device_id` varchar(100) NOT NULL default '',
@@ -795,7 +795,7 @@ CREATE TABLE `mouse` (
 DROP TABLE IF EXISTS `ms_keys`;
 CREATE TABLE `ms_keys` (
   `ms_keys_id` int(10) unsigned NOT NULL auto_increment,
-  `ms_keys_uuid` varchar(100) NOT NULL default '',
+  `ms_keys_uuid` varchar(255) NOT NULL default '',
   `ms_keys_name` varchar(80) NOT NULL default '',
   `ms_keys_cd_key` varchar(45) NOT NULL default '',
   `ms_keys_release` varchar(45) NOT NULL default '',
@@ -812,7 +812,7 @@ DROP TABLE IF EXISTS `network_card`;
 CREATE TABLE `network_card` (
       `net_id` int(10) unsigned NOT NULL auto_increment,
       `net_mac_address` varchar(17) NOT NULL default '',
-      `net_uuid` varchar(100) NOT NULL default '',
+      `net_uuid` varchar(255) NOT NULL default '',
       `net_ip_enabled` varchar(10) NOT NULL default '',
       `net_index` varchar(10) NOT NULL default '',
       `net_service_name` varchar(30) NOT NULL default '',
@@ -881,7 +881,7 @@ CREATE TABLE `nmap_ports` (
 DROP TABLE IF EXISTS `notes`;
 CREATE TABLE `notes` (
   `notes_id` int(10) unsigned NOT NULL auto_increment,
-  `notes_uuid` varchar(100) NOT NULL default '',
+  `notes_uuid` varchar(255) NOT NULL default '',
   `notes_notes` varchar(200) NOT NULL default '',
   PRIMARY KEY  (`notes_id`),
   KEY `id` (`notes_uuid`)
@@ -890,7 +890,7 @@ CREATE TABLE `notes` (
 DROP TABLE IF EXISTS `onboard_device`;
 CREATE TABLE `onboard_device` (
   `onboard_id` INT( 10 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `onboard_uuid` VARCHAR( 100 ) NOT NULL DEFAULT '',
+  `onboard_uuid` varchar(255) NOT NULL DEFAULT '',
   `onboard_description` VARCHAR( 50 ) NOT NULL DEFAULT '',
   `onboard_type` VARCHAR( 20 ) NOT NULL DEFAULT '',
   `onboard_timestamp` BIGINT( 20 ) UNSIGNED NOT NULL DEFAULT '0',
@@ -903,7 +903,7 @@ CREATE TABLE `onboard_device` (
 DROP TABLE IF EXISTS `optical_drive`;
 CREATE TABLE `optical_drive` (
   `optical_drive_id` int(10) unsigned NOT NULL auto_increment,
-  `optical_drive_uuid` varchar(100) NOT NULL default '',
+  `optical_drive_uuid` varchar(255) NOT NULL default '',
   `optical_drive_caption` varchar(100) NOT NULL default '',
   `optical_drive_device_id` varchar(100) NOT NULL default '',
   `optical_drive_drive` varchar(10) NOT NULL default '',
@@ -945,7 +945,7 @@ CREATE TABLE `other` (
 DROP TABLE IF EXISTS `pagefile`;
 CREATE TABLE `pagefile` (
   `pagefile_id` INT( 10 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `pagefile_uuid` VARCHAR( 100 ) NOT NULL DEFAULT '',
+  `pagefile_uuid` varchar(255) NOT NULL DEFAULT '',
   `pagefile_name` VARCHAR( 100 ) NOT NULL DEFAULT '',
   `pagefile_initial_size` INT( 11 ) NOT NULL DEFAULT '0',
   `pagefile_max_size` INT( 11 ) NOT NULL DEFAULT '0',
@@ -959,7 +959,7 @@ CREATE TABLE `pagefile` (
 DROP TABLE IF EXISTS `partition`;
 CREATE TABLE `partition` (
   `partition_id` int(10) unsigned NOT NULL auto_increment,
-  `partition_uuid` varchar(100) NOT NULL default '',
+  `partition_uuid` varchar(255) NOT NULL default '',
   `partition_bootable` varchar(10) NOT NULL default '',
   `partition_boot_partition` varchar(10) NOT NULL default '',
   `partition_device_id` varchar(100) NOT NULL default '',
@@ -984,7 +984,7 @@ CREATE TABLE `partition` (
 DROP TABLE IF EXISTS `passwords`;
 CREATE TABLE `passwords` (
   `passwords_id` int(10) unsigned NOT NULL auto_increment,
-  `passwords_uuid` varchar(100) NOT NULL default '',
+  `passwords_uuid` varchar(255) NOT NULL default '',
   `passwords_application` varchar(100) NOT NULL default '',
   `passwords_password` varchar(100) NOT NULL default '',
   `passwords_user` varchar(100) NOT NULL default '',
@@ -995,7 +995,7 @@ CREATE TABLE `passwords` (
 DROP TABLE IF EXISTS `processor`;
 CREATE TABLE `processor` (
   `processor_id` int(10) unsigned NOT NULL auto_increment,
-  `processor_uuid` varchar(100) NOT NULL default '',
+  `processor_uuid` varchar(255) NOT NULL default '',
   `processor_caption` varchar(100) NOT NULL default '',
   `processor_device_id` varchar(100) NOT NULL default '',
   `processor_manufacturer` varchar(100) NOT NULL default '',
@@ -1016,7 +1016,7 @@ CREATE TABLE `processor` (
 DROP TABLE IF EXISTS `scan_type`;
 CREATE TABLE `scan_type` (
       `scan_type_id` int  NOT NULL AUTO_INCREMENT,
-      `scan_type_uuid` varchar(100)  NOT NULL,
+      `scan_type_uuid` varchar(255)  NOT NULL,
       `scan_type_ip_address` varchar(16)  NOT NULL,
       `scan_type` varchar(10)  NOT NULL,
       `scan_type_detail` VARCHAR(100)  NOT NULL,
@@ -1027,7 +1027,7 @@ CREATE TABLE `scan_type` (
 DROP TABLE IF EXISTS `scan_log`;
 CREATE TABLE `scan_log` (
       `scan_log_id` int  NOT NULL AUTO_INCREMENT,
-      `scan_log_uuid` varchar(100)  NOT NULL,
+      `scan_log_uuid` varchar(255)  NOT NULL,
       `scan_log_ip_address` varchar(16)  NOT NULL,
       `scan_log_type` varchar(10)  NOT NULL,
       `scan_log_detail` VARCHAR(100)  NOT NULL,
@@ -1041,7 +1041,7 @@ CREATE TABLE `scan_log` (
 DROP TABLE IF EXISTS `scan_latest`;
 CREATE TABLE `scan_latest` (
       `scan_latest_id` int  NOT NULL AUTO_INCREMENT,
-      `scan_latest_uuid` varchar(100)  NOT NULL,
+      `scan_latest_uuid` varchar(255)  NOT NULL,
       `scan_latest_ip_address` varchar(16)  NOT NULL,
       `scan_latest_type` varchar(10)  NOT NULL,
       `scan_latest_detail` VARCHAR(100)  NOT NULL,
@@ -1055,7 +1055,7 @@ CREATE TABLE `scan_latest` (
 DROP TABLE IF EXISTS `scheduled_task`;
 CREATE TABLE `scheduled_task` (
   `sched_task_id` INT( 10 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `sched_task_uuid` VARCHAR( 100 ) NOT NULL DEFAULT '',
+  `sched_task_uuid` varchar(255) NOT NULL DEFAULT '',
   `sched_task_name` VARCHAR( 100 ) NOT NULL DEFAULT '',
   `sched_task_next_run` VARCHAR( 50 ) NOT NULL DEFAULT '',
   `sched_task_status` VARCHAR( 50 ) NOT NULL DEFAULT '',
@@ -1089,7 +1089,7 @@ CREATE TABLE `scsi_controller` (
 DROP TABLE IF EXISTS `scsi_device`;
 CREATE TABLE `scsi_device` (
   `scsi_device_id` int(10) unsigned NOT NULL auto_increment,
-  `scsi_device_uuid` varchar(100) NOT NULL default '',
+  `scsi_device_uuid` varchar(255) NOT NULL default '',
   `scsi_device_controller` varchar(200) NOT NULL default '',
   `scsi_device_device` varchar(200) NOT NULL default '',
   `scsi_device_timestamp` bigint(20) unsigned NOT NULL default '0',
@@ -1101,7 +1101,7 @@ CREATE TABLE `scsi_device` (
 DROP TABLE IF EXISTS `service`;
 CREATE TABLE `service` (
   `service_id` int(10) unsigned NOT NULL auto_increment,
-  `service_uuid` varchar(100) NOT NULL default '',
+  `service_uuid` varchar(255) NOT NULL default '',
   `service_display_name` varchar(100) NOT NULL default '',
   `service_name` varchar(100) NOT NULL default '',
   `service_path_name` varchar(200) NOT NULL default '',
@@ -1127,7 +1127,7 @@ CREATE TABLE `service_details` (
 DROP TABLE IF EXISTS `shares`;
 CREATE TABLE `shares` (
   `shares_id` int(10) unsigned NOT NULL auto_increment,
-  `shares_uuid` varchar(100) NOT NULL default '',
+  `shares_uuid` varchar(255) NOT NULL default '',
   `shares_caption` varchar(100) NOT NULL default '',
   `shares_name` varchar(100) NOT NULL default '',
   `shares_path` varchar(100) NOT NULL default '',
@@ -1157,7 +1157,7 @@ CREATE TABLE `smtp_connection` (
 DROP TABLE IF EXISTS `software`;
 CREATE TABLE `software` (
   `software_id` int(10) unsigned NOT NULL auto_increment,
-  `software_uuid` varchar(100) NOT NULL default '',
+  `software_uuid` varchar(255) NOT NULL default '',
   `software_name` varchar(255) NOT NULL default '',
   `software_version` varchar(50) NOT NULL default '',
   `software_location` varchar(200) NOT NULL default '',
@@ -1181,7 +1181,7 @@ CREATE TABLE `software` (
 DROP TABLE IF EXISTS `softwapps`;
 CREATE TABLE `softwapps` (
   `software_id` int(10) unsigned NOT NULL auto_increment,
-  `software_uuid` varchar(100) NOT NULL default '',
+  `software_uuid` varchar(255) NOT NULL default '',
   `software_name` varchar(255) NOT NULL default '',
   `software_version` varchar(50) NOT NULL default '',
   `software_location` varchar(200) NOT NULL default '',
@@ -1265,7 +1265,7 @@ CREATE TABLE `software_register` (
 DROP TABLE IF EXISTS `sound`;
 CREATE TABLE `sound` (
   `sound_id` int(10) unsigned NOT NULL auto_increment,
-  `sound_uuid` varchar(100) NOT NULL default '',
+  `sound_uuid` varchar(255) NOT NULL default '',
   `sound_manufacturer` varchar(100) NOT NULL default '',
   `sound_device_id` varchar(100) NOT NULL default '',
   `sound_name` varchar(100) NOT NULL default '',
@@ -1279,7 +1279,7 @@ CREATE TABLE `sound` (
 DROP TABLE IF EXISTS `spare`;
 CREATE TABLE `spare` (
   `spare_id` int(10) unsigned NOT NULL auto_increment,
-  `spare_uuid` varchar(100) NOT NULL default '',
+  `spare_uuid` varchar(255) NOT NULL default '',
   `spare_field_1` varchar(45) NOT NULL default '',
   `spare_field_2` varchar(100) NOT NULL default '',
   `spare_field_3` varchar(200) NOT NULL default '',
@@ -1294,7 +1294,7 @@ CREATE TABLE `spare` (
 DROP TABLE IF EXISTS `startup`;
 CREATE TABLE `startup` (
   `startup_id` int(10) unsigned NOT NULL auto_increment,
-  `startup_uuid` varchar(100) NOT NULL default '',
+  `startup_uuid` varchar(255) NOT NULL default '',
   `startup_caption` varchar(200) NOT NULL default '',
   `startup_name` varchar(100) NOT NULL default '',
   `startup_command` varchar(200) NOT NULL default '',
@@ -1326,7 +1326,7 @@ CREATE TABLE `system` (
   `system_memory` int(11) unsigned NOT NULL default '0',
   `system_build_number` varchar(20) NOT NULL default '',
   `net_ip_address` varchar(20) NOT NULL default '',
-  `system_uuid` varchar(100) NOT NULL default '',
+  `system_uuid` varchar(255) NOT NULL default '',
   `net_domain` varchar(100) NOT NULL default '',
   `net_user_name` varchar(100) NOT NULL default '',
   `net_client_site_name` varchar(100) NOT NULL default '',
@@ -1385,7 +1385,7 @@ CREATE TABLE `system` (
 DROP TABLE IF EXISTS `system_audits`;
 CREATE TABLE `system_audits` (
   `system_audits_id` int(10) unsigned NOT NULL auto_increment,
-  `system_audits_uuid` varchar(100) NOT NULL default '',
+  `system_audits_uuid` varchar(255) NOT NULL default '',
   `system_audits_username` varchar(45) NOT NULL default '',
   `system_audits_time` varchar(45) NOT NULL default '',
   `system_audits_timestamp` bigint(20) unsigned NOT NULL default '0',
@@ -1397,7 +1397,7 @@ DROP TABLE IF EXISTS `system_change`;
 CREATE TABLE `system_change` (
   `system_change_id` int(10) unsigned NOT NULL auto_increment,
   `system_change_date` datetime NOT NULL default '0000-00-00 00:00:00',
-  `system_change_uuid` varchar(100) NOT NULL default '',
+  `system_change_uuid` varchar(255) NOT NULL default '',
   `system_change_short_desc` varchar(200) NOT NULL default '',
   `system_change_detailed_desc` varchar(200) NOT NULL default '',
   `system_change_authorising_person` varchar(45) NOT NULL default '',
@@ -1424,7 +1424,7 @@ CREATE TABLE `system_change_log` (
 DROP TABLE IF EXISTS `system_man`;
 CREATE TABLE `system_man` (
   `system_man_id` int(10) unsigned NOT NULL auto_increment,
-  `system_man_uuid` varchar(100) NOT NULL default '',
+  `system_man_uuid` varchar(255) NOT NULL default '',
   `system_man_value` varchar(50) NOT NULL default '',
   `system_man_description` varchar(100) NOT NULL default '',
   `system_man_location` varchar(100) NOT NULL default '',
@@ -1467,7 +1467,7 @@ CREATE TABLE `system_security_bulletins` (
 DROP TABLE IF EXISTS `tape_drive`;
 CREATE TABLE `tape_drive` (
   `tape_drive_id` int(10) unsigned NOT NULL auto_increment,
-  `tape_drive_uuid` varchar(100) NOT NULL default '',
+  `tape_drive_uuid` varchar(255) NOT NULL default '',
   `tape_drive_caption` varchar(100) NOT NULL default '',
   `tape_drive_description` varchar(100) NOT NULL default '',
   `tape_drive_device_id` varchar(100) NOT NULL default '',
@@ -1483,7 +1483,7 @@ CREATE TABLE `tape_drive` (
 DROP TABLE IF EXISTS `usb`;
 CREATE TABLE `usb` (
   `usb_id` int(10) unsigned NOT NULL auto_increment,
-  `usb_uuid` varchar(100) NOT NULL default '',
+  `usb_uuid` varchar(255) NOT NULL default '',
   `usb_caption` varchar(100) NOT NULL default '',
   `usb_description` varchar(100) NOT NULL default '',
   `usb_manufacturer` varchar(100) NOT NULL default '',
@@ -1498,7 +1498,7 @@ CREATE TABLE `usb` (
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `users_id` int(10) unsigned NOT NULL auto_increment,
-  `users_uuid` varchar(100) NOT NULL default '',
+  `users_uuid` varchar(255) NOT NULL default '',
   `users_disabled` varchar(20) NOT NULL default '',
   `users_full_name` varchar(100) NOT NULL default '',
   `users_name` varchar(100) NOT NULL default '',
@@ -1524,7 +1524,7 @@ CREATE TABLE `users_detail` (
 DROP TABLE IF EXISTS `optionalfeatures`;
 CREATE TABLE `optionalfeatures` (
   `opt_id` int(10) unsigned NOT NULL auto_increment,
-  `opt_uuid` varchar(100) NOT NULL default '',
+  `opt_uuid` varchar(255) NOT NULL default '',
   `caption` varchar(100) NOT NULL default '',
   `name` varchar(100) NOT NULL default '',
   PRIMARY KEY  (`opt_id`)
@@ -1533,7 +1533,7 @@ CREATE TABLE `optionalfeatures` (
 DROP TABLE IF EXISTS `video`;
 CREATE TABLE `video` (
   `video_id` int(10) unsigned NOT NULL auto_increment,
-  `video_uuid` varchar(100) NOT NULL default '',
+  `video_uuid` varchar(255) NOT NULL default '',
   `video_adapter_ram` varchar(100) NOT NULL default '',
   `video_caption` varchar(100) NOT NULL default '',
   `video_current_horizontal_res` varchar(20) NOT NULL default '',
