@@ -1025,28 +1025,33 @@ entry form_input,comment,objTextFile,oAdd,oComment
 ''''''''''''''''''''''''''''''''''''''''''''''''''''
 comment = "System Information"
 Echo(comment)
+
 On Error Resume Next
+
+' Arbeitsspeicher ermitteln
 Set colItems = objWMIService.ExecQuery("Select * from Win32_LogicalMemoryConfiguration",,48)
 mem_count = 0
 For Each objItem in colItems
    mem_count = mem_count + objItem.Capacity
 Next
-if mem_count > 0 then
-   mem_size = int(mem_count /1024 /1024)
-else
+
+If mem_count > 0 Then
+   mem_size = Int(mem_count /1024 /1024)
+Else
    Set colItems = objWMIService.ExecQuery("Select * from Win32_LogicalMemoryConfiguration",,48)
    For Each objItem in colItems
       mem_size = objItem.TotalPhysicalMemory
    Next
-   If isempty(mem_size) Then
+   If IsEmpty(mem_size) Then
        Set colItems = objWMIService.ExecQuery("Select * from Win32_OperatingSystem",,48)
        For Each objItem in colItems
          mem_size = objItem.TotalVisibleMemorySize
        Next
    End If
-   mem_size = int(mem_size /1024)
-end if
+   mem_size = Int(mem_size /1024)
+End If
 
+' Systeminformationen sammeln
 Set colItems = objWMIService.ExecQuery("Select * from Win32_ComputerSystem",,48)
 For Each objItem in colItems
    system_model = clean(objItem.Model)
@@ -1055,69 +1060,85 @@ For Each objItem in colItems
    system_part_of_domain = clean(objItem.PartOfDomain)
    system_primary_owner_name = clean(objItem.PrimaryOwnerName)
    domain_role = clean(objItem.DomainRole)
-Next
-if domain_role = "0" then domain_role_text = "Standalone Workstation" end if
-if domain_role = "1" then domain_role_text = "Workstation" end if
-if domain_role = "2" then domain_role_text = "Standalone Server" end if
-if domain_role = "3" then domain_role_text = "Member Server" end if
-if domain_role = "4" then domain_role_text = "Backup Domain Controller" end if
-if domain_role = "5" then domain_role_text = "Primary Domain Controller" end if
 
-Set colItems = objWMIService.ExecQuery("Select * from Win32_SystemEnclosure",,48)
-For Each objItem in colItems
-   system_system_type = Join(objItem.ChassisTypes, ",")
+   ' VM-Erkennung vorbereiten
+   manufacturer = LCase(Trim(objItem.Manufacturer))
+   model = LCase(Trim(objItem.Model))
 Next
 
-' Zeitzone
+' Domain Role in Text umwandeln
+If domain_role = "0" Then domain_role_text = "Standalone Workstation" End If
+If domain_role = "1" Then domain_role_text = "Workstation" End If
+If domain_role = "2" Then domain_role_text = "Standalone Server" End If
+If domain_role = "3" Then domain_role_text = "Member Server" End If
+If domain_role = "4" Then domain_role_text = "Backup Domain Controller" End If
+If domain_role = "5" Then domain_role_text = "Primary Domain Controller" End If
+
+' === VM-Erkennung ===
+If manufacturer = "microsoft corporation" And model = "virtual machine" Then
+    system_system_type = "VMH"
+ElseIf InStr(model, "vmware") > 0 Or InStr(manufacturer, "vmware") > 0 Then
+    system_system_type = "VMV"
+Else
+    ' ChassisType nur verwenden, wenn keine VM erkannt wurde
+    Set colItems = objWMIService.ExecQuery("Select * from Win32_SystemEnclosure",,48)
+    For Each objItem in colItems
+       system_system_type = Join(objItem.ChassisTypes, ",")
+    Next
+
+    ' ChassisType in Klartext umwandeln
+    If system_system_type = "1" Then system_system_type = "Other" End If
+    If system_system_type = "2" Then system_system_type = "Unknown" End If
+    If system_system_type = "3" Then system_system_type = "Desktop" End If
+    If system_system_type = "4" Then system_system_type = "Low Profile Desktop" End If
+    If system_system_type = "5" Then system_system_type = "Pizza Box" End If
+    If system_system_type = "6" Then system_system_type = "Mini Tower" End If
+    If system_system_type = "7" Then system_system_type = "Tower" End If
+    If system_system_type = "8" Then system_system_type = "Portable" End If
+    If system_system_type = "9" Then system_system_type = "Laptop" End If
+    If system_system_type = "10" Then system_system_type = "Notebook" End If
+    If system_system_type = "11" Then system_system_type = "Hand Held" End If
+    If system_system_type = "12" Then system_system_type = "Docking Station" End If
+    If system_system_type = "13" Then system_system_type = "All in One" End If
+    If system_system_type = "14" Then system_system_type = "Sub Notebook" End If
+    If system_system_type = "15" Then system_system_type = "Space-Saving" End If
+    If system_system_type = "16" Then system_system_type = "Lunch Box" End If
+    If system_system_type = "17" Then system_system_type = "Main System Chassis" End If
+    If system_system_type = "18" Then system_system_type = "Expansion Chassis" End If
+    If system_system_type = "19" Then system_system_type = "SubChassis" End If
+    If system_system_type = "20" Then system_system_type = "Bus Expansion Chassis" End If
+    If system_system_type = "21" Then system_system_type = "Peripheral Chassis" End If
+    If system_system_type = "22" Then system_system_type = "Storage Chassis" End If
+    If system_system_type = "23" Then system_system_type = "Rack Mount Chassis" End If
+    If system_system_type = "24" Then system_system_type = "Sealed-Case PC" End If
+    If system_system_type = "25" Then system_system_type = "Multi-system chassis" End If
+    If system_system_type = "26" Then system_system_type = "Compact PCI" End If
+    If system_system_type = "27" Then system_system_type = "Advanced TCA" End If
+    If system_system_type = "28" Then system_system_type = "Blade" End If
+    If system_system_type = "29" Then system_system_type = "Blade Enclosure" End If
+    If system_system_type = "30" Then system_system_type = "Tablet" End If
+    If system_system_type = "31" Then system_system_type = "Convertible" End If
+    If system_system_type = "32" Then system_system_type = "Detachable" End If
+    If system_system_type = "33" Then system_system_type = "IoT Gateway" End If
+    If system_system_type = "34" Then system_system_type = "Embedded PC" End If
+    If system_system_type = "35" Then system_system_type = "Mini PC" End If
+    If system_system_type = "36" Then system_system_type = "Stick PC" End If
+End If
+
+' Zeitzoneninformationen
 Set colItems = objWMIService.ExecQuery("Select * from Win32_TimeZone",,48)
 For Each objItem in colItems
   tm_zone = clean(objItem.Caption)
   tm_daylight = clean(objItem.DaylightName)
 Next
 
-' virtuelle und logische cores bekommen
+' Virtuelle und logische Prozessoren
 Set colItems = objWMIService.ExecQuery("Select * from Win32_Processor",,48)
 For Each objItem in colItems
    system_vcpu = clean(objItem.NumberOfCores)
    system_lcpu = clean(objItem.NumberOfLogicalProcessors)
 Next
 
-if system_system_type = "1" then system_system_type = "Other" end if
-if system_system_type = "2" then system_system_type = "Unknown" end if
-if system_system_type = "3" then system_system_type = "Desktop" end if
-if system_system_type = "4" then system_system_type = "Low Profile Desktop" end if
-if system_system_type = "5" then system_system_type = "Pizza Box" end if
-if system_system_type = "6" then system_system_type = "Mini Tower" end if
-if system_system_type = "7" then system_system_type = "Tower" end if
-if system_system_type = "8" then system_system_type = "Portable" end if
-if system_system_type = "9" then system_system_type = "Laptop" end if
-if system_system_type = "10" then system_system_type = "Notebook" end if
-if system_system_type = "11" then system_system_type = "Hand Held" end if
-if system_system_type = "12" then system_system_type = "Docking Station" end if
-if system_system_type = "13" then system_system_type = "All in One" end if
-if system_system_type = "14" then system_system_type = "Sub Notebook" end if
-if system_system_type = "15" then system_system_type = "Space-Saving" end if
-if system_system_type = "16" then system_system_type = "Lunch Box" end if
-if system_system_type = "17" then system_system_type = "Main System Chassis" end if
-if system_system_type = "18" then system_system_type = "Expansion Chassis" end if
-if system_system_type = "19" then system_system_type = "SubChassis" end if
-if system_system_type = "20" then system_system_type = "Bus Expansion Chassis" end if
-if system_system_type = "21" then system_system_type = "Peripheral Chassis" end if
-if system_system_type = "22" then system_system_type = "Storage Chassis" end if
-if system_system_type = "23" then system_system_type = "Rack Mount Chassis" end if
-if system_system_type = "24" then system_system_type = "Sealed-Case PC"  end if
-if system_system_type = "25" then system_system_type = "Multi-system chassis"  end if
-if system_system_type = "26" then system_system_type = "Compact PCI"  end if
-if system_system_type = "27" then system_system_type = "Advanced TCA"  end if
-if system_system_type = "28" then system_system_type = "Blade"  end if
-if system_system_type = "29" then system_system_type = "Blade Enclosure"  end if
-if system_system_type = "30" then system_system_type = "Tablet"  end if
-if system_system_type = "31" then system_system_type = "Convertible"  end if
-if system_system_type = "32" then system_system_type = "Detachable"  end if
-if system_system_type = "33" then system_system_type = "IoT Gateway"  end if
-if system_system_type = "34" then system_system_type = "Embedded PC"  end if
-if system_system_type = "35" then system_system_type = "Mini PC"  end if
-if system_system_type = "36" then system_system_type = "Stick PC"  end if
 
 ' TPM auslesen (nur als admin)
 comment = "TPM auslesen..."
