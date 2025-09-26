@@ -12,7 +12,7 @@ mysqli_select_db($db,$mysqli_database);
 
 //Include the view-definition
 if(isset($_REQUEST["view"]) AND $_REQUEST["view"]!=""){
-    $include_filename = "list_viewdef_".$_REQUEST["view"].".php";
+    $include_filename = "list_viewdef_" . $_REQUEST["view"] . ".php";
 }else{
     $include_filename = "list_viewdef_all_systems.php";
 }
@@ -105,7 +105,7 @@ $xlsx_data[] = explode(";",$csv_data);
 }
 
 // set the filename if specified
-$filename = (isset($_GET["filename"])) ? $_GET["filename"] . '-' . $_GET["view"] . '.xlsx' : 'export-' . $_GET["view"] .'.xlsx';
+$filename = (isset($_GET["filename"])) ? $_GET["filename"] . '-' . $_REQUEST["view"] . '.xlsx' : 'export-' . $_REQUEST["view"] .'.xlsx';
 $xlsx = Shuchkin\SimpleXLSXGen::fromArray( $xlsx_data );
 $xlsx->downloadAs($filename); // or saveAs('filename.xlsx') or $xlsx_content = (string) $xlsx 
 exit();

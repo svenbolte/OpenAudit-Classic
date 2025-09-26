@@ -11,13 +11,14 @@ function delete_files($fmask) {
 }
 
 function utf8_converter($array) {
-	array_walk_recursive($array, function(&$item, $key){
-        if(!mb_detect_encoding($item, 'utf-8', true)){
-			//echo mb_detect_encoding($item);
-            $item = mb_convert_encoding($item, 'UTF-8', 'UTF-16LE');
-			// $item = iconv($in_charset = 'UTF-16LE//IGNORE' , $out_charset = 'UTF-8' , $item);
+    array_walk_recursive($array, function (&$item, $key) {
+        // Nur Strings prüfen/konvertieren
+        if (is_string($item)) {
+            if (!mb_detect_encoding($item, 'UTF-8', true)) {
+                $item = mb_convert_encoding($item, 'UTF-8', 'UTF-16LE');
+            }
         }
-    }); 
+    });
     return $array;
 }
 

@@ -107,7 +107,7 @@ if ($myrow = mysqli_fetch_array($result)) {
 }
 
 // set the filename if specified
-$filename = (isset($_GET["filename"])) ? $_GET["filename"] . '-' . $_GET["view"] . '.csv' : 'export-' . $_GET["view"] .'.csv';
+$filename = (isset($_GET["filename"])) ? $_GET["filename"] . '-' . $_REQUEST["view"] . '.csv' : 'export-' . $_REQUEST["view"] .'.csv';
 
 if (!isset($_GET["email_list"])){
  header("Content-type: application/vnd.ms-excel");

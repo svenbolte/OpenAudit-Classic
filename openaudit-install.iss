@@ -1,10 +1,10 @@
-; Innosetup Compiler 6.4.3
+; Innosetup Compiler 6.5.3
 
 #define MyAppName "Open-Audit Classic"
 #define MyDateString GetDateTimeString('yyyy/mm/dd', '.', '');
 #define MyAppPublisher "OpenAudit Classic GPL3 Projekt"
 #define MyAppURL "https://github.com/svenbolte/Open-Audit-Classic"
-#define Inhalte "Apache 2.4.64x64-VS17/libcurl8.12, MySQLMariaDB 10.11.13x64(LTS), PHP 8.4.10x64-thsafe, phpMyAdmin 5.2.2x64, NMap 7.97, NPCap 1.82 (für nmap), Wordpress 6.8.2, VC17Runtimes 07/25, MariaDB ODBC 3.2.6"
+#define Inhalte "Apache 2.4.65x64-VS17/libcurl8.12, MySQLMariaDB 10.11.14x64(LTS), PHP 8.4.13x64-thsafe, phpMyAdmin 5.2.3x64, NMap 7.98, NPCap 1.83 (für nmap), Wordpress 6.8.2, VC17Runtimes 09/25, MariaDB ODBC 3.2.6"
 
 [Setup]
 PrivilegesRequired=admin
@@ -71,7 +71,7 @@ Filename: "{app}\apache\makecert2.cmd"; Flags: shellexec postinstall runascurren
 Filename: "{app}\apache\oa-importcert.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Zertifikat in Browser importieren"; Check: NoRunSwitch
 Filename: "{app}\apache\apache_installservice-win10.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Apache ab Win10 als Dienst und starten"; Check: NoRunSwitch
 Filename: "{app}\mysql\mysql_installservice-win10.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "MySQL ab Win10 als Dienst und starten"; Check: NoRunSwitch
-Filename: "{app}\nmap\npcap-1.82.exe"; Flags: shellexec postinstall runascurrentuser; Description: "für NMAP benötigtes NPCap installieren"; Check: NoRunSwitch
+Filename: "{app}\nmap\npcap-1.83.exe"; Flags: shellexec postinstall runascurrentuser; Description: "für NMAP benötigtes NPCap installieren"; Check: NoRunSwitch
 Filename: "{app}\vcruntimes\vc_redist.x86.exe"; Parameters: "/q /norestart"; Flags: waituntilterminated shellexec postinstall; Description: "VC Runtime 2019 x86 für NMAP installieren"; StatusMsg: "Installing VC2019/x86 Redist for NMAP"; Check: VC2013RedistNeedsInstall
 
 [Types]

@@ -445,6 +445,15 @@ if ($myrow = mysqli_fetch_array($result)){
 			   if ($field["name"]=="processor_name") {
 					$show_value = "<div style='font-size:0.8em'>".$processor_name."</div>";
 				}
+			   if ($field["name"]=="system_uuid") {
+					$show_value = "<div style='font-size:0.7em'>".$system_uuid."</div>";
+				}
+			   if ($field["name"]=="system_vendor") {
+					$show_value = "<div style='font-size:0.9em'>".$system_vendor."</div>";
+				}
+			   if ($field["name"]=="system_id_number") {
+					$show_value = "<div style='font-size:0.7em'>".$system_id_number."</div>";
+				}
 
 			   if ($field["name"]=="sv_version") {
 					if (empty($software_version)) $software_version='9999.0';
@@ -573,7 +582,7 @@ if ($myrow = mysqli_fetch_array($result)){
      if(isset($_REQUEST["monitor"])){
          echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
      }
-     echo "<br><a href=\"#\" class=\"get-view-csv\"><i class=\"fa fa-lg fa-file-text-o\"></i> ".__("Export this List to CSV")."</a>\n";
+     echo "<br><a href=\"#\" onclick=\"document.forms['form_export'].submit();\"><i class=\"fa fa-lg fa-file-text-o\"></i> ".__("Export this List to CSV")."</a>\n";
     echo "</form>\n";
     echo " &nbsp; &nbsp; \n";
 
@@ -591,7 +600,7 @@ if ($myrow = mysqli_fetch_array($result)){
      if(isset($_REQUEST["monitor"])){
          echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
      }
-	echo "<a href=\"#\" class=\"get-view-xlsx\"><i class=\"fa fa-lg fa-file-excel-o\"></i> ".__("XLSX Export Excel")."</a>\n";
+	echo "<a href=\"#\" onclick=\"document.forms['form_export_xlsx'].submit();\"><i class=\"fa fa-lg fa-file-excel-o\"></i> ".__("XLSX Export Excel")."</a>\n";
     echo "</form>\n";
     echo " &nbsp; &nbsp; \n";
   
