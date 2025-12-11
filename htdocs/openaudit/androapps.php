@@ -407,7 +407,18 @@ include_once("include.php");
                 endif;
             ?>
                 <tr>
-                    <td><?= htmlspecialchars($r['datum']) ?></td>
+                    <td><?php
+					echo htmlspecialchars($r['datum']);
+					$diff = (new DateTime())->diff(new DateTime($r['datum']));
+					$parts = [];
+					foreach (['y' => 'Jahr', 'm' => 'Monat', 'd' => 'Tag'] as $key => $label) {
+						if ($diff->$key) {
+							$parts[] = $diff->$key . ' ' . $label . ($diff->$key > 1 ? 'e' : '');
+						}
+					}
+					echo ' | ';
+					echo $parts ? implode(', ', $parts) : '0 Tage';
+					?></td>
                     <td><?= htmlspecialchars($r['produkt']) ?></td>
                     <td><?= htmlspecialchars($r['version']) ?></td>
                     <td>
@@ -460,7 +471,18 @@ include_once("include.php");
                 endif;
             ?>
                 <tr>
-                    <td><?= htmlspecialchars($r['datum']) ?></td>
+                <td><?php echo htmlspecialchars($r['datum']);
+					$diff = (new DateTime())->diff(new DateTime($r['datum']));
+					$parts = [];
+					foreach (['y' => 'Jahr', 'm' => 'Monat', 'd' => 'Tag'] as $key => $label) {
+						if ($diff->$key) {
+							$parts[] = $diff->$key . ' ' . $label . ($diff->$key > 1 ? 'e' : '');
+						}
+					}
+					echo ' | ';
+					echo $parts ? implode(', ', $parts) : '0 Tage';
+
+				?></td>
                     <td><?= htmlspecialchars($r['produkt']) ?></td>
                     <td><?= htmlspecialchars($r['version']) ?></td>
                     <td>
@@ -513,7 +535,18 @@ include_once("include.php");
             $cnt    = $geraet !== '' && isset($appCounts[$geraet]) ? $appCounts[$geraet] : 0;
             ?>
             <tr>
-                <td><?= htmlspecialchars($r['datum']) ?></td>
+                <td><?php echo htmlspecialchars($r['datum']);
+					$diff = (new DateTime())->diff(new DateTime($r['datum']));
+					$parts = [];
+					foreach (['y' => 'Jahr', 'm' => 'Monat', 'd' => 'Tag'] as $key => $label) {
+						if ($diff->$key) {
+							$parts[] = $diff->$key . ' ' . $label . ($diff->$key > 1 ? 'e' : '');
+						}
+					}
+					echo ' | ';
+					echo $parts ? implode(', ', $parts) : '0 Tage';
+
+				?></td>
                 <td>
                     <?php if ($geraet !== ''): ?>
                         <a href="androapps.php?mode=device&amp;geraet=<?= urlencode($geraet) ?>">
