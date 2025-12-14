@@ -13,13 +13,15 @@
 ' Below calls the file audit_include.vbs to setup the variables.
 ExecuteGlobal CreateObject("Scripting.FileSystemObject").OpenTextFile("audit.config").ReadAll 
 
+' ------------ Änderungen bitte in der audit.config im selben Ordner vornehmen, wo die nmap.vbs liegt ---------------------
+
 'nmap_tmp_cleanup = false           ' Set this false if you want to leave the tmp files for analysis in your tmp folder
 'nmap_subnet = "10.10.10."            ' The subnet you wish to scan
 'nmap_subnet_formatted = "010.010.010."    ' The subnet padded with 0's
-nmap_ie_form_page = "http://localhost:888/openaudit/admin_nmap_input.php"
-non_nmap_page = "http://localhost:888/openaudit/admin_nmap_input2.php"
-nmap_ie_visible = "y"
-nmap_ie_auto_close = "n"
+'  nmap_ie_form_page = "http://192.168.1.117:888/openaudit/admin_nmap_input.php"
+'  non_nmap_page = "http://192.168.1.117:888/openaudit/admin_nmap_input2.php"
+'  nmap_ie_visible = "y"
+'  nmap_ie_auto_close = "n"
 'nmap_ip_start = 2
 'nmap_ip_end = 254
 
@@ -72,7 +74,7 @@ for ip = nmap_ip_start to nmap_ip_end
     if nmap_srv_ver_scan = "y" then
     nmap = nmap & "-sV --version-intensity " & nmap_srv_ver_int & " "
     end if
-    nmap = nmap & "-O -T4 	-v -oN " & sTempFile & " " & nmap_subnet
+nmap = nmap & "-O -v -oN " & sTempFile & " " & nmap_subnet
     '
     '
     scan = nmap & ip
@@ -119,14 +121,12 @@ for ip = nmap_ip_start to nmap_ip_end
        objHTTP.Send "add=" + escape(Deconstruct(form_total + vbcrlf))
      end if
    end if
-	 Echo( "*** NMAP-Ziel-URL : " & url)
-	 if (Err.Number <> 0 or objHTTP.status <> 200) then
-		 Echo("Unable to send XML to server using " & XmlObj & " - HTTP Response: " & objHTTP.status & " (" & objHTTP.statusText & ") - Error " & Err.Number & " " & Err.Description)
-	 else
-		 Echo("XML sent to server using " & XmlObj & ": " & objHTTP.status & " (" & objHTTP.statusText & ")")
-	 end if
-     Err.clear
-
+if (Err.Number <> 0 or objHTTP.status <> 200) then
+    Echo("Unable to send XML to server using " & XmlObj & " - HTTP Response: " & objHTTP.status & " (" & objHTTP.statusText & ") - Error " & Err.Number & " " & Err.Description)
+else
+    Echo("XML sent to server using " & XmlObj & ": " & objHTTP.status & " (" & objHTTP.statusText & ")")
+end if
+Err.clear
 
     ' Cleanup the text file if requested 
     if nmap_tmp_cleanup = true then
