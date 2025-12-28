@@ -1,28 +1,104 @@
 <?php
 $query_array=array("headline"=>__("List all known old Software with hosts"),
                    "sql"=>"
-		SELECT software_location, net_user_name, system_name,software.software_name, softwareversionen.sv_product, 
-				software_version, softwareversionen.sv_version, softwareversionen.sv_icondata,sv_lizenztyp, software_first_timestamp, (1=1) as sv_newer  
-			FROM system,software
-			LEFT JOIN softwareversionen
-			ON (
-			   CONCAT('%', LOWER(RTRIM(Replace(Replace(software.software_name,'(x64)',''),'.',''))) ,'%')      
-			   LIKE CONCAT('%', LOWER(RTRIM(Replace(Replace(softwareversionen.sv_product,'(x64)',''),'.',''))) ,'%')
-			   )
-		WHERE CONCAT(
-				LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(software_version, '.', 1), '.', -1), 15, '0'),
-				LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(software_version, '.', 2), '.', -1), 15, '0'),
-				LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(software_version, '.', 3), '.', -1), 15, '0'), 
-				LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(software_version, '.', 4), '.', -1), 15, '0') 
-			   ) <
-			   CONCAT(
-				LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(softwareversionen.sv_version , '.', 1), '.', -1), 15, '0'),
-				LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(softwareversionen.sv_version , '.', 2), '.', -1), 15, '0'),
-				LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(softwareversionen.sv_version , '.', 3), '.', -1), 15, '0'), 
-				LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(softwareversionen.sv_version , '.', 4), '.', -1), 15, '0') 
-			   ) 
-				AND software_uuid = system_uuid AND software_timestamp = system_timestamp
-				GROUP BY software_name, software_version
+
+WITH
+base AS (
+  SELECT
+    sy.system_uuid,
+    sy.system_name,
+    sy.net_user_name,
+    s.software_location,
+    s.software_name,
+    s.software_version,
+    s.software_first_timestamp,
+    REGEXP_REPLACE(LOWER(REPLACE(s.software_name,'(x64)','')), '[^a-z0-9]+', '') AS norm_s,
+    CONCAT(
+      LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(s.software_version, '.', 1), '.', -1), 15, '0'),
+      LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(s.software_version, '.', 2), '.', -1), 15, '0'),
+      LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(s.software_version, '.', 3), '.', -1), 15, '0'),
+      LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(s.software_version, '.', 4), '.', -1), 15, '0')
+    ) AS v_s
+  FROM system sy
+  JOIN software s
+    ON s.software_uuid = sy.system_uuid
+   AND s.software_timestamp = sy.system_timestamp
+  WHERE s.software_name NOT LIKE '%hotfix%'
+    AND s.software_name NOT LIKE '%Service Pack%'
+    AND s.software_name NOT LIKE '%MUI (%'
+    AND s.software_name NOT LIKE '%Proofing %'
+    AND s.software_name NOT LIKE '%Language%'
+    AND s.software_name NOT LIKE '%Korrektur%'
+    AND s.software_name NOT LIKE '%linguisti%'
+    AND s.software_name NOT REGEXP 'SP[1-4]{1,}'
+    AND s.software_name NOT REGEXP '[KB|Q][0-9]{6,}'
+),
+sv_norm AS (
+  SELECT
+    sv.*,
+    REGEXP_REPLACE(LOWER(REPLACE(sv.sv_product,'(x64)','')), '[^a-z0-9]+', '') AS norm_p,
+    CONCAT(
+      LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(sv.sv_version, '.', 1), '.', -1), 15, '0'),
+      LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(sv.sv_version, '.', 2), '.', -1), 15, '0'),
+      LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(sv.sv_version, '.', 3), '.', -1), 15, '0'),
+      LPAD(SUBSTRING_INDEX(SUBSTRING_INDEX(sv.sv_version, '.', 4), '.', -1), 15, '0')
+    ) AS v_sv
+  FROM softwareversionen sv
+),
+cand AS (
+  SELECT
+    b.*,
+    sv.sv_product,
+    sv.sv_version,
+    sv.sv_icondata,
+    sv.sv_instlocation,
+    sv.sv_lizenztyp,
+    sv.v_sv,
+    CASE
+      WHEN b.norm_s = sv.norm_p THEN 3
+      WHEN b.norm_s LIKE CONCAT('%', sv.norm_p, '%') THEN 2
+      WHEN sv.norm_p LIKE CONCAT('%', b.norm_s, '%') THEN 1
+      ELSE 0
+    END AS score,
+    LENGTH(sv.norm_p) AS plen
+  FROM base b
+  JOIN sv_norm sv
+    ON (
+         b.norm_s LIKE CONCAT('%', sv.norm_p, '%')
+         OR sv.norm_p LIKE CONCAT('%', b.norm_s, '%')
+       )
+   AND NOT (
+     LOWER(b.software_name) LIKE '%google chrome%'
+     AND LOWER(sv.sv_product) REGEXP '(beta|dev|canary|chromium|google update|googleupdate)'
+   )
+   AND b.v_s < sv.v_sv
+),
+ranked AS (
+  SELECT
+    *,
+    ROW_NUMBER() OVER (
+      PARTITION BY system_uuid, software_name, software_version
+      ORDER BY score DESC, plen DESC
+    ) AS rn
+  FROM cand
+)
+SELECT
+  software_location,
+  net_user_name,
+  system_name,
+  software_name,
+  sv_product,
+  software_version,
+  sv_version,
+  sv_icondata,
+  sv_lizenztyp,
+  software_first_timestamp,
+  (1=1) AS sv_newer
+FROM ranked
+WHERE rn = 1
+GROUP BY software_name, software_version 
+
+
 ",
                    "sort"=>"software_name",
                    "dir"=>"ASC",

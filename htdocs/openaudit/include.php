@@ -33,12 +33,13 @@ function svversionenimport($aftertime) {
 	$filename = dirname(__FILE__).'/wordpresssoftware.csv';
 	
 	$myserver = $_SERVER['SERVER_NAME'];
-	if ( $myserver == 'pat14sv' ) {
+	if ($myserver == 'pat14sv') {
 		// PB Spezial Kellerserver direkt:
-		$url = 'https://ssl.pbcs.de/dcounter/softwareverzeichnis.asp?action=woocom&code=a5b584050977ca2ece290de786cc35f6';
+		$url = 'https://wp.pbcs.de/wp-content/uploads/csv/softwareverzeichnis.csv';
 	} else {
-		$url = 'https://tech-nachrichten.de/wp-content/uploads/csv/softwareverzeichnis.txt';
-	}	
+		$url = 'https://tech-nachrichten.de/wp-content/uploads/csv/softwareverzeichnis.csv';
+	}
+	// Lokale Datei abgleichen
 	if (file_exists($filename)) {
 		echo substr($url,0,66).' | ';
 		echo "Update: " . date ("d.m.Y H:i:s", filemtime($filename));
@@ -61,7 +62,7 @@ function svversionenimport($aftertime) {
 			// curl_close($ch);
 
 			
-			if (!empty($source) && substr($source,0,18)=='Datum;Rating;Ldfnr' ) file_put_contents($filename, $source); else echo ' Downloadfehler, verwende alte Datei zum Import!';
+			if (!empty($source) && substr($source,0,15)=='Datum;Rating;id' ) file_put_contents($filename, $source); else echo ' Downloadfehler, verwende alte Datei zum Import!';
 		}
 	}
 	// Datei worpresssoftware.csv in Datenbank einlesen

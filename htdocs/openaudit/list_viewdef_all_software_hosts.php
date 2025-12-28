@@ -1,19 +1,95 @@
 <?php
 
 $query_array=array("headline"=>__("List all Software with Hosts"),
-                   "sql"=>"SELECT software_name, software_version, software_publisher, software_location, softwareversionen.sv_version,
-						softwareversionen.sv_icondata, softwareversionen.sv_instlocation, system_name, net_user_name,
-						system_uuid, softwareversionen.sv_lizenztyp, software_first_timestamp, (1=1) as sv_newer 
-					 	FROM system, software 
-						LEFT JOIN softwareversionen
-						ON (
-							 CONCAT('%', LOWER(RTRIM(Replace(Replace(software.software_name,'(x64)',''),'.',''))) ,'%')      
-						LIKE CONCAT('%', LOWER(RTRIM(Replace(Replace(softwareversionen.sv_product,'(x64)',''),'.',''))) ,'%')
-						) 
-				   WHERE software_name NOT LIKE '%hotfix%'
-				   AND software_name NOT LIKE '%Service Pack%'
-				   AND software_name NOT LIKE '%MUI (%' AND software_name NOT LIKE '%Proofing %' AND software_name NOT LIKE '%Language%' AND software_name NOT LIKE '%Korrektur%' AND software_name NOT LIKE '%linguisti%' AND software_name NOT REGEXP 'SP[1-4]{1,}' AND software_name NOT REGEXP '[KB|Q][0-9]{6,}' 
-				   AND software_uuid = system_uuid AND software_timestamp = system_timestamp ",
+                   "sql"=>"
+WITH
+base AS (
+  SELECT
+    sy.system_uuid,
+    sy.system_name,
+    sy.net_user_name,
+    s.software_name,
+    s.software_version,
+    s.software_publisher,
+    s.software_location,
+    s.software_first_timestamp,
+    REGEXP_REPLACE(LOWER(REPLACE(s.software_name,'(x64)','')), '[^a-z0-9]+', '') AS norm_s
+  FROM system sy
+  JOIN software s
+    ON s.software_uuid = sy.system_uuid
+   AND s.software_timestamp = sy.system_timestamp
+  WHERE s.software_name NOT LIKE '%hotfix%'
+    AND s.software_name NOT LIKE '%Service Pack%'
+    AND s.software_name NOT LIKE '%MUI (%'
+    AND s.software_name NOT LIKE '%Proofing %'
+    AND s.software_name NOT LIKE '%Language%'
+    AND s.software_name NOT LIKE '%Korrektur%'
+    AND s.software_name NOT LIKE '%linguisti%'
+    AND s.software_name NOT REGEXP 'SP[1-4]{1,}'
+    AND s.software_name NOT REGEXP '[KB|Q][0-9]{6,}'
+),
+sv_norm AS (
+  SELECT
+    sv.*,
+    REGEXP_REPLACE(LOWER(REPLACE(sv.sv_product,'(x64)','')), '[^a-z0-9]+', '') AS norm_p
+  FROM softwareversionen sv
+),
+cand AS (
+  SELECT
+    b.*,
+    sv.sv_version,
+    sv.sv_icondata,
+    sv.sv_instlocation,
+    sv.sv_lizenztyp,
+    sv.sv_product,
+    CASE
+      WHEN b.norm_s = sv.norm_p THEN 3
+      WHEN b.norm_s LIKE CONCAT('%', sv.norm_p, '%') THEN 2
+      WHEN sv.norm_p LIKE CONCAT('%', b.norm_s, '%') THEN 1
+      ELSE 0
+    END AS score,
+    LENGTH(sv.norm_p) AS plen,
+    ROW_NUMBER() OVER (
+      PARTITION BY b.system_uuid, b.software_name, b.software_version
+      ORDER BY
+        CASE
+          WHEN b.norm_s = sv.norm_p THEN 3
+          WHEN b.norm_s LIKE CONCAT('%', sv.norm_p, '%') THEN 2
+          WHEN sv.norm_p LIKE CONCAT('%', b.norm_s, '%') THEN 1
+          ELSE 0
+        END DESC,
+        LENGTH(sv.norm_p) DESC
+    ) AS rn
+  FROM base b
+  LEFT JOIN sv_norm sv
+    ON (
+         b.norm_s LIKE CONCAT('%', sv.norm_p, '%')
+         OR sv.norm_p LIKE CONCAT('%', b.norm_s, '%')
+       )
+   AND NOT (
+     LOWER(b.software_name) LIKE '%google chrome%'
+     AND LOWER(sv.sv_product) REGEXP '(beta|dev|canary|chromium|google update|googleupdate)'
+   )
+)
+SELECT
+  software_name,
+  software_version,
+  software_publisher,
+  software_location,
+  sv_version,
+  sv_icondata,
+  sv_instlocation,
+  system_name,
+  net_user_name,
+  system_uuid,
+  sv_lizenztyp,
+  software_first_timestamp,
+  (1=1) AS sv_newer
+FROM cand
+WHERE rn = 1 
+				   
+				   
+				   ",
                    "sort"=>"software_name",
                    "dir"=>"ASC",
                    "get"=>array("file"=>"list.php",

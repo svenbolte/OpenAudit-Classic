@@ -1,26 +1,55 @@
 <?php
 $query_array=array("headline"=>__("List all Software"),
-                   "sql"=>" SELECT COUNT(software.software_name) AS software_count, software_name, softwareversionen.sv_bemerkungen, 
-							softwareversionen.sv_lizenztyp, softwareversionen.sv_version, softwareversionen.sv_instlocation, softwareversionen.sv_icondata, software_version, 
-							software_publisher, software_url, software_comment, software_first_timestamp, (1=1) as sv_newer   
-						FROM system, software
-						LEFT JOIN softwareversionen
-						ON (
-							 CONCAT('%', LOWER(RTRIM(Replace(Replace(software.software_name,'(x64)',''),'.',''))) ,'%')      
-						LIKE CONCAT('%', LOWER(RTRIM(Replace(Replace(softwareversionen.sv_product,'(x64)',''),'.',''))) ,'%')
-						)
-						WHERE software_name NOT LIKE '%hotfix%'
-						AND software_name NOT LIKE '%Service Pack%' 
-						AND software_name NOT LIKE '% Edge Update%'
-						AND software_name NOT LIKE '%MUI (%'
-						AND software_name NOT LIKE '%Proofing %'
-						AND software_name NOT LIKE '%Language%'
-						AND software_name NOT LIKE '%Korrektur%'
-						AND software_name NOT LIKE '%linguisti%'
-						AND software_name NOT REGEXP 'SP[1-4]{1,}' 
-						AND software_name NOT REGEXP '[KB|Q][0-9]{6,}' 
-						AND software_uuid = system_uuid AND software_timestamp = system_timestamp
-						GROUP BY software_name, software_version ",
+                   "sql"=>"
+				   SELECT
+  COUNT(s.software_name) AS software_count,
+  s.software_name,
+  sv.sv_bemerkungen,
+  sv.sv_lizenztyp,
+  sv.sv_version,
+  sv.sv_instlocation,
+  sv.sv_icondata,
+  s.software_version,
+  s.software_publisher,
+  s.software_url,
+  s.software_comment,
+  s.software_first_timestamp,
+  (1=1) as sv_newer
+FROM system sy
+JOIN software s
+  ON s.software_uuid = sy.system_uuid
+ AND s.software_timestamp = sy.system_timestamp
+LEFT JOIN softwareversionen sv
+  ON (
+       (
+         REGEXP_REPLACE(LOWER(REPLACE(s.software_name, '(x64)', '')), '[^a-z0-9]+', '')
+         LIKE CONCAT('%',
+              REGEXP_REPLACE(LOWER(REPLACE(sv.sv_product,  '(x64)', '')), '[^a-z0-9]+', ''),
+              '%'
+         )
+       )
+       OR
+       (
+         REGEXP_REPLACE(LOWER(REPLACE(sv.sv_product,  '(x64)', '')), '[^a-z0-9]+', '')
+         LIKE CONCAT('%',
+              REGEXP_REPLACE(LOWER(REPLACE(s.software_name, '(x64)', '')), '[^a-z0-9]+', ''),
+              '%'
+         )
+       )
+     )
+WHERE s.software_name NOT LIKE '%hotfix%'
+  AND s.software_name NOT LIKE '%Service Pack%'
+  AND s.software_name NOT LIKE '% Edge Update%'
+  AND s.software_name NOT LIKE '%MUI (%'
+  AND s.software_name NOT LIKE '%Proofing %'
+  AND s.software_name NOT LIKE '%Language%'
+  AND s.software_name NOT LIKE '%Korrektur%'
+  AND s.software_name NOT LIKE '%linguisti%'
+  AND s.software_name NOT REGEXP 'SP[1-4]{1,}'
+  AND s.software_name NOT REGEXP '[KB|Q][0-9]{6,}'
+GROUP BY s.software_name, s.software_version
+				   
+				   ",
                    "sort"=>"software_name",
                    "dir"=>"ASC",
                    "get"=>array("file"=>"list.php",
