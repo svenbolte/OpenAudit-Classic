@@ -154,7 +154,7 @@ if ($accent_color == '#666') echo '.headerbanner {filter: grayscale(.8)}';
 ?>
 </style>
 <link media="screen" rel="stylesheet" type="text/css" href="default.css" />
-<link rel="stylesheet" href="/openaudit/fonts/css/font-awesome.min.css" />
+<link rel="stylesheet" href="/openaudit/fonts/fontawesomeplus.min.css" />
 <link rel="stylesheet" media="print" type="text/css" href="defaultprint.css" />
 <script type='text/javascript' src="javascript/ajax.js"></script>
 <script type='text/javascript' src="javascript/include.js"></script>
