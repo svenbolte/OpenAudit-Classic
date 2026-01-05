@@ -695,9 +695,38 @@ For Each objItem In colItems
 Next
 On Error GoTo 0
 
-' Zusammensetzen der ID
-  systemID = strUUID & "-" & strBIOS & "-" & strBoard & "-" & strMAC
-  system_uuid = systemID
+
+' Systeminformationen sammeln für uuid 2026-01
+Set colItems = objWMIService.ExecQuery("Select * from Win32_ComputerSystem",,48)
+For Each objItem in colItems
+   system_model = clean(objItem.Model)
+   system_name = clean(objItem.Name)
+   system_num_processors = clean(objItem.NumberOfProcessors)
+   system_part_of_domain = clean(objItem.PartOfDomain)
+   system_primary_owner_name = clean(objItem.PrimaryOwnerName)
+   domain_role = clean(objItem.DomainRole)
+
+   ' VM-Erkennung vorbereiten
+   manufacturer = LCase(Trim(objItem.Manufacturer))
+   model = LCase(Trim(objItem.Model))
+Next
+
+If manufacturer = "microsoft corporation" And model = "virtual machine" Then
+    system_system_type = "VMH"
+ElseIf InStr(model, "vmware") > 0 Or InStr(manufacturer, "vmware") > 0 Then
+    system_system_type = "VMV"
+End If
+
+' Zusammensetzen der ID (MAC nur bei VMH oder VMV)
+systemID = strUUID & "-" & strBIOS & "-" & strBoard
+
+If system_system_type = "VMH" Or system_system_type = "VMV" Then
+    If Len(strMAC) > 0 Then
+        systemID = systemID & "-" & strMAC
+    End If
+End If
+
+system_uuid = systemID
 
 ' Ausgabe
 Echo("Unique System Identifikation:" & systemID)

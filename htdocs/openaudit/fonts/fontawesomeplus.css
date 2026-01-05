@@ -1,5 +1,5 @@
 .fa{font-style:normal;-webkit-font-smoothing:antialiased;display:inline-block;text-rendering:auto}
-.fa-lg{font-size:1.3em;line-height:.75em;vertical-align:-15%}
+.fa-lg{font-size:1.3em;line-height:.75em}
 .fa-2x{font-size:2em}
 .fa-3x{font-size:3em}
 .fa-4x{font-size:4em}
@@ -68,7 +68,7 @@
 .fa-signal{--fa-content:"📶"}
 .fa-gear{--fa-content:"⚙"}
 .fa-cog{--fa-content:"⚙"}
-.fa-trash,.fa-trash-o{--fa-content:"🗑";--fa-fs:1.2em;}
+.fa-trash,.fa-trash-o{--fa-content:"🗑️";--fa-fs:1.2em;}
 .fa-trash:before,.fa-trash-o:before{filter: drop-shadow(1px 1px 1px #e33c)}
 .fa-home{--fa-content:"⌂"}
 .fa-file-o{--fa-content:"📄"}
@@ -86,13 +86,13 @@
 .fa-volume-off{--fa-content:"🔇"}
 .fa-volume-down{--fa-content:"🔉"}
 .fa-volume-up{--fa-content:"🔊"}
-.fa-qrcode{--fa-content:"▣"}
-.fa-barcode{--fa-content:"▮"}
+.fa-qrcode{--fa-content:"🔲"}
+.fa-barcode{--fa-content:"‖‖️"}
 .fa-tag{--fa-content:"🏷"}
-.fa-tags{--fa-content:"🏷"}
+.fa-tags{--fa-content:"🔖"}
 .fa-book{--fa-content:"📖"}
 .fa-bookmark{--fa-content:"🔖"}
-.fa-print{--fa-content:"🖨"}
+.fa-print{--fa-content:"🖨️"}
 .fa-camera{--fa-content:"📷"}
 .fa-bold{--fa-content:"𝐁"}
 .fa-italic{--fa-content:"𝘐"}
@@ -163,7 +163,6 @@
 .fa-external-link{--fa-content:"🔒"}
 .fa-sign-in{--fa-content:"🔓"}
 .fa-trophy{--fa-content:"🏆"}
-.fa-github-square{--fa-content:"G";--fa-bg:#666a;--fa-color:#fff;--fa-fs:.8em;--fa-pad:.15em .25em}
 .fa-upload{--fa-content:"⬆"}
 .fa-phone{--fa-content:"☎"}
 .fa-square-o{--fa-content:"⬜"}
@@ -175,7 +174,6 @@
 .fa-unlock{--fa-content:"🔓"}
 .fa-credit-card{--fa-content:"💳"}
 .fa-rss{--fa-content:"🛜"}
-.fa-hdd-o{--fa-content:"HD";--fa-bg:#666a;--fa-color:#fff;--fa-fs:.8em;--fa-pad:.15em .25em}
 .fa-bullhorn{--fa-content:"📣"}
 .fa-bell{--fa-content:"🔔"}
 .fa-certificate{--fa-content:"📜"}
@@ -524,11 +522,10 @@
 .fa-mixcloud{--fa-content:"☁"}
 .fa-pause-circle{--fa-content:"⏸"}
 .fa-pause-circle-o{--fa-content:"⏸"}
-.fa-stop-circle-o,.fa-stop-circle{--fa-content:"⏹"}
-.fa-shopping-bag{--fa-content:"🛍"}
-.fa-shopping-basket{--fa-content:"🧺"}
+.fa-stop-circle-o,.fa-stop-circle{--fa-content:"◼️"}
+.fa-shopping-bag,.fa-shopping-basket{--fa-content:"🧺"}
 .fa-hashtag{--fa-content:"#"}
-.fa-bluetooth{--fa-content:""}
+.fa-bluetooth{--fa-content:"ᛒ"}
 .fa-percent{--fa-content:"%"}
 .fa-wpforms{--fa-content:"📝"}
 .fa-envira{--fa-content:"🍃"}
@@ -553,8 +550,7 @@
 .fa-handshake-o{--fa-content:"🤝"}
 .fa-envelope-open{--fa-content:"✉"}
 .fa-envelope-open-o{--fa-content:"✉"}
-.fa-address-book{--fa-content:"📒"}
-.fa-address-book-o{--fa-content:"📒"}
+.fa-address-book,.fa-address-book-o{--fa-content:"📒"}
 .fa-vcard-o,.fa-vcard,.fa-address-card{--fa-content:"🪪"}
 .fa-address-card-o{--fa-content:"🪪"}
 .fa-user-circle{--fa-content:"👤"}
@@ -580,9 +576,9 @@
 .fa-meetup{--fa-content:"ⓜ"}
 .fa-list-alt{--fa-content:"📋"}
 .fa-jira{--fa-content:"J"}
-.fa-ubuntu{--fa-content:""}
-.fa-atlassian{--fa-content:""}
-.fa-blackberry{--fa-content:"BB"}
+.fa-ubuntu{--fa-content:"🐧"}
+.fa-atlassian{--fa-content:"🎧"}
+.fa-blackberry{--fa-content:"📱"}
 .fa-debian{--fa-content:"🍥"}
 .fa-java{--fa-content:"☕"}
 .fa-windows11{--fa-content:"🪟"}
@@ -634,7 +630,7 @@
 .fa-unsorted{--fa-content:"↕"}
 .fa-sort-down{--fa-content:"▼"}
 .fa-sort-up{--fa-content:"▲"}
-.fa-rotate-left,.fa-undo{--fa-content:"⟲"}
+.fa-undo{--fa-content:"⟲"}
 .fa-tachometer{--fa-content:"⏲"}
 .fa-flash{--fa-content:"⚡"}
 .fa-paste{--fa-content:"📋"}
@@ -664,7 +660,7 @@
 .fa-eur{--fa-content:"€"}
 .fa-dollar{--fa-content:"$"}
 .fa-rupee,.fa-inr{--fa-content:"₹"}
-.fa-cny,.fa-rmb,.fa-yen,.fa-jpy{--fa-content:"¥"}
+.fa-yen,.fa-cny,.fa-rmb,.fa-jpy{--fa-content:"￥"}
 .fa-ruble,.fa-rouble,.fa-rub{--fa-content:"₽"}
 .fa-won,.fa-krw{--fa-content:"₩"}
 .fa-file,.fa-file-text{--fa-content:"📄"}
