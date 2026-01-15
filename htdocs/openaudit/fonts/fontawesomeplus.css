@@ -183,6 +183,7 @@
 .fa-cloud-download{--fa-content:"🌩️"}
 .fa-cloud-upload{--fa-content:"☁"}
 .fa-code{--fa-content:"📦"}
+.fa-cpu{--fa-content:"🎛️"}
 .fa-codepen{--fa-content:"✒"}
 .fa-coffee{--fa-content:"☕"}
 .fa-cog,.fa-cogs{--fa-content:"⚙️"}
@@ -334,7 +335,7 @@
 .fa-handshake-o{--fa-content:"🤝"}
 .fa-happy{--fa-content:"😃"}
 .fa-hashtag{--fa-content:"﹟"}
-.fa-hdd-o,.fa-floppy-o{--fa-content:"💾"}
+.fa-hdd-o,.fa-floppy-o,.fa-navicon{--fa-content:"💾"}
 .fa-header{--fa-content:"🔝"}
 .fa-headphones{--fa-content:"🎧"}
 .fa-heart{--fa-content:"❤️"}
@@ -408,7 +409,7 @@
 .fa-meetup{--fa-content:"ⓜ"}
 .fa-meh-o{--fa-content:"😐"}
 .fa-mercury{--fa-content:"☿"}
-.fa-microchip{--fa-content:"⌁"}
+.fa-microchip{--fa-content:"📟"}
 .fa-microphone{--fa-content:"🎤"}
 .fa-microphone-slash{--fa-content:"🎤"}
 .fa-microsoft{--fa-content:"🪟"}
@@ -475,6 +476,7 @@
 .fa-quote-right{--fa-content:"”"}
 .fa-random{--fa-content:"🔀"}
 .fa-record{--fa-content:"🔴"}
+.fa-rebel,.fa-thunderbird{--fa-content:"🐦"}
 .fa-recycle{--fa-content:"♻️"}
 .fa-reddit{--fa-content:"👽"}
 .fa-refresh{--fa-content:"↻"}
@@ -625,7 +627,7 @@
 .fa-universal-access{--fa-content:"🔓"}
 .fa-upload{--fa-content:"📤"}
 .fa-usb{--fa-content:"🔌"}
-.fa-usd{--fa-content:"💵"}
+.fa-usd,.fa-dollar{--fa-content:"💵"}
 .fa-user{--fa-content:"👨‍💻"}
 .fa-user-circle{--fa-content:"🧔‍"}
 .fa-user-circle-o{--fa-content:"👨‍💼"}
@@ -647,7 +649,7 @@
 .fa-whatsapp{--fa-content:"💬"}
 .fa-wheelchair,.fa-wheelchair-alt{--fa-content:"♿"}
 .fa-wifi{--fa-content:"📶"}
-.fa-window-close{--fa-content:"❌"}
+.fa-window-close,.fa-window-close-o{--fa-content:"❌"}
 .fa-window-close-square{--fa-content:"❎"}
 .fa-window-maximize{--fa-content:"▭"}
 .fa-window-minimize{--fa-content:"▁"}
