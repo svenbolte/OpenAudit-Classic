@@ -28,7 +28,6 @@ Recent Changes:
 
 **********************************************************************************************************/
 
-$JQUERY_UI = array('core','dialog','tooltip');
 $page = "admin";
 include "include.php";
 

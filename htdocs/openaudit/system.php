@@ -1,5 +1,4 @@
 <?php
-$JQUERY_UI = array('core','dialog','tooltip');
 include_once("include.php");
 
 

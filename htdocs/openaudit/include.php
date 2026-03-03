@@ -157,31 +157,12 @@ if ($accent_color == '#666') echo '.headerbanner {filter: grayscale(.8)}';
 <link rel="stylesheet" href="/openaudit/fonts/fontawesomeplus.min.css" />
 <link rel="stylesheet" media="print" type="text/css" href="defaultprint.css" />
 <script type='text/javascript' src="javascript/ajax.js"></script>
-<script type='text/javascript' src="javascript/include.js"></script>
 <?php 
-  // Used to only included pieces of jquery/jquery ui that the page needs.
-  if(isset($JQUERY_UI)){
-	echo '<script type="text/javascript" src="javascript/jquery/jquery.js"></script>'."\n";
-	echo '<script type="text/javascript" src="javascript/jquery/jquery-bgiframe.js"></script>'."\n";
-	echo '<link media="screen" rel="stylesheet" type="text/css" href="jquery-ui-theme.css" />'."\n";
-	foreach($JQUERY_UI as $script) {
-	  echo '<script type="text/javascript" src="javascript/jquery/jquery-ui-'.$script.'.js"></script>'."\n";
-	  if ( file_exists('jquery-ui-'.$script.'.css') ) {
-		echo '<link media="screen" rel="stylesheet" type="text/css" href="jquery-ui-'.$script.'.css" />'."\n";
-	  }
-	}
-  }
 
   // Only include certain files if it's a page that needs it.
   switch(basename($_SERVER["PHP_SELF"])){
-	case 'list.php':
-	case 'system.php':
-	case 'system_graphs.php':
-	  echo '<script type="text/javascript" src="javascript/list-system.js"></script>'."\n";
-	  break;
 	case 'admin_config.php':
-	  echo '<script type="text/javascript" src="javascript/PopupMenu.js"></script>'."\n".
-		   '<script type="text/javascript" src="javascript/admin_config.js"></script>'."\n".
+	  echo '<script type="text/javascript" src="javascript/admin_config.js"></script>'."\n".
 		   '<link media="screen" rel="stylesheet" type="text/css" href="admin_config.css" />'."\n";
 	  break;
   }
@@ -214,7 +195,6 @@ get_headerbanner();
 // Search box
 echo "<div id=\"inforechts\"><form action=\"search.php\" method=\"get\">\n";
 echo "<input size=\"25\" placeholder=\"Suchbegriff (Enter)\" name=\"search_field\" />\n";
-// echo "<input style=\"width:auto;margin-top:0;font-family: FontAwesome\" value=\"&#xf002;\" type=\"submit\" />\n";
 echo "</form>";
 echo "</div>\n";
 

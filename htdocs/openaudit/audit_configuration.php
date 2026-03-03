@@ -1,6 +1,5 @@
 <?php 
   $page      = "admin";
-  $JQUERY_UI = array('core','dialog','tooltip'); 
 
   require "include.php";
   require "include_audit_functions.php";

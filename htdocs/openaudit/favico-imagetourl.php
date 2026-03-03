@@ -22,7 +22,14 @@ class imageToURI
         $mode = $overWrite ? 'w' : 'a';
         $dataUris = fopen($outputFile, $mode);
         foreach ($images as $image) {
-            $mime = getimagesize($image)['mime'];
+            $output = '';
+            $size = @getimagesize($image);
+            if ($size === false || !isset($size['mime'])) {
+                $errors[] = $image;
+                echo '<br><br><b>Konnte Bild nicht lesen:</b> ' . htmlspecialchars($image);
+                continue;
+            }
+            $mime = $size['mime'];
             if (in_array($mime, $this->acceptableTypes())) {
                 $data = file_get_contents($image);
                 $output = basename($image) . PHP_EOL . '+++++++++++++++++++++' . PHP_EOL;
@@ -31,7 +38,7 @@ class imageToURI
             } else {
                 $errors[] = $image;
             }
-			echo '<br><br>'. $output;
+			if ($output !== '') { echo '<br><br>' . $output; }
         }
 
         fclose($dataUris);

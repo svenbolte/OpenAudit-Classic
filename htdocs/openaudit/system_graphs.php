@@ -1,5 +1,4 @@
 <?php
-$JQUERY_UI = array('core','dialog','tooltip');
 $page = "graphs";
 include "include.php";
 
@@ -17,7 +16,6 @@ if ($myrow = mysqli_fetch_array($result)){
     } else {
       
       echo "<hr /></td></tr>";
-//      echo "<td>Drive:<img src=\"system_graphs_pie.php?disk_percent=50&width=160&height=160\" alt\"\"/>";
       echo "<tr><td>".__("Drive").": " . preg_replace ("/:/", "", $myrow['disk_letter']) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      ";
       $sql2 = "select * FROM `partition` where partition_uuid = '$pc' and partition_caption = '" . $myrow['disk_letter'] . "'";
       $result2 = mysqli_query($db,$sql2);
@@ -27,9 +25,6 @@ if ($myrow = mysqli_fetch_array($result)){
       $used = number_format($myrow2['partition_size'] - $myrow2['partition_free_space']);
       echo __("Current Disk Used") . ": " . $used . " MB</td></tr>";
      if (isset($myrow2['partition_size']) and  (($myrow2['partition_size']) >0.001)){ 
-//        if (isset($myrow2['partition_size']) ){ 
-   
-//      $percent_free = round(( number_format($myrow2['partition_free_space'])/(($myrow2['partition_size'] ))*100),$round_to_decimal_places);
      $percent_free = round((($myrow2['partition_free_space'])/(($myrow2['partition_size'] ))*100),$round_to_decimal_places);
         } else {
         $percent_free  = 0;
@@ -40,13 +35,11 @@ if ($myrow = mysqli_fetch_array($result)){
 
     }
     $disk_percent = $myrow['disk_percent'];
-    //$disk_time = return_date_time($myrow['disk_timestamp']);
     $disk_time = date("d M Y H:i:s", strtotime($myrow['disk_timestamp']));
     
     if (isset($myrow2['partition_size']) and  (($myrow2['partition_size']) >0.001)){ 
     
     $disk_free_warn = (($myrow2['partition_size'] -$partition_free_space)/($myrow2['partition_size']))*100;
-//    $disk_free_warn = ($myrow2['partition_size'] );
     } else {
     $disk_percent = 100;
     $disk_free_warn = 100;
@@ -71,8 +64,6 @@ if ($myrow = mysqli_fetch_array($result)){
   }
 while ($myrow = mysqli_fetch_array($result));
 } else {}
-//echo "<img src=\"system_graphs_pie.php?disk_percent=".(100-$myrow['disk_percent'])."&width=160&height=160\" alt\"\"/>";
-//echo "<td>Drive:<img src=\"system_graphs_pie.php?disk_percent=50&width=160&height=160\" alt\"\"/></td>";
 echo "</td></tr>";
 
 echo "</table>\n";

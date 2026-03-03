@@ -1,5 +1,4 @@
 <?php
-  $JQUERY_UI = array('tooltip');
   $page = "admin";
   require_once "include.php";
   require_once "include_audit_functions.php";

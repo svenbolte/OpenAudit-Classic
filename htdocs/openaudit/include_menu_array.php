@@ -37,7 +37,7 @@ $menue_array = array(
                                     "60"=>array("name"=>"Tape Drive", "link"=>"system.php?pc=$pc&amp;view=hardware&amp;category=tape_drive", "image"=>"fa-simplybuilt", "title"=>"",),
                                     "70"=>array("name"=>"Processor", "link"=>"system.php?pc=$pc&amp;view=hardware&amp;category=processor", "image"=>"fa-fighter-jet", "title"=>"",),
                                     "80"=>array("name"=>"Bios", "link"=>"system.php?pc=$pc&amp;view=hardware&amp;category=bios", "image"=>"fa-cog", "title"=>"",),
-                                    "90"=>array("name"=>"Memory", "link"=>"system.php?pc=$pc&amp;view=hardware&amp;category=memory", "image"=>"fa-stack-exchange", "title"=>"",),
+                                    "90"=>array("name"=>"Memory", "link"=>"system.php?pc=$pc&amp;view=hardware&amp;category=memory", "image"=>"fa-commenting", "title"=>"",),
                                     "100"=>array("name"=>"Network Card", "link"=>"system.php?pc=$pc&amp;view=hardware&amp;category=network_card", "image"=>"fa-wifi", "title"=>"",),
                                     "105"=>array("name"=>"Gateway", "link"=>"list.php?view=statistic_gateway", "image"=>"fa-external-link-square", "title"=>"",), 
                                     "110"=>array("name"=>"Video Adapter", "link"=>"system.php?pc=$pc&amp;view=hardware&amp;category=video", "image"=>"fa-eye", "title"=>"",),
@@ -204,7 +204,7 @@ $menue_array = array(
                                     "65"=>array("name"=>"Thunderbird Versions", "link"=>"./list.php?view=statistic_thunderbird", "image"=>"fa-rebel", "title"=>"Mozilla Thunderbird Versions",),
 									"67"=>array("name"=>"OS Type", "link"=>"./list.php?view=statistic_os", "image"=>"fa-windows", "title"=>"OS Type",),
                                     "70"=>array("name"=>"Printer Models", "link"=>"list.php?view=statistic_printer", "image"=>"fa-print", "title"=>"Printer Models",), 
-                                    "75"=>array("name"=>"Memory Size", "link"=>"./list.php?view=statistic_memory", "image"=>"fa-stack-exchange", "title"=>"Memory Size",),
+                                    "75"=>array("name"=>"Memory Size", "link"=>"./list.php?view=statistic_memory", "image"=>"fa-commenting", "title"=>"Memory Size",),
                                     "80"=>array("name"=>"Processor Types", "link"=>"./list.php?view=statistic_processor", "image"=>"fa-microchip", "title"=>"Processor Types",),
                                     "85"=>array("name"=>"Hard Drive", "link"=>"./list.php?view=statistic_harddrive", "image"=>"fa-navicon", "title"=>"Hard Drive",),
                                     "90"=>array("name"=>"Keys", "link"=>"./list.php?view=statistic_keys", "image"=>"fa-key", "title"=>"Lizenzschlüssel",),
@@ -262,7 +262,7 @@ $menue_array = array(
                     "title"=>"CSV-Dateien in Excel konvertieren (Batch)",
                     "childs"=>array(
 						"10"=>array("name"=>"Bookmarks2CSV", "link"=>"./bkm2csv.php", "image"=>"fa-list", "title"=>"Bookmarks nach CSV (Ecxel)",),
-						"20"=>array("name"=>"FaviconURLtoDATAURL", "link"=>"favico/favico.php", "image"=>"fa-list", "title"=>"Favicons herunterladen und als DATA-URL in Textdatei speichern",),
+						"20"=>array("name"=>"FaviconURLtoDATAURL", "link"=>"./favico.php", "image"=>"fa-list", "title"=>"Favicons herunterladen und als DATA-URL in Textdatei speichern",),
                               ),
               ),
 

@@ -34,32 +34,57 @@ function get_favicon($seitenurl) {
 
 
     function geticongoogle($url, &$info = null) {
-        $url = 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url='.$url;
-		$ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);  // Follow redirects (302, 301)
-        curl_setopt($ch, CURLOPT_MAXREDIRS, 20);         // Follow up to 20 redirects
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0');
-        
-        // Don't check SSL certificate to allow autosigned certificate
-           curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        
-        $content = curl_exec($ch);
-        $info['curl_errno'] = curl_errno($ch);
-        $info['curl_error'] = curl_error($ch);
-        $info['http_code'] = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $info['effective_url'] = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
-        $info['redirect_count'] = curl_getinfo($ch, CURLINFO_REDIRECT_COUNT);
-        $info['content_type'] = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-        curl_close($ch);
-        
-        if ($info['curl_errno'] !== CURLE_OK || in_array($info['http_code'], array(403, 404, 500, 503))) {
-            return false;
-        }
-        return $content;
+    $info = is_array($info) ? $info : [];
+
+    // Ensure the URL is valid and includes a scheme
+    $scheme = parse_url($url, PHP_URL_SCHEME);
+    if (empty($scheme)) {
+        $url = 'https://' . ltrim($url, '/');
     }
+
+    // Google Favicon service – IMPORTANT: urlencode the target URL
+    $api = 'https://t3.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=' . rawurlencode($url);
+
+    $ch = curl_init($api);
+    curl_setopt_array($ch, [
+        CURLOPT_HEADER => false,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_USERAGENT => 'Mozilla/5.0',
+        // Don't check SSL certificate to allow autosigned certificate
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_TIMEOUT => 20,
+    ]);
+
+    $content = curl_exec($ch);
+
+    $info['curl_errno']     = curl_errno($ch);
+    $info['curl_error']     = curl_error($ch);
+    $info['http_code']      = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $info['effective_url']  = curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
+    $info['redirect_count'] = curl_getinfo($ch, CURLINFO_REDIRECT_COUNT);
+    $info['content_type']   = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
+
+    curl_close($ch);
+
+    if ($info['curl_errno'] !== CURLE_OK || $info['http_code'] !== 200) {
+        return false;
+    }
+
+    // Defensive: ensure we really got an image back, not HTML/error page.
+    if (empty($info['content_type']) || stripos($info['content_type'], 'image/') !== 0) {
+        return false;
+    }
+
+    if ($content === false || strlen($content) < 50) {
+        return false;
+    }
+
+    return $content;
+}
+
 
 	function arraytofavicon() {
 		// hier die URLs in den Array eintragen
@@ -69,7 +94,13 @@ function get_favicon($seitenurl) {
 		);
 		foreach ($urlarray as $singleurl) {
 			$iconfilename = './favico/favicon-'.time().'-'.str_replace(".","-",parse_url($singleurl, PHP_URL_HOST)).'.png';
-			file_put_contents($iconfilename, geticongoogle($singleurl));
+			$info = [];
+			$bin = geticongoogle($singleurl, $info);
+			if ($bin === false) {
+			    echo '<br><br><b>Kein Icon geladen:</b> ' . htmlspecialchars($singleurl) . ' (HTTP=' . ($info['http_code'] ?? '?') . ', CT=' . ($info['content_type'] ?? '?') . ')';
+			    continue;
+			}
+			file_put_contents($iconfilename, $bin);
 			echo '<br><br>Icon: <img src="'.$iconfilename.'">';
 			if (!isset($_GET['int'])) {
 				$iconout[] = $iconfilename;
@@ -98,7 +129,13 @@ if (isset($_GET['url'])) {
 	
 	// Save image to folder and display it
 	$iconfilename = './favico/favicon-'.time().'-'.str_replace(".","-",parse_url($rawurl, PHP_URL_HOST)).'.png';
-	file_put_contents($iconfilename, geticongoogle($rawurl));
+	$info = [];
+	$bin = geticongoogle($rawurl, $info);
+	if ($bin === false) {
+	    echo '<br><br><b>Kein Icon geladen.</b> HTTP=' . ($info['http_code'] ?? '?') . ' CT=' . ($info['content_type'] ?? '?') . ' Err=' . htmlspecialchars($info['curl_error'] ?? '');
+	    die;
+	}
+	file_put_contents($iconfilename, $bin);
 	echo '<br><br>Icon: <img src="'.$iconfilename.'">';
 	if (!isset($_GET['int'])) {
 		$iconout[] = $iconfilename;

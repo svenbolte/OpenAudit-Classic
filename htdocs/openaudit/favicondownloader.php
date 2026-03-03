@@ -261,7 +261,7 @@ class FaviconDownloader
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
+        // curl_setopt($ch, CURLOPT_BINARYTRANSFER, true); // deprecated - removed
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);  // Follow redirects (302, 301)
         curl_setopt($ch, CURLOPT_MAXREDIRS, 20);         // Follow up to 20 redirects
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:38.0) Gecko/20100101 Firefox/38.0');

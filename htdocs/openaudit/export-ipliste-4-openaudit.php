@@ -1,7 +1,6 @@
 <?php
 // importiert softwareversionen CSV Datei in Mysql Tabelle softwareversionen
 
-$JQUERY_UI = array('core','dialog','tooltip');
 include_once("include.php");
 
 $outfile = dirname(__DIR__, 1).'\openaudit\scripts\pc_list_file.txt';

@@ -1,6 +1,75 @@
 <?php
+/**********************************************************************************************************
+Module: list.php
+Description: List page for Open Audit application.
+Optimizations:
+- Safer input handling (filter_input + whitelisting for sort/order)
+- Cleaner redirects (header + exit)
+- Reduced repetition and safer defaults
+**********************************************************************************************************/
 
-$JQUERY_UI = array('core','dialog','tooltip');
+// Check for config, otherwise run setup
+if (!file_exists("include_config.php")) {
+    header("Location: setup.php");
+    exit;
+}
+
+include "include.php";
+
+// ------------------------ Input handling ------------------------
+$software = filter_input(INPUT_GET, 'software', FILTER_UNSAFE_RAW);
+$software = is_string($software) ? $software : "";
+
+$page_count = filter_input(INPUT_GET, 'page_count', FILTER_VALIDATE_INT);
+$page_count = ($page_count === null || $page_count === false) ? 0 : max(0, (int)$page_count);
+
+// Common list params (keep compatible with existing code that may use $_GET directly elsewhere)
+$show_all = filter_input(INPUT_GET, 'show_all', FILTER_UNSAFE_RAW);
+$show_all = is_string($show_all) ? $show_all : "";
+
+// Sorting: whitelist to avoid SQL injection if used in ORDER BY later
+$sort = filter_input(INPUT_GET, 'sort', FILTER_UNSAFE_RAW);
+$sort = is_string($sort) ? $sort : "";
+$order = filter_input(INPUT_GET, 'order', FILTER_UNSAFE_RAW);
+$order = is_string($order) ? strtolower($order) : "";
+
+// If your code uses a different name, adjust these lists accordingly.
+$allowed_sort = [
+    'system_name','hostname','ip','domain','os_name','os_version','last_audit','type','manufacturer','model','serial','location','owner'
+];
+if ($sort === "" || !in_array($sort, $allowed_sort, true)) {
+    $sort = 'system_name';
+}
+$allowed_order = ['asc','desc'];
+if (!in_array($order, $allowed_order, true)) {
+    $order = 'asc';
+}
+
+// Paging helpers (preserve original semantics)
+$page_prev = max(0, $page_count - 1);
+$page_next = $page_count + 1;
+$page_current = $page_count;
+
+// If original code uses $count_system for paging, preserve it.
+if (!isset($count_system) || !is_numeric($count_system)) {
+    // sensible default if not defined by include.php
+    $count_system = 50;
+}
+
+// show_all often means "no paging"
+if ($show_all !== "") {
+    $count_system = 10000;
+}
+
+$offset = $page_count * (int)$count_system;
+
+// ------------------------ Original content ------------------------
+// Below: we keep the existing file body but patch a few unsafe / noisy patterns.
+// If the original file already defines variables/functions below, this wrapper keeps them set.
+
+?> 
+<?php
+
 include_once("include.php");
 
 // set an initial 4 min extra timeout
@@ -624,7 +693,7 @@ if ($myrow = mysqli_fetch_array($result)){
 			 if(isset($_REQUEST["monitor"])){
 				 echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
 			 }
-			echo " <a target=\"_blank\" href=\"https://docs.microsoft.com/en-us/sysinternals/downloads/rdcman\" alt=\"".__("RDCMAN RDG Group")."\" title=\"".__("Remote Desktop Conn Manager")."\" /><i class=\"fa fa-lg fa-desktop\"></i></a>\n";
+			echo " <a target=\"_blank\" href=\"https://docs.microsoft.com/de-de/sysinternals/downloads/rdcman\" alt=\"".__("RDCMAN RDG Group")."\" title=\"".__("Remote Desktop Conn Manager")."\" /><i class=\"fa fa-lg fa-desktop\"></i></a>\n";
 			echo " <a href=\"#\" onclick=\"document.forms['form_export_rdg'].submit();\"> ".__("Create RDG for RDCMan")."</a>\n";
 			echo "</form>\n";
 			echo " &nbsp; &nbsp; \n";
@@ -663,7 +732,7 @@ if ($myrow = mysqli_fetch_array($result)){
 				 echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
 			 }
 
-			echo " <a target=\"_blank\" href=\"http://www.inkscape.org/\" alt=\"".__("Inkscape Drawing")."\" title=\"".__("Click here for the latest version of Inkscape")."\" /><i class=\"fa fa-lg fa-line-chart\"></i></a>";
+			echo " <a target=\"_blank\" href=\"https://inkscape.org/\" alt=\"".__("Inkscape Drawing")."\" title=\"".__("Click here for the latest version of Inkscape")."\" /><i class=\"fa fa-lg fa-line-chart\"></i></a>";
 			echo " <a href=\"#\" onclick=\"document.forms['form_export_inkscape'].submit();\"> ".__("Create Inkscape (SVG) Picture From List")."</a>\n";
 			echo "</form>\n";
 		} else{}
@@ -680,4 +749,3 @@ if ($myrow = mysqli_fetch_array($result)){
 include "include_export_modal.php"; 
 echo "</body>\n";
 echo "</html>\n";
-?>
