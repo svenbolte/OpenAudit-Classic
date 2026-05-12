@@ -42,6 +42,21 @@ base AS (
     AND s.software_name NOT REGEXP '(KB|Q)[0-9]{6,}'
 ),
 
+latest_sv AS (
+  SELECT sv.*
+  FROM softwareversionen sv
+  WHERE NOT EXISTS (
+    SELECT 1
+    FROM softwareversionen sv_newer
+    WHERE sv_newer.sv_product = sv.sv_product
+      AND COALESCE(sv_newer.sv_instlocation, '') = COALESCE(sv.sv_instlocation, '')
+      AND (
+        sv_newer.sv_datum > sv.sv_datum
+        OR (sv_newer.sv_datum = sv.sv_datum AND sv_newer.sv_id > sv.sv_id)
+      )
+  )
+),
+
 sv_norm AS (
   SELECT
     sv.sv_product,
@@ -63,7 +78,7 @@ sv_norm AS (
       LPAD(COALESCE(NULLIF(SUBSTRING_INDEX(SUBSTRING_INDEX(sv.sv_version, '.', 4), '.', -1), ''), '0'), 15, '0')
     ) AS v_sv
 
-  FROM softwareversionen sv
+  FROM latest_sv sv
   WHERE sv.sv_version IS NOT NULL
     AND sv.sv_version <> ''
 ),

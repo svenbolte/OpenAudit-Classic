@@ -11,6 +11,7 @@ $query_array=array("headline"=>__("List All Printers/Networks with IP v4 Portnam
           ON o.other_timestamp = sy.system_timestamp
          AND o.other_linked_pc = sy.system_uuid
         WHERE o.other_type = 'printer'
+          AND (o.other_linked_pc = sy.system_uuid OR o.other_linked_pc = '')
           AND (
                o.other_p_port_name REGEXP '(^|[^0-9])((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])([^0-9]|$)'
             OR o.other_value REGEXP '(^|[^0-9])((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])([^0-9]|$)'

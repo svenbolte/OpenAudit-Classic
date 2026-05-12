@@ -18,7 +18,17 @@ $query_array=array("headline"=>__("List all Software-Versions"),
   sv_linkempf,
   sv_icondata,
   sv_rating
-FROM softwareversionen
+FROM softwareversionen sv
+WHERE NOT EXISTS (
+  SELECT 1
+  FROM softwareversionen sv_newer
+  WHERE sv_newer.sv_product = sv.sv_product
+    AND COALESCE(sv_newer.sv_instlocation, '') = COALESCE(sv.sv_instlocation, '')
+    AND (
+      sv_newer.sv_datum > sv.sv_datum
+      OR (sv_newer.sv_datum = sv.sv_datum AND sv_newer.sv_id > sv.sv_id)
+    )
+)
 				   ",
                    "sort"=>"sv_product",
                    "dir"=>"ASC",

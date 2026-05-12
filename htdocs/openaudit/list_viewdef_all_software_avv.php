@@ -33,6 +33,21 @@ WITH software_clean AS (
     AND s.software_name NOT REGEXP '(KB|Q)[0-9]{6,}'
 ),
 
+latest_sv AS (
+  SELECT sv.*
+  FROM softwareversionen sv
+  WHERE NOT EXISTS (
+    SELECT 1
+    FROM softwareversionen sv_newer
+    WHERE sv_newer.sv_product = sv.sv_product
+      AND COALESCE(sv_newer.sv_instlocation, '') = COALESCE(sv.sv_instlocation, '')
+      AND (
+        sv_newer.sv_datum > sv.sv_datum
+        OR (sv_newer.sv_datum = sv.sv_datum AND sv_newer.sv_id > sv.sv_id)
+      )
+  )
+),
+
 sv_clean AS (
   SELECT
     sv_product,
@@ -52,7 +67,7 @@ sv_clean AS (
       ''
     ) AS sv_product_clean
 
-  FROM softwareversionen
+  FROM latest_sv
 ),
 
 matched AS (

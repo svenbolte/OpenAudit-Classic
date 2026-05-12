@@ -12,7 +12,8 @@ $query_array=array("headline"=>__("List All Printers"),
         LEFT JOIN system sy
           ON o.other_linked_pc = sy.system_uuid
          AND o.other_timestamp = sy.system_timestamp
-        WHERE o.other_type = 'printer'",
+        WHERE o.other_type = 'printer'
+          AND (o.other_linked_pc = sy.system_uuid OR o.other_linked_pc = '')",
 
                    "sort"=>"other_network_name",
                    "dir"=>"ASC",
