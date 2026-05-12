@@ -13,7 +13,11 @@ base AS (
     s.software_publisher,
     s.software_location,
     s.software_first_timestamp,
-    REGEXP_REPLACE(LOWER(REPLACE(s.software_name,'(x64)','')), '[^a-z0-9]+', '') AS norm_s
+    REGEXP_REPLACE(
+      LOWER(REPLACE(s.software_name, '(x64)', '')),
+      '[^a-z0-9]+',
+      ''
+    ) AS norm_s
   FROM system sy
   JOIN software s
     ON s.software_uuid = sy.system_uuid
@@ -26,15 +30,25 @@ base AS (
     AND s.software_name NOT LIKE '%Korrektur%'
     AND s.software_name NOT LIKE '%linguisti%'
     AND s.software_name NOT REGEXP 'SP[1-4]{1,}'
-    AND s.software_name NOT REGEXP '[KB|Q][0-9]{6,}'
+    AND s.software_name NOT REGEXP '(KB|Q)[0-9]{6,}'
 ),
+
 sv_norm AS (
   SELECT
-    sv.*,
-    REGEXP_REPLACE(LOWER(REPLACE(sv.sv_product,'(x64)','')), '[^a-z0-9]+', '') AS norm_p
+    sv.sv_product,
+    sv.sv_version,
+    sv.sv_icondata,
+    sv.sv_instlocation,
+    sv.sv_lizenztyp,
+    REGEXP_REPLACE(
+      LOWER(REPLACE(sv.sv_product, '(x64)', '')),
+      '[^a-z0-9]+',
+      ''
+    ) AS norm_p
   FROM softwareversionen sv
 ),
-cand AS (
+
+matches AS (
   SELECT
     b.*,
     sv.sv_version,
@@ -42,35 +56,47 @@ cand AS (
     sv.sv_instlocation,
     sv.sv_lizenztyp,
     sv.sv_product,
+    sv.norm_p,
+
     CASE
       WHEN b.norm_s = sv.norm_p THEN 3
       WHEN b.norm_s LIKE CONCAT('%', sv.norm_p, '%') THEN 2
       WHEN sv.norm_p LIKE CONCAT('%', b.norm_s, '%') THEN 1
       ELSE 0
     END AS score,
-    LENGTH(sv.norm_p) AS plen,
-    ROW_NUMBER() OVER (
-      PARTITION BY b.system_uuid, b.software_name, b.software_version
-      ORDER BY
-        CASE
-          WHEN b.norm_s = sv.norm_p THEN 3
-          WHEN b.norm_s LIKE CONCAT('%', sv.norm_p, '%') THEN 2
-          WHEN sv.norm_p LIKE CONCAT('%', b.norm_s, '%') THEN 1
-          ELSE 0
-        END DESC,
-        LENGTH(sv.norm_p) DESC
-    ) AS rn
+
+    LENGTH(sv.norm_p) AS plen
+
   FROM base b
   LEFT JOIN sv_norm sv
-    ON (
-         b.norm_s LIKE CONCAT('%', sv.norm_p, '%')
-         OR sv.norm_p LIKE CONCAT('%', b.norm_s, '%')
-       )
-   AND NOT (
-     LOWER(b.software_name) LIKE '%google chrome%'
-     AND LOWER(sv.sv_product) REGEXP '(beta|dev|canary|chromium|google update|googleupdate)'
+    ON sv.norm_p <> ''
+   AND b.norm_s <> ''
+   AND (
+        b.norm_s = sv.norm_p
+        OR b.norm_s LIKE CONCAT('%', sv.norm_p, '%')
+        OR sv.norm_p LIKE CONCAT('%', b.norm_s, '%')
    )
+   AND NOT (
+        LOWER(b.software_name) LIKE '%google chrome%'
+        AND LOWER(sv.sv_product) REGEXP '(beta|dev|canary|chromium|google update|googleupdate)'
+   )
+),
+
+ranked AS (
+  SELECT
+    m.*,
+    ROW_NUMBER() OVER (
+      PARTITION BY
+        m.system_uuid,
+        m.software_name,
+        m.software_version
+      ORDER BY
+        m.score DESC,
+        m.plen DESC
+    ) AS rn
+  FROM matches m
 )
+
 SELECT
   software_name,
   software_version,
@@ -84,9 +110,9 @@ SELECT
   system_uuid,
   sv_lizenztyp,
   software_first_timestamp,
-  (1=1) AS sv_newer
-FROM cand
-WHERE rn = 1 
+  1 AS sv_newer
+FROM ranked
+WHERE rn = 1
 				   
 				   
 				   ",

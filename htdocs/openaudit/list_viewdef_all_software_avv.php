@@ -1,28 +1,110 @@
 <?php
 $query_array=array("headline"=>__("AVV-Liste - Gesamte Software"),
-                   "sql"=>" SELECT software_name, softwareversionen.sv_bemerkungen, 
-							softwareversionen.sv_lizenztyp, softwareversionen.sv_version, softwareversionen.sv_instlocation,
-							softwareversionen.sv_icondata, software_version, softwareversionen.sv_lizenzgeber,
-							softwareversionen.sv_herstellerwebsite,softwareversionen.sv_supportmail, softwareversionen.sv_supporttel, 
-							software_publisher, software_url, software_comment, software_first_timestamp, (1=1) as sv_newer   
-						FROM system, software
-						LEFT JOIN softwareversionen
-						ON (
-							 CONCAT('%', LOWER(RTRIM(Replace(Replace(software.software_name,'(x64)',''),'.',''))) ,'%')      
-						LIKE CONCAT('%', LOWER(RTRIM(Replace(Replace(softwareversionen.sv_product,'(x64)',''),'.',''))) ,'%')
-						)
-						WHERE software_name NOT LIKE '%hotfix%'
-						AND software_name NOT LIKE '%Service Pack%' 
-						AND software_name NOT LIKE '% Edge Update%'
-						AND software_name NOT LIKE '%MUI (%'
-						AND software_name NOT LIKE '%Proofing %'
-						AND software_name NOT LIKE '%Language%'
-						AND software_name NOT LIKE '%Korrektur%'
-						AND software_name NOT LIKE '%linguisti%'
-						AND software_name NOT REGEXP 'SP[1-4]{1,}' 
-						AND software_name NOT REGEXP '[KB|Q][0-9]{6,}' 
-						AND software_uuid = system_uuid AND software_timestamp = system_timestamp
-						GROUP BY software_name ",
+                   "sql"=>"
+WITH software_clean AS (
+  SELECT
+    s.software_name,
+    s.software_version,
+    s.software_publisher,
+    s.software_url,
+    s.software_comment,
+    s.software_first_timestamp,
+
+    REGEXP_REPLACE(
+      LOWER(REPLACE(s.software_name, '(x64)', '')),
+      '[^a-z0-9]+',
+      ''
+    ) AS software_name_clean
+
+  FROM system sy
+  JOIN software s
+    ON s.software_uuid = sy.system_uuid
+   AND s.software_timestamp = sy.system_timestamp
+
+  WHERE s.software_name NOT LIKE '%hotfix%'
+    AND s.software_name NOT LIKE '%Service Pack%'
+    AND s.software_name NOT LIKE '% Edge Update%'
+    AND s.software_name NOT LIKE '%MUI (%'
+    AND s.software_name NOT LIKE '%Proofing %'
+    AND s.software_name NOT LIKE '%Language%'
+    AND s.software_name NOT LIKE '%Korrektur%'
+    AND s.software_name NOT LIKE '%linguisti%'
+    AND s.software_name NOT REGEXP 'SP[1-4]{1,}'
+    AND s.software_name NOT REGEXP '(KB|Q)[0-9]{6,}'
+),
+
+sv_clean AS (
+  SELECT
+    sv_product,
+    sv_bemerkungen,
+    sv_lizenztyp,
+    sv_version,
+    sv_instlocation,
+    sv_icondata,
+    sv_lizenzgeber,
+    sv_herstellerwebsite,
+    sv_supportmail,
+    sv_supporttel,
+
+    REGEXP_REPLACE(
+      LOWER(REPLACE(sv_product, '(x64)', '')),
+      '[^a-z0-9]+',
+      ''
+    ) AS sv_product_clean
+
+  FROM softwareversionen
+),
+
+matched AS (
+  SELECT *
+  FROM (
+    SELECT
+      sc.*,
+
+      sv.sv_bemerkungen,
+      sv.sv_lizenztyp,
+      sv.sv_version,
+      sv.sv_instlocation,
+      sv.sv_icondata,
+      sv.sv_lizenzgeber,
+      sv.sv_herstellerwebsite,
+      sv.sv_supportmail,
+      sv.sv_supporttel,
+
+      ROW_NUMBER() OVER (
+        PARTITION BY sc.software_name
+        ORDER BY LENGTH(sv.sv_product) ASC
+      ) AS rn
+
+    FROM software_clean sc
+    LEFT JOIN sv_clean sv
+      ON sc.software_name_clean LIKE CONCAT('%', sv.sv_product_clean, '%')
+      OR sv.sv_product_clean LIKE CONCAT('%', sc.software_name_clean, '%')
+  ) x
+  WHERE rn = 1
+)
+
+SELECT
+  software_name,
+  MAX(sv_bemerkungen)        AS sv_bemerkungen,
+  MAX(sv_lizenztyp)          AS sv_lizenztyp,
+  MAX(sv_version)            AS sv_version,
+  MAX(sv_instlocation)       AS sv_instlocation,
+  MAX(sv_icondata)           AS sv_icondata,
+  MAX(software_version)      AS software_version,
+  MAX(sv_lizenzgeber)        AS sv_lizenzgeber,
+  MAX(sv_herstellerwebsite)  AS sv_herstellerwebsite,
+  MAX(sv_supportmail)        AS sv_supportmail,
+  MAX(sv_supporttel)         AS sv_supporttel,
+  MAX(software_publisher)    AS software_publisher,
+  MAX(software_url)          AS software_url,
+  MAX(software_comment)      AS software_comment,
+  MIN(software_first_timestamp) AS software_first_timestamp,
+  1 AS sv_newer
+
+FROM matched
+GROUP BY software_name
+ ",
                    "sort"=>"software_name",
                    "dir"=>"ASC",
                    "get"=>array("file"=>"list.php",

@@ -1,10 +1,25 @@
 <?php
 /**********************************************************************************************************
-Module:	list_viewdef_all_network_printers.php
+Module:	list_viewdef_all_network_printers_ipv4.php
 
 **********************************************************************************************************/
 $query_array=array("headline"=>__("List All Printers/Networks with IP v4 Portname"),
-                   "sql"=>"SELECT * FROM other, system WHERE other_type = 'printer'  AND other_timestamp = system_timestamp and other_p_port_name LIKE '%.%.%.%' AND (other_linked_pc = system_uuid OR other_linked_pc = '') ",
+
+"sql"=>"SELECT o.*
+        FROM other o
+        LEFT JOIN system sy
+          ON o.other_timestamp = sy.system_timestamp
+         AND o.other_linked_pc = sy.system_uuid
+        WHERE o.other_type = 'printer'
+          AND (
+               o.other_p_port_name REGEXP '(^|[^0-9])((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])([^0-9]|$)'
+            OR o.other_value REGEXP '(^|[^0-9])((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])\\.){3}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])([^0-9]|$)'
+            OR o.other_p_port_name LIKE 'WSD-%'
+            OR o.other_p_port_name LIKE 'IP_%'
+            OR o.other_p_port_name LIKE 'TCP%'
+            OR o.other_p_port_name LIKE 'http%'
+            OR o.other_p_port_name LIKE 'ipp%'
+          )",
                    "sort"=>"other_network_name",
                    "dir"=>"ASC",
                    "get"=>array("file"=>"system.php",

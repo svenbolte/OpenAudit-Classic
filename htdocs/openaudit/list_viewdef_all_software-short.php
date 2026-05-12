@@ -1,19 +1,32 @@
 <?php
 $query_array=array("headline"=>__("List all Software"),
-                   "sql"=>" SELECT COUNT(software.software_name) AS software_count, software_name, software_version, software_url, software_comment, software_publisher, software_first_timestamp
-						FROM  system, software
-						WHERE software_name NOT LIKE '%hotfix%'
-						AND software_name NOT LIKE '%Service Pack%' 
-						AND software_name NOT LIKE '% Edge Update%'
-						AND software_name NOT LIKE '%MUI
-						(%' AND software_name NOT LIKE '%Proofing %'
-						AND software_name NOT LIKE '%Language%'
-						AND software_name NOT LIKE '%Korrektur%'
-						AND software_name NOT LIKE '%linguisti%'
-						AND software_name NOT REGEXP 'SP[1-4]{1,}' 
-						AND software_name NOT REGEXP '[KB|Q][0-9]{6,}' 
-						AND software_uuid = system_uuid AND software_timestamp = system_timestamp
-						GROUP BY software_name, software_version ",
+                   "sql"=>"
+SELECT
+  COUNT(*) AS software_count,
+  s.software_name,
+  s.software_version,
+  MAX(s.software_url) AS software_url,
+  MAX(s.software_comment) AS software_comment,
+  MAX(s.software_publisher) AS software_publisher,
+  MIN(s.software_first_timestamp) AS software_first_timestamp
+FROM system sy
+JOIN software s
+  ON s.software_uuid = sy.system_uuid
+ AND s.software_timestamp = sy.system_timestamp
+WHERE s.software_name NOT LIKE '%hotfix%'
+  AND s.software_name NOT LIKE '%Service Pack%'
+  AND s.software_name NOT LIKE '% Edge Update%'
+  AND s.software_name NOT LIKE '%MUI (%'
+  AND s.software_name NOT LIKE '%Proofing %'
+  AND s.software_name NOT LIKE '%Language%'
+  AND s.software_name NOT LIKE '%Korrektur%'
+  AND s.software_name NOT LIKE '%linguisti%'
+  AND s.software_name NOT REGEXP 'SP[1-4]{1,}'
+  AND s.software_name NOT REGEXP '(KB|Q)[0-9]{6,}'
+GROUP BY
+  s.software_name,
+  s.software_version
+ ",
                    "sort"=>"software_name",
                    "dir"=>"ASC",
                    "get"=>array("file"=>"list.php",

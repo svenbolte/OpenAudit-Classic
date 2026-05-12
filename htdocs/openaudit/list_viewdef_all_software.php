@@ -1,16 +1,82 @@
 <?php
 $query_array=array("headline"=>__("List all Software"),
                    "sql"=>"
-SELECT
-  COUNT(DISTINCT CONCAT_WS('|',
+WITH software_clean AS (
+  SELECT
     s.software_uuid,
     s.software_timestamp,
     s.software_name,
-    s.software_version
+    s.software_version,
+    s.software_publisher,
+    s.software_url,
+    s.software_comment,
+    s.software_first_timestamp,
+    REGEXP_REPLACE(
+      LOWER(REPLACE(s.software_name, '(x64)', '')),
+      '[^a-z0-9]+',
+      ''
+    ) AS software_name_clean
+  FROM system sy
+  JOIN software s
+    ON s.software_uuid = sy.system_uuid
+   AND s.software_timestamp = sy.system_timestamp
+  WHERE s.software_name NOT LIKE '%hotfix%'
+    AND s.software_name NOT LIKE '%Service Pack%'
+    AND s.software_name NOT LIKE '% Edge Update%'
+    AND s.software_name NOT LIKE '%MUI (%'
+    AND s.software_name NOT LIKE '%Proofing %'
+    AND s.software_name NOT LIKE '%Language%'
+    AND s.software_name NOT LIKE '%Korrektur%'
+    AND s.software_name NOT LIKE '%linguisti%'
+    AND s.software_name NOT REGEXP 'SP[1-4]{1,}'
+    AND s.software_name NOT REGEXP '(KB|Q)[0-9]{6,}'
+),
+
+sv_products_clean AS (
+  SELECT DISTINCT
+    sv_product,
+    REGEXP_REPLACE(
+      LOWER(REPLACE(sv_product, '(x64)', '')),
+      '[^a-z0-9]+',
+      ''
+    ) AS sv_product_clean
+  FROM softwareversionen
+),
+
+best_match AS (
+  SELECT *
+  FROM (
+    SELECT
+      sc.*,
+      sp.sv_product AS matched_sv_product,
+
+      ROW_NUMBER() OVER (
+        PARTITION BY
+          sc.software_uuid,
+          sc.software_timestamp,
+          sc.software_name,
+          sc.software_version
+        ORDER BY LENGTH(sp.sv_product) ASC
+      ) AS rn
+
+    FROM software_clean sc
+    LEFT JOIN sv_products_clean sp
+      ON sc.software_name_clean LIKE CONCAT('%', sp.sv_product_clean, '%')
+      OR sp.sv_product_clean LIKE CONCAT('%', sc.software_name_clean, '%')
+  ) x
+  WHERE rn = 1
+)
+
+SELECT
+  COUNT(DISTINCT CONCAT_WS('|',
+    bm.software_uuid,
+    bm.software_timestamp,
+    bm.software_name,
+    bm.software_version
   )) AS software_count,
 
-  s.software_name,
-  s.software_version,
+  bm.software_name,
+  bm.software_version,
 
   MAX(sv.sv_bemerkungen)  AS sv_bemerkungen,
   MAX(sv.sv_lizenztyp)    AS sv_lizenztyp,
@@ -18,64 +84,21 @@ SELECT
   MAX(sv.sv_instlocation) AS sv_instlocation,
   MAX(sv.sv_icondata)     AS sv_icondata,
 
-  MAX(s.software_publisher)       AS software_publisher,
-  MAX(s.software_url)             AS software_url,
-  MAX(s.software_comment)         AS software_comment,
-  MIN(s.software_first_timestamp) AS software_first_timestamp,
-  (1=1) AS sv_newer
-FROM system sy
-JOIN software s
-  ON s.software_uuid = sy.system_uuid
- AND s.software_timestamp = sy.system_timestamp
+  MAX(bm.software_publisher)       AS software_publisher,
+  MAX(bm.software_url)             AS software_url,
+  MAX(bm.software_comment)         AS software_comment,
+  MIN(bm.software_first_timestamp) AS software_first_timestamp,
 
-LEFT JOIN (
-  SELECT
-    sv1.sv_product,
-    sv1.sv_bemerkungen,
-    sv1.sv_lizenztyp,
-    sv1.sv_version,
-    sv1.sv_instlocation,
-    sv1.sv_icondata,
-    sv1.sv_product AS _join_key
-  FROM softwareversionen sv1
-) sv
-  ON sv._join_key = (
-    SELECT sv2.sv_product
-    FROM softwareversionen sv2
-    WHERE
-      (
-        REGEXP_REPLACE(LOWER(REPLACE(s.software_name, '(x64)', '')), '[^a-z0-9]+', '')
-        LIKE CONCAT('%',
-             REGEXP_REPLACE(LOWER(REPLACE(sv2.sv_product, '(x64)', '')), '[^a-z0-9]+', ''),
-             '%'
-        )
-        OR
-        REGEXP_REPLACE(LOWER(REPLACE(sv2.sv_product, '(x64)', '')), '[^a-z0-9]+', '')
-        LIKE CONCAT('%',
-             REGEXP_REPLACE(LOWER(REPLACE(s.software_name, '(x64)', '')), '[^a-z0-9]+', ''),
-             '%'
-        )
-      )
-    ORDER BY LENGTH(sv2.sv_product) ASC
-    LIMIT 1
-  )
+  1 AS sv_newer
 
-WHERE s.software_name NOT LIKE '%hotfix%'
-  AND s.software_name NOT LIKE '%Service Pack%'
-  AND s.software_name NOT LIKE '% Edge Update%'
-  AND s.software_name NOT LIKE '%MUI (%'
-  AND s.software_name NOT LIKE '%Proofing %'
-  AND s.software_name NOT LIKE '%Language%'
-  AND s.software_name NOT LIKE '%Korrektur%'
-  AND s.software_name NOT LIKE '%linguisti%'
-  AND s.software_name NOT REGEXP 'SP[1-4]{1,}'
-  AND s.software_name NOT REGEXP '[KB|Q][0-9]{6,}'
+FROM best_match bm
+
+LEFT JOIN softwareversionen sv
+  ON sv.sv_product = bm.matched_sv_product
 
 GROUP BY
-  s.software_name,
-  s.software_version
-
-
+  bm.software_name,
+  bm.software_version
 				   
 				   ",
                    "sort"=>"software_name",

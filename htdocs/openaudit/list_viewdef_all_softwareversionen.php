@@ -1,6 +1,25 @@
 <?php
 $query_array=array("headline"=>__("List all Software-Versions"),
-                   "sql"=>"SELECT sv_datum,sv_rating,sv_id,sv_lizenzgeber,sv_product as software_name,sv_version,sv_instlocation,sv_bemerkungen as bemerkungen,sv_vorinstall,sv_quelle,sv_lizenztyp,sv_lizenzgeber,sv_lizenzbestimmungen,sv_herstellerwebsite,sv_linkempf,sv_icondata,sv_rating FROM softwareversionen",
+                   "sql"=>"
+				   
+				   SELECT
+  sv_id,
+  sv_datum,
+  sv_product AS software_name,
+  sv_version,
+  sv_instlocation,
+  sv_bemerkungen AS bemerkungen,
+  sv_vorinstall,
+  sv_quelle,
+  sv_lizenztyp,
+  sv_lizenzgeber,
+  sv_lizenzbestimmungen,
+  sv_herstellerwebsite,
+  sv_linkempf,
+  sv_icondata,
+  sv_rating
+FROM softwareversionen
+				   ",
                    "sort"=>"sv_product",
                    "dir"=>"ASC",
                    "get"=>array("file"=>"list.php",

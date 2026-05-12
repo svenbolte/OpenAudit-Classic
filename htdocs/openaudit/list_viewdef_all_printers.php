@@ -6,7 +6,14 @@ AND (other_linked_pc = system_uuid OR other_linked_pc = '')
 		
 **********************************************************************************************************/
 $query_array=array("headline"=>__("List All Printers"),
-                   "sql"=>"SELECT * FROM other, system WHERE other_type = 'printer' AND other_timestamp = system_timestamp AND (other_linked_pc = system_uuid OR other_linked_pc = '')",
+
+"sql"=>"SELECT o.*, sy.system_name, sy.system_uuid
+        FROM other o
+        LEFT JOIN system sy
+          ON o.other_linked_pc = sy.system_uuid
+         AND o.other_timestamp = sy.system_timestamp
+        WHERE o.other_type = 'printer'",
+
                    "sort"=>"other_network_name",
                    "dir"=>"ASC",
                    "get"=>array("file"=>"system.php",
