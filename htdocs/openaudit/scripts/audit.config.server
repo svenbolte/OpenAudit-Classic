@@ -18,41 +18,39 @@ input_file = "pc_list_file.txt"
 '
 '
 
-email_to = "example@example.com"     
-email_from = "example@example.com"
-'email_sender = "Open-AudIT"
-email_server = "mail.example.com"      ' IP address or FQDN
+email_to = "ich@example.com"     
+email_from = "ich@example.com"
+email_sender = "Open-Audit-Classic"
+email_server = "10.10.10.1"      ' IP address or FQDN
 email_port = "25"                      ' The SMTP port
 email_auth = "1"                       ' 0 = Anonymous, 1 = Clear-text Authentication, 2 = NTLM
-email_user_id = "example@example.com"  ' A valid Email account in user@domain format
-email_user_pwd = "some_password"       ' The SMTP email password
+email_user_id = ""  ' A valid Email account in user@domain format
+email_user_pwd = ""       ' The SMTP email password
 email_use_ssl = "false"                ' True/False
 email_timeout = "60"                   ' In seconds
 send_email = "false"                   ' True/False - Enable/Disable email sending 
-
 audit_local_domain = "n" 
+
 '
 ' Set domain_type = 'nt' for NT4 or SAMBA otherwise leave blank or set to ldap
 'domain_type = "nt"
-
 local_domain = "LDAP://example.local" 
 
 '
 ' Example Set Domain name for NT ONLY for LDAP use the above format
 ' NOTE This is Case Sensetive. See the example below.
-'
-'local_domain = "WinNT://IEXPLORE"
-'local_domain = "WinNT://<domainname>"
+' local_domain = "WinNT://<domainname>"
 ' 
 
 hfnet = "n" 
 Count = 0 
-number_of_audits = 10 
-script_name = "audit.vbs" 
+number_of_audits = 4 
+script_name = "audit.ps1" 
 monitor_detect = "y" 
 printer_detect = "y" 
 software_audit = "y" 
 uuid_type = "uuid"
+
 '
 ' Nmap section
 '

@@ -1,18 +1,11 @@
 '
 ' Standard audit section
 '
-audit_location = "l" 
+audit_location = "r" 
 verbose = "y" 
-online = "n" 
-strComputer = "." 
-monitor_detect = "y" 
-printer_detect = "y" 
-software_audit = "y" 
-uuid_type = "uuid"
-use_audit_log = "y"
-
-
-audit_host="http://localhost:888"
+audit_host="http://pat14sv:888"
+online = "yesxml" 
+strComputer = "" 
 ie_visible = "n" 
 ie_auto_submit = "y" 
 ie_submit_verbose = "n" 
@@ -27,7 +20,7 @@ input_file = "pc_list_file.txt"
 
 email_to = "example@example.com"     
 email_from = "example@example.com"
-'email_sender = "Open-AudIT"
+'email_sender = "Open-Audit-Classic"
 email_server = "mail.example.com"      ' IP address or FQDN
 email_port = "25"                      ' The SMTP port
 email_auth = "1"                       ' 0 = Anonymous, 1 = Clear-text Authentication, 2 = NTLM
@@ -48,24 +41,24 @@ local_domain = "LDAP://example.local"
 ' Example Set Domain name for NT ONLY for LDAP use the above format
 ' NOTE This is Case Sensetive. See the example below.
 '
-'local_domain = "WinNT://IEXPLORE"
 'local_domain = "WinNT://<domainname>"
 ' 
 
 hfnet = "n" 
 Count = 0 
 number_of_audits = 10 
-script_name = "audit.vbs" 
+script_name = "audit.ps1" 
 monitor_detect = "y" 
 printer_detect = "y" 
 software_audit = "y" 
 uuid_type = "uuid"
+
 '
 ' Nmap section
 '
 nmap_tmp_cleanup = true           ' Set this false if you want to leave the tmp files for analysis in your tmp folder
-nmap_subnet = "172.26.14."            ' The subnet you wish to scan
-nmap_subnet_formatted = "172.026.014."    ' The subnet padded with 0's
+nmap_subnet = "10.10.10."            ' The subnet you wish to scan
+nmap_subnet_formatted = "010.010.010."    ' The subnet padded with 0's
 nmap_ie_form_page = audit_host + "/openaudit/admin_nmap_input.php" 
 nmap_ie_visible = "n"  
 nmap_ie_auto_close = "y"
