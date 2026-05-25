@@ -260,10 +260,6 @@ $menue_array = array(
                     "link"=>"/openaudit/csvxls.php",
                     "class"=>"menuparent",
                     "title"=>"CSV-Dateien in Excel konvertieren (Batch)",
-                    "childs"=>array(
-						"10"=>array("name"=>"Bookmarks2CSV", "link"=>"./bkm2csv.php", "image"=>"fa-list", "title"=>"Bookmarks nach CSV (Ecxel)",),
-						"20"=>array("name"=>"FaviconURLtoDATAURL", "link"=>"./favico.php", "image"=>"fa-list", "title"=>"Favicons herunterladen und als DATA-URL in Textdatei speichern",),
-                              ),
               ),
 
       "65" => array("name"=>"PHPMyAdmin", "image"=>"fa-database",
