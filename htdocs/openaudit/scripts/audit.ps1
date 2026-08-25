@@ -1,4 +1,4 @@
-<#
+﻿<#
 Open-AudIT native PowerShell conversion of audit.vbs.txt
 - No cscript/vbscript wrapper.
 - Reads audit.config (VBScript-style key/value file) from the same directory or /config_path:<path>.
@@ -68,6 +68,23 @@ function Read-AuditConfig([string]$Path){
         if($code -match '^([A-Za-z_]\w*)\s*=\s*(.*)$'){
             Set-Variable -Name $matches[1] -Scope Script -Value (Get-ConfigValueExpression $matches[2])
         }
+    }
+}
+# Fast pre-check for remote Windows/WMI targets. This avoids waiting for the
+# much longer RPC/WMI timeout when a host is offline, not a Windows PC, or WMI
+# is blocked. Local audits bypass this check.
+function Test-WmiEndpoint([string]$Computer,[int]$TimeoutMs=1500){
+    if(Is-LocalComputer $Computer){ return $true }
+    $client = New-Object System.Net.Sockets.TcpClient
+    try{
+        $ar = $client.BeginConnect($Computer,135,$null,$null)
+        if(-not $ar.AsyncWaitHandle.WaitOne($TimeoutMs,$false)){ return $false }
+        $client.EndConnect($ar)
+        return $client.Connected
+    } catch {
+        return $false
+    } finally {
+        try { $client.Close() } catch {}
     }
 }
 function Get-Wmi([string]$Computer,[string]$Namespace,[string]$Query,[string]$User,[string]$Password){
@@ -628,7 +645,23 @@ function Audit([string]$Computer,[string]$User,[string]$Password){
     $script:form_total=''
     $timestamp=Get-Date -Format 'yyyyMMddHHmmss'
     Echo "PC name supplied: $Computer"
+
+    # Fail fast before starting WMI/RPC. Port 135 is the RPC endpoint mapper
+    # used by classic remote WMI. Hosts that are offline/non-Windows or block
+    # WMI are skipped after a short timeout instead of the normal long wait.
+    $wmiProbeTimeoutMs = 1500
+    if(-not (Test-WmiEndpoint $Computer $wmiProbeTimeoutMs)){
+        Echo "No reachable Windows/WMI endpoint on $Computer after ${wmiProbeTimeoutMs}ms - skipping host."
+        return
+    }
+
+    # A failed WMI connection must abort only this host. The caller can then
+    # continue with the next entry from input_file.
     $cs=First (Get-Wmi $Computer 'root\cimv2' 'Select * from Win32_ComputerSystem' $User $Password)
+    if($null -eq $cs -or [string]::IsNullOrWhiteSpace([string]$cs.Name)){
+        Echo "WMI connection to $Computer failed - skipping host."
+        return
+    }
     $os=First (Get-Wmi $Computer 'root\cimv2' 'Select * from Win32_OperatingSystem' $User $Password)
     $csp=First (Get-Wmi $Computer 'root\cimv2' 'Select * from Win32_ComputerSystemProduct' $User $Password)
     $bios=First (Get-Wmi $Computer 'root\cimv2' 'Select * from Win32_BIOS' $User $Password)
@@ -842,10 +875,38 @@ foreach($k in $script:NamedArgs.Keys){
 if($script:UnnamedArgs.Count -gt 0){$script:strComputer=$script:UnnamedArgs[0]}
 if($script:UnnamedArgs.Count -gt 1){$script:strUser=$script:UnnamedArgs[1]}
 if($script:UnnamedArgs.Count -gt 2){$script:strPass=$script:UnnamedArgs[2]}
-if(-not $script:strComputer){$script:strComputer='.'}
 if(-not $script:online){$script:online='yesxml'}
 if(-not $script:software_audit){$script:software_audit='y'}
 if(-not $script:uuid_type){$script:uuid_type='uuid'}
 if(-not $script:verbose){$script:verbose='y'}
-Audit $script:strComputer $script:strUser $script:strPass
+
+# An explicitly supplied computer always wins. If no computer was supplied,
+# process input_file from audit.config. Only fall back to the local machine if
+# neither a computer nor an input file is configured.
+if(-not [string]::IsNullOrWhiteSpace([string]$script:strComputer)){
+    Audit ([string]$script:strComputer).Trim() $script:strUser $script:strPass
+}
+elseif(-not [string]::IsNullOrWhiteSpace([string]$script:input_file)){
+    $inputPath = [string]$script:input_file
+    if(-not [IO.Path]::IsPathRooted($inputPath)){
+        $inputPath = Join-Path $script:sScriptPath $inputPath
+    }
+
+    if(-not (Test-Path -LiteralPath $inputPath)){
+        Write-Error "Input file not found: $inputPath"
+        exit 1
+    }
+
+    foreach($computerLine in @(Get-Content -LiteralPath $inputPath -ErrorAction Stop)){
+        $computer = ([string]$computerLine).Trim()
+        if([string]::IsNullOrWhiteSpace($computer)){ continue }
+        if($computer.StartsWith('#') -or $computer.StartsWith(';')){ continue }
+
+        Echo "===== Starting audit target: $computer ====="
+        Audit $computer $script:strUser $script:strPass
+    }
+}
+else{
+    Audit '.' $script:strUser $script:strPass
+}
 exit 0
