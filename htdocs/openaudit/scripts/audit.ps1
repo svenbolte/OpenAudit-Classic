@@ -1,4 +1,4 @@
-﻿<#
+<#
 Open-AudIT native PowerShell conversion of audit.vbs.txt
 - No cscript/vbscript wrapper.
 - Reads audit.config (VBScript-style key/value file) from the same directory or /config_path:<path>.
@@ -798,7 +798,41 @@ function Audit([string]$Computer,[string]$User,[string]$Password){
     Echo 'Modem Info'; foreach($x in @(Get-Wmi $Computer 'root\cimv2' 'Select * from Win32_POTSModem' $User $Password)){ Add-Fields 'modem' @($x.AttachedTo,$x.CountrySelected,$x.Description,$x.DeviceType,$x.DeviceID) 'Modem Info' }
     Echo 'Mouse Info'; foreach($x in @(Get-Wmi $Computer 'root\cimv2' 'Select * from Win32_PointingDevice' $User $Password)){ Add-Fields 'mouse' @($x.Description,$x.NumberOfButtons,$x.DeviceID,(MouseType $x.PointingType),(MousePort $x.DeviceInterface)) 'Mouse Info' }
     Echo 'Sound Card Info'; foreach($x in @(Get-Wmi $Computer 'root\cimv2' 'Select * from Win32_SoundDevice' $User $Password)){ Add-Fields 'sound' @($x.Manufacturer,$x.Name,$x.DeviceID) 'Sound Card Info' }
-    Echo 'Printer Info'; foreach($x in @(Get-Wmi $Computer 'root\cimv2' 'Select * from Win32_Printer' $User $Password)){ Add-Fields 'printer' @($x.Caption,(BoolText $x.Local),$x.PortName,(BoolText $x.Shared),$x.ShareName,$x.SystemName,$x.Location,$x.DriverName,$x.Comment) 'Printer Info' }
+    Echo 'Printer Info'
+    $printerQueryOk = $false
+    $printers = @()
+    try {
+        if(Is-LocalComputer $Computer){
+            $printers = @(Get-WmiObject -ComputerName $Computer -Namespace 'root\cimv2' -Query 'Select * from Win32_Printer' -ErrorAction Stop)
+        } elseif($User -and $Password){
+            $sec = ConvertTo-SecureString $Password -AsPlainText -Force
+            $cred = New-Object System.Management.Automation.PSCredential($User,$sec)
+            try {
+                $printers = @(Get-WmiObject -ComputerName $Computer -Namespace 'root\cimv2' -Query 'Select * from Win32_Printer' -Credential $cred -Impersonation Impersonate -Authentication PacketPrivacy -ErrorAction Stop)
+            } catch {
+                # Some older targets reject an explicit authentication level although normal WMI works.
+                $printers = @(Get-WmiObject -ComputerName $Computer -Namespace 'root\cimv2' -Query 'Select * from Win32_Printer' -Credential $cred -ErrorAction Stop)
+            }
+        } else {
+            try {
+                $printers = @(Get-WmiObject -ComputerName $Computer -Namespace 'root\cimv2' -Query 'Select * from Win32_Printer' -Impersonation Impersonate -Authentication PacketPrivacy -ErrorAction Stop)
+            } catch {
+                $printers = @(Get-WmiObject -ComputerName $Computer -Namespace 'root\cimv2' -Query 'Select * from Win32_Printer' -ErrorAction Stop)
+            }
+        }
+        $printerQueryOk = $true
+    } catch {
+        Echo ('Win32_Printer query failed for ' + $Computer + ': ' + $_.Exception.Message)
+    }
+    if($printerQueryOk){
+        Add-Fields 'prnstate' @('complete') 'Printer Info'
+        Echo ('Printer entries found: ' + $printers.Count)
+        foreach($x in $printers){
+            Add-Fields 'printer' @($x.Caption,(BoolText $x.Local),$x.PortName,(BoolText $x.Shared),$x.ShareName,$x.SystemName,$x.Location,$x.DriverName,$x.Comment) 'Printer Info'
+        }
+    } else {
+        Echo 'Printer inventory NOT complete - printer data will not be replaced in database.'
+    }
     Echo 'Share Info'; foreach($x in @(Get-Wmi $Computer 'root\cimv2' 'Select * from Win32_Share' $User $Password)){ Add-Fields 'shares' @($x.Caption,$x.Name,$x.Path) 'Share Info' }
     Echo 'Mapped Drives Info'
     $mappedSeen = @{}

@@ -83,6 +83,19 @@ function displayBytes($bytes)
     return number_format($bytes / pow(1024, $power), $power === 0 ? 0 : 2, ',', '.') . ' ' . $units[$power];
 }
 
+function safeHttpUrl($value)
+{
+    $value = trim((string)$value);
+    if ($value === '') {
+        return '';
+    }
+    $parts = parse_url($value);
+    if ($parts === false || empty($parts['scheme'])) {
+        return '';
+    }
+    return in_array(strtolower($parts['scheme']), array('http', 'https'), true) ? $value : '';
+}
+
 function importHeaderKey($value)
 {
     $value = preg_replace('/^\xEF\xBB\xBF/', '', trim((string)$value));
@@ -180,7 +193,7 @@ if ($mode === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($handle === false) {
             $importError = 'Die CSV-Datei konnte nicht geöffnet werden.';
         } else {
-            $header = fgetcsv($handle, 0, ',');
+            $header = fgetcsv($handle, null, ',', '"', '');
             if ($header === false || count($header) < 2) {
                 $importError = 'Die CSV-Datei enthält keine gültige Kopfzeile.';
             } else {
@@ -204,7 +217,7 @@ if ($mode === 'add' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     $ok = mysqli_query($db, "DELETE FROM androidsoftware WHERE geraet='" . dbEscape($db, $geraet) . "'");
                     $count = 0;
 
-                    while ($ok && ($row = fgetcsv($handle, 0, ',')) !== false) {
+                    while ($ok && ($row = fgetcsv($handle, null, ',', '"', '')) !== false) {
                         if (count($row) === 1 && trim($row[0]) === '') {
                             continue;
                         }
@@ -367,6 +380,10 @@ echo "<table><tr><td class=\"contenthead\">\n";
 echo 'Android-Software-Inventar</td></tr></table>';
 echo "<table><tr><td style=\"padding:0 1em\">";
 ?>
+<style>
+.andro-shell{max-width:100%;color:#20262d}.andro-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 16px}.andro-toolbar a,.andro-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border:1px solid #cfd7df;border-radius:7px;background:#fff;color:#263746;text-decoration:none;cursor:pointer;line-height:1.2}.andro-toolbar a:hover,.andro-btn:hover{background:#f4f7f9;border-color:#aebac5}.andro-btn-primary{background:#2f6f9f;border-color:#2f6f9f;color:#fff}.andro-btn-danger{color:#a12a2a;border-color:#e1b8b8}.andro-card{background:#fff;border:1px solid #dbe2e8;border-radius:10px;padding:16px;margin:12px 0 18px;box-shadow:0 1px 3px rgba(0,0,0,.05)}.andro-card h3{margin:0 0 14px}.andro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 16px}.andro-field label{display:block;font-weight:600;margin-bottom:5px}.andro-field input,.andro-field select,.andro-search{width:100%;box-sizing:border-box;padding:8px 9px;border:1px solid #cbd4dc;border-radius:6px;background:#fff}.andro-field-wide{grid-column:1/-1}.andro-notice{padding:10px 12px;border-radius:7px;margin:10px 0;border:1px solid}.andro-success{background:#f1f8f3;border-color:#bcdac4;color:#245d32}.andro-error{background:#fff2f2;border-color:#e6bcbc;color:#8b2424}.andro-list-tools{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center;margin:12px 0 8px}.andro-list-tools .andro-search{max-width:360px}.andro-table-wrap{overflow:auto;border:1px solid #d9e0e6;border-radius:9px;background:#fff;max-height:70vh}.andro-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;white-space:nowrap}.andro-table th{position:sticky;top:0;z-index:2;background:#eef3f6;color:#273746;text-align:left;font-weight:700;padding:9px 10px;border-bottom:1px solid #ccd5dd}.andro-table td{padding:8px 10px;border-bottom:1px solid #edf0f2;vertical-align:middle}.andro-table tbody tr:nth-child(even){background:#fafbfc}.andro-table tbody tr:hover{background:#f1f6fa}.andro-table a{text-decoration:none}.andro-table .cell-app{font-weight:600;max-width:260px;overflow:hidden;text-overflow:ellipsis}.andro-table .cell-package{max-width:300px;overflow:hidden;text-overflow:ellipsis;color:#53616d}.andro-badge{display:inline-block;min-width:38px;text-align:center;padding:3px 7px;border-radius:999px;font-size:11px;font-weight:700}.badge-yes{background:#e4f4e8;color:#276438}.badge-no{background:#f0f2f4;color:#59636c}.andro-optional{display:none}.andro-show-advanced .andro-optional{display:table-cell}.andro-empty{text-align:center;padding:22px!important;color:#6b7680}@media(max-width:760px){.andro-card{padding:12px}.andro-table{font-size:12px}}
+</style>
+<div class="andro-shell">
 <script>
 function setGeraetFromSelect(selectEl, inputId) {
     var input = document.getElementById(inputId);
@@ -382,23 +399,36 @@ function delGeraet(inputId) {
         window.location = 'androapps.php?mode=del&geraet=' + encodeURIComponent(el.value.trim());
     }
 }
+
+function filterApps(value) {
+    var query=(value||'').toLowerCase().trim();
+    document.querySelectorAll('#androAppTable tbody tr[data-search]').forEach(function(row){
+        row.style.display=row.getAttribute('data-search').indexOf(query)!==-1?'':'none';
+    });
+}
+function toggleAdvancedColumns(button) {
+    var wrap=document.getElementById('androTableWrap');
+    if(!wrap)return;
+    var active=wrap.classList.toggle('andro-show-advanced');
+    button.textContent=active?'Technische Spalten ausblenden':'Technische Spalten anzeigen';
+}
 </script>
 
-<p>
-    <a href="androapps.php">Gesamtübersicht</a> |
-    <a href="androapps.php?mode=products">Auswertung nach Produkt</a> |
-    <a href="list.php?view=androapps"><i class="fa fa-lg fa-file-excel-o"></i> OpenAudit exportierbare Liste</a>
-</p>
+<div class="andro-toolbar">
+    <a href="androapps.php"><i class="fa fa-th-list"></i> Gesamtübersicht</a>
+    <a href="androapps.php?mode=products"><i class="fa fa-cubes"></i> Nach Produkt</a>
+    <a href="list.php?view=androapps"><i class="fa fa-file-excel-o"></i> Exportierbare Liste</a>
+</div>
 
 <?php if ($importMessage !== ''): ?>
-    <p style="color:green"><b><?= htmlspecialchars($importMessage) ?></b></p>
+    <div class="andro-notice andro-success"><b><?= htmlspecialchars($importMessage) ?></b></div>
 <?php endif; ?>
 <?php if ($importError !== ''): ?>
-    <p style="color:red"><b><?= htmlspecialchars($importError) ?></b></p>
+    <div class="andro-notice andro-error"><b><?= htmlspecialchars($importError) ?></b></div>
 <?php endif; ?>
 
 <?php if ($editRow): ?>
-<form method="post" action="androapps.php?mode=update&id=<?= (int)$editRow['id'] ?>">
+<form class="andro-card" method="post" action="androapps.php?mode=update&id=<?= (int)$editRow['id'] ?>">
     <h3>Eintrag bearbeiten</h3>
     <label>Gerät:<br><input type="text" name="geraet" value="<?= htmlspecialchars($editRow['geraet']) ?>" required></label><br>
     <label>Importdatum:<br><input type="datetime-local" name="datum" value="<?= htmlspecialchars(htmlDateTime($editRow['datum'])) ?>" required></label><br>
@@ -421,22 +451,16 @@ function delGeraet(inputId) {
 </form>
 <hr>
 <?php else: ?>
-<form method="post" action="androapps.php?mode=add" enctype="multipart/form-data">
+<form class="andro-card" method="post" action="androapps.php?mode=add" enctype="multipart/form-data">
     <h3>CSV-Datenimport für ein Gerät</h3>
-    <div class="geraet-row">
-        <input type="text" name="geraet" id="geraet_add" placeholder="Gerätename" required>
-        <select onchange="setGeraetFromSelect(this, 'geraet_add')">
-            <option value="">– vorhandenes Gerät wählen –</option>
-            <?php foreach ($geraeteListe as $g): ?>
-                <option value="<?= htmlspecialchars($g) ?>"><?= htmlspecialchars($g) ?></option>
-            <?php endforeach; ?>
-        </select>
-        <button type="button" onclick="delGeraet('geraet_add')" style="margin-left:8px;width:200px">Gerät löschen</button>
+    <div class="andro-grid">
+        <div class="andro-field"><label for="geraet_add">Gerätename</label><input type="text" name="geraet" id="geraet_add" placeholder="Gerätename" required></div>
+        <div class="andro-field"><label for="geraet_existing">Vorhandenes Gerät</label><select id="geraet_existing" onchange="setGeraetFromSelect(this, 'geraet_add')"><option value="">– auswählen –</option><?php foreach ($geraeteListe as $g): ?><option value="<?= htmlspecialchars($g) ?>"><?= htmlspecialchars($g) ?></option><?php endforeach; ?></select></div>
+        <div class="andro-field"><label for="import_datum">Importdatum</label><input id="import_datum" type="datetime-local" name="datum" value="<?= htmlspecialchars(date('Y-m-d\TH:i')) ?>" required></div>
+        <div class="andro-field"><label for="app_csv">App-Liste (CSV)</label><input id="app_csv" type="file" name="app_csv" accept=".csv,text/csv" required></div>
+        <div class="andro-field-wide"><small>Beim Import werden alle bisherigen App-Einträge des gewählten Geräts ersetzt.</small></div>
     </div>
-    <label>Importdatum: <input type="datetime-local" name="datum" value="<?= htmlspecialchars(date('Y-m-d\TH:i')) ?>" required></label><br>
-    <label>App-Liste (CSV): <input type="file" name="app_csv" accept=".csv,text/csv" required></label><br>
-    <small>Beim Import werden alle bisherigen App-Einträge des gewählten Geräts ersetzt.</small><br>
-    <button type="submit">CSV importieren</button>
+    <div class="andro-toolbar"><button class="andro-btn andro-btn-primary" type="submit"><i class="fa fa-upload"></i> CSV importieren</button><button class="andro-btn andro-btn-danger" type="button" onclick="delGeraet('geraet_add')"><i class="fa fa-trash"></i> Gerät löschen</button></div>
 </form>
 <hr>
 <?php endif; ?>
@@ -451,32 +475,37 @@ function delGeraet(inputId) {
     <h2>Erfasste Einträge (gesamt)</h2>
 <?php endif; ?>
 
-<div style="overflow-x:auto">
-<table class="tftable">
+<div class="andro-list-tools">
+    <input class="andro-search" type="search" placeholder="Apps, Gerät, Paket oder Version filtern …" oninput="filterApps(this.value)">
+    <button type="button" class="andro-btn" onclick="toggleAdvancedColumns(this)">Technische Spalten anzeigen</button>
+</div>
+<div class="andro-table-wrap" id="androTableWrap">
+<table class="andro-table" id="androAppTable">
 <thead><tr>
     <th>Importdatum</th>
-    <th>Gerätebezecihnung</th>
+    <th>Gerätebezeichnung</th>
     <th>App-Name</th>
     <th>Paketname</th>
     <th>Version</th>
     <th>APK-Größe</th>
-    <th>Archiviert</th>
+    <th class="andro-optional">Archiviert</th>
     <th>Aktiviert</th>
     <th>Im Store</th>
-    <th>Erstinstallation</th>
+    <th class="andro-optional">Erstinstallation</th>
     <th>Letztes Update</th>
-    <th>Berechtigungen erteilt</th>
-    <th>Berechtigungen angefordert</th>
-    <th>Min SDK</th>
-    <th>Target SDK</th>
-    <th>Paketmanager</th>
+    <th class="andro-optional">Berechtigungen erteilt</th>
+    <th class="andro-optional">Berechtigungen angefordert</th>
+    <th class="andro-optional">Min SDK</th>
+    <th class="andro-optional">Target SDK</th>
+    <th class="andro-optional">Paketmanager</th>
     <th>Store-Link</th>
     <th>Aktion</th>
 </tr></thead>
 <tbody>
 <?php if ($resultList && mysqli_num_rows($resultList) > 0): ?>
     <?php while ($r = mysqli_fetch_assoc($resultList)): ?>
-    <tr>
+    <?php $searchText = strtolower(implode(' ', array($r['geraet'], $r['produkt'], $r['package_name'], $r['version'], $r['package_manager']))); ?>
+    <tr data-search="<?= htmlspecialchars($searchText, ENT_QUOTES, 'UTF-8') ?>">
         <td><?= htmlspecialchars($r['datum']) ?></td>
         <td>
             <?php if ($r['geraet'] !== ''): ?>
@@ -486,26 +515,26 @@ function delGeraet(inputId) {
                 </a>
             <?php endif; ?>
         </td>
-        <td><?= htmlspecialchars($r['produkt']) ?></td>
-        <td><?= htmlspecialchars($r['package_name']) ?></td>
+        <td class="cell-app" title="<?= htmlspecialchars($r['produkt']) ?>"><?= htmlspecialchars($r['produkt']) ?></td>
+        <td class="cell-package" title="<?= htmlspecialchars($r['package_name']) ?>"><?= htmlspecialchars($r['package_name']) ?></td>
         <td><?= htmlspecialchars($r['version']) ?></td>
         <td title="<?= (int)$r['apk_size'] ?> Bytes"><?= htmlspecialchars(displayBytes($r['apk_size'])) ?></td>
-        <td><?= displayBool($r['archived']) ?></td>
-        <td><?= displayBool($r['enabled']) ?></td>
-        <td><?= displayBool($r['exists_in_app_store']) ?></td>
-        <td><?= htmlspecialchars($r['first_installed'] ?? '') ?></td>
+        <td class="andro-optional"><span class="andro-badge <?= $r['archived'] ? 'badge-yes' : 'badge-no' ?>"><?= displayBool($r['archived']) ?></span></td>
+        <td><span class="andro-badge <?= $r['enabled'] ? 'badge-yes' : 'badge-no' ?>"><?= displayBool($r['enabled']) ?></span></td>
+        <td><span class="andro-badge <?= $r['exists_in_app_store'] ? 'badge-yes' : 'badge-no' ?>"><?= displayBool($r['exists_in_app_store']) ?></span></td>
+        <td class="andro-optional"><?= htmlspecialchars($r['first_installed'] ?? '') ?></td>
         <td><?= htmlspecialchars($r['last_updated'] ?? '') ?></td>
-        <td><?= (int)$r['granted_permissions'] ?></td>
-        <td><?= (int)$r['requested_permissions'] ?></td>
-        <td><?= (int)$r['min_sdk'] ?></td>
-        <td><?= (int)$r['target_sdk'] ?></td>
-        <td><?= htmlspecialchars($r['package_manager']) ?></td>
-        <td><?php if (!empty($r['hlink'])): ?><a href="<?= htmlspecialchars($r['hlink']) ?>" target="_blank" rel="noopener">Store</a><?php endif; ?></td>
-        <td><a href="androapps.php?mode=edit&id=<?= (int)$r['id'] ?>">Bearbeiten</a></td>
+        <td class="andro-optional"><?= (int)$r['granted_permissions'] ?></td>
+        <td class="andro-optional"><?= (int)$r['requested_permissions'] ?></td>
+        <td class="andro-optional"><?= (int)$r['min_sdk'] ?></td>
+        <td class="andro-optional"><?= (int)$r['target_sdk'] ?></td>
+        <td class="andro-optional"><?= htmlspecialchars($r['package_manager']) ?></td>
+        <td><?php $storeUrl = safeHttpUrl($r['hlink']); if ($storeUrl !== ''): ?><a href="<?= htmlspecialchars($storeUrl, ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link"></i> Store</a><?php endif; ?></td>
+        <td><a class="andro-btn" href="androapps.php?mode=edit&id=<?= (int)$r['id'] ?>"><i class="fa fa-pencil"></i> Bearbeiten</a></td>
     </tr>
     <?php endwhile; ?>
 <?php else: ?>
-    <tr><td colspan="18">Keine Einträge vorhanden.</td></tr>
+    <tr><td class="andro-empty" colspan="18">Keine Einträge vorhanden.</td></tr>
 <?php endif; ?>
 </tbody>
 </table>

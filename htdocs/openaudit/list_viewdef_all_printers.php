@@ -1,19 +1,13 @@
 <?php
 /**********************************************************************************************************
-Module:	list_viewdef_all_printers.php
-
-AND (other_linked_pc = system_uuid OR other_linked_pc = '')
-		
+Module: list_viewdef_all_printers.php
+Purpose: Show every printer from the current per-device printer inventory.
 **********************************************************************************************************/
 $query_array=array("headline"=>__("List All Printers"),
 
-"sql"=>"SELECT o.*, sy.system_name, sy.system_uuid
+"sql"=>"SELECT o.*
         FROM other o
-        LEFT JOIN system sy
-          ON o.other_linked_pc = sy.system_uuid
-         AND o.other_timestamp = sy.system_timestamp
-        WHERE o.other_type = 'printer'
-          AND (o.other_linked_pc = sy.system_uuid OR o.other_linked_pc = '')",
+        WHERE o.other_type = 'printer'",
 
                    "sort"=>"other_network_name",
                    "dir"=>"ASC",
@@ -38,48 +32,14 @@ $query_array=array("headline"=>__("List All Printers"),
                                                                         ),
                                                            ),
                                               ),
-                                   "30"=>array("name"=>"other_description",
-                                               "head"=>__("Description"),
-                                               "show"=>"y",
-                                               "link"=>"n",
-                                              ),
-                                              
-                                   "40"=>array("name"=>"other_p_port_name",
-                                               "head"=>__("Port"),
-                                               "show"=>"y",
-                                               "link"=>"n",
-                                              ),
-                                   "50"=>array("name"=>"other_p_shared",
-                                               "head"=>__("Shared"),
-                                               "show"=>"y",
-                                               "link"=>"n",
-                                              ),
-                                              
-                                   "60"=>array("name"=>"other_p_share_name",
-                                               "head"=>__("Share Name"),
-                                               "show"=>"y",
-                                               "link"=>"n",
-                                              ),
-                                   "62"=>array("name"=>"other_value",
-                                               "head"=>__("Value"),
-                                               "show"=>"y",
-                                               "link"=>"n",
-                                              ),
-                                   "70"=>array("name"=>"other_location",
-                                               "head"=>__("Location"),
-                                               "show"=>"y",
-                                               "link"=>"n",
-                                              ),
-                                   "80"=>array("name"=>"other_model",
-                                               "head"=>__("Driver Name"),
-                                               "show"=>"y",
-                                               "link"=>"n",
-                                              ),
-									"90"=>array("name"=>"other_first_timestamp",
-                                               "head"=>__("First Audit"),
-                                               "show"=>"y",
-                                               "link"=>"n",
-                                              ),
-                                    ),
+                                   "30"=>array("name"=>"other_description","head"=>__("Description"),"show"=>"y","link"=>"n"),
+                                   "40"=>array("name"=>"other_p_port_name","head"=>__("Port"),"show"=>"y","link"=>"n"),
+                                   "50"=>array("name"=>"other_p_shared","head"=>__("Shared"),"show"=>"y","link"=>"n"),
+                                   "60"=>array("name"=>"other_p_share_name","head"=>__("Share Name"),"show"=>"y","link"=>"n"),
+                                   "62"=>array("name"=>"other_value","head"=>__("Comment"),"show"=>"y","link"=>"n"),
+                                   "70"=>array("name"=>"other_location","head"=>__("Location"),"show"=>"y","link"=>"n"),
+                                   "80"=>array("name"=>"other_model","head"=>__("Driver Name"),"show"=>"y","link"=>"n"),
+                                   "90"=>array("name"=>"other_timestamp","head"=>__("Audit"),"show"=>"y","link"=>"n"),
+                                  ),
                   );
 ?>

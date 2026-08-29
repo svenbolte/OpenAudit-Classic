@@ -1,33 +1,125 @@
-﻿.npb-tooltip{margin-right:5px}
-.npb-save-alert{float:left;margin-right:10px}
-#npb-save-error-div{height:90px;overflow:auto}
-#npb-save-error-list{font:normal 75% Arial,Sans}
-#npb_popupmenu_div{background-color:#fff;border:1px solid #ccc;font:normal 80% Arial,Sans;line-height:1.2em;position:absolute;visibility:hidden;z-index:100}
-#npb_popupmenu_div a{color:#000;display:block;padding-left:4px;text-decoration:none}
-#npb_popupmenu_div a:hover{background-color:#e1e1e1}
-ul.npb_tab_nav{font-size:1em;margin:0;padding:2px 10px}
-ul.npb_tab_nav li{border-right:1px #Ccc solid;display:inline;padding:0 10px}
-#npb_config_general_tab{font-weight:700;padding:0 10px 0 0}
-#npb_config_security_div,#npb_config_homepage_div,#npb_config_connections_div,#npb_config_audits_div,#npb_config_save_error{display:none}
-#config_general p,#config_security p,#config_homepage p,#config_ldap p{font-weight:400}
-div.npb_config_col{display:inline;margin:0 0 0 15px}
-#npb_ldap_connections_div,#npb_smtp_connection_div{font-size:1em;margin:10px;padding:5px}
-.npb-connection-config{display:none;font:normal 80% Arial,Sans;padding:10px}
-#npb_connection_test_div{margin:-20px 0 0}
-#npb_config_connections_div button,#npb_choose_email_div button{font:normal 80% Arial,Sans;margin:0 0 0 10px}
-.npb-connection-config fieldset,#npb_config_security_div fieldset,#npb_config_audits_div fieldset,#npb_config_general_div fieldset{border:1px solid #ccc;margin:5px;width:95%}
-.npb-connection-config label,#npb_config_general_div label,#npb_smtp_test{display:block;float:left;margin:5px 0 0;padding:0;text-align:right;width:150px}
-#npb_config_security_div label,#npb_config_general_div label{display:block;float:left;margin:5px 0 0;padding:0;text-align:right;width:200px}
-#npb_config_homepage_div label{display:block;float:left;margin:5px 0 0;padding:0;text-align:right;width:400px}
-div.npb_section_content form{display:inline}
-#npb_ldap_connections_div img,#npb_smtp_connection_div img{border:0;height:24px;margin:0 5px 0 0;vertical-align:middle;width:24px}
-#npb_ldap_connections_div table,#npb_smtp_connection_div table{border-collapse:collapse;border-spacing:0;vertical-align:middle;width:100%}
-#npb_ldap_connections_div td,#npb_smtp_connection_div td{border-bottom:2px solid #eee;padding:5px}
-#npb_ldap_connections_div th,#npb_smtp_connection_div th{margin-bottom:25px;padding:5px;text-align:left}
-#npb_ldap_connections_div ul{list-style:none outside;padding:0}
-.npb-smtp-data{text-align:center}
-.npb-label-div{float:left;margin-left:75px}
-#npb_config_save_error,.npb-connection-config button{font:normal 90% Arial,Sans}
-#npb_config_save_div,#npb_config_general_div,#npb_config_security_div,#npb_config_homepage_div,#npb_config_audits_div{padding:10px}
-.npb-connection-config input,#npb_config_general_div input,#npb_config_security_div input,#npb_config_homepage_div input,#npb_config_audits_div input,.npb-connection-config select{font:normal 90% Arial,Sans;margin:0 0 10px 10px;vertical-align:middle}
-.npb-connection-config input[type=checkbox],#npb_config_security_div input[type=checkbox],#npb_config_homepage_div input[type=checkbox],#npb_choose_email_div input[type=radio],#npb_config_general_div input[type=checkbox],#npb_config_general_div select{margin:4px 0 10px 10px}
+.npb-tooltip { margin-right: 5px; }
+.npb-save-alert { float: left; margin-right: 10px; }
+#npb-save-error-div { max-height: 180px; overflow: auto; }
+#npb-save-error-list { font-size: 12px; }
+
+#npb_popupmenu_div {
+  position: absolute;
+  visibility: hidden;
+  z-index: 100;
+  min-width: 180px;
+  padding: 6px;
+  border: 1px solid var(--oa-border);
+  border-radius: var(--oa-radius);
+  background: var(--oa-surface);
+  box-shadow: var(--oa-shadow);
+}
+#npb_popupmenu_div a { display: block; padding: 7px 9px; border-radius: 6px; color: var(--oa-text); }
+#npb_popupmenu_div a:hover { background: var(--oa-accent-soft); color: var(--openauditcolor); text-decoration: none; }
+
+ul.npb_tab_nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0 0 12px;
+  padding: 6px;
+  border: 1px solid var(--oa-border);
+  border-radius: var(--oa-radius);
+  background: var(--oa-surface);
+  list-style: none;
+}
+ul.npb_tab_nav li { display: inline; padding: 0; border: 0; }
+ul.npb_tab_nav li a { display: inline-flex; padding: 8px 11px; border-radius: 7px; color: #475467; }
+ul.npb_tab_nav li a:hover { background: var(--oa-accent-soft); text-decoration: none; }
+#npb_config_general_tab { padding: 8px 11px; background: var(--oa-accent-soft); color: var(--openauditcolor); font-weight: 700; }
+
+#npb_config_security_div,
+#npb_config_homepage_div,
+#npb_config_connections_div,
+#npb_config_audits_div,
+#npb_config_save_error { display: none; }
+#config_general p, #config_security p, #config_homepage p, #config_ldap p { font-weight: 400; }
+
+div.npb_config_col { display: inline; margin: 0; }
+#npb_ldap_connections_div, #npb_smtp_connection_div { margin: 10px 0; padding: 10px; font-size: 1em; }
+.npb-connection-config { display: none; padding: 12px; }
+#npb_connection_test_div { margin: 0; }
+#npb_config_connections_div button, #npb_choose_email_div button { margin: 4px; }
+
+.npb-connection-config fieldset,
+#npb_config_security_div fieldset,
+#npb_config_homepage_div fieldset,
+#npb_config_audits_div fieldset,
+#npb_config_general_div fieldset {
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 16px;
+  border: 1px solid var(--oa-border);
+  border-radius: var(--oa-radius);
+  background: var(--oa-surface);
+}
+fieldset legend { padding: 0 7px; color: #344054; font-size: 14px; font-weight: 700; }
+
+.npb-connection-config label,
+#npb_config_general_div label,
+#npb_config_security_div label,
+#npb_config_homepage_div label,
+#npb_config_audits_div label,
+#npb_smtp_test {
+  display: inline-block;
+  float: none;
+  width: 260px;
+  margin: 7px 10px 7px 0;
+  padding: 0;
+  text-align: left;
+  vertical-align: middle;
+}
+#npb_config_homepage_div label { width: 420px; max-width: 60%; }
+
+div.npb_section_content form { display: block; }
+#npb_ldap_connections_div img, #npb_smtp_connection_div img { width: 24px; height: 24px; margin: 0 5px 0 0; border: 0; vertical-align: middle; }
+#npb_ldap_connections_div table, #npb_smtp_connection_div table { width: 100%; border-collapse: collapse; vertical-align: middle; }
+#npb_ldap_connections_div td, #npb_smtp_connection_div td { padding: 8px; border-bottom: 1px solid var(--oa-border); }
+#npb_ldap_connections_div th, #npb_smtp_connection_div th { padding: 8px; text-align: left; }
+#npb_ldap_connections_div ul { padding: 0; list-style: none; }
+.npb-smtp-data { text-align: center; }
+.npb-label-div { float: none; margin-left: 0; }
+#npb_config_save_error { font-size: 13px; }
+#npb_config_save_div,
+#npb_config_general_div,
+#npb_config_security_div,
+#npb_config_homepage_div,
+#npb_config_audits_div { padding: 4px 0; }
+
+.npb-connection-config input,
+#npb_config_general_div input,
+#npb_config_security_div input,
+#npb_config_homepage_div input,
+#npb_config_audits_div input,
+.npb-connection-config select { margin: 4px 4px 8px; vertical-align: middle; }
+
+.oa-theme-fieldset small { display: block; margin-top: 10px; color: var(--oa-text-muted); }
+.oa-theme-picker { display: grid; grid-template-columns: minmax(180px, 260px) 52px 120px; align-items: center; gap: 10px; }
+#npb_config_general_div .oa-theme-picker label { width: auto; margin: 0; }
+#accent_color_picker {
+  width: 48px;
+  min-width: 48px;
+  height: 38px;
+  margin: 0;
+  padding: 3px;
+  cursor: pointer;
+}
+#accent_color { width: 110px; margin: 0; font-family: Consolas, monospace; text-transform: lowercase; }
+
+@media (max-width: 800px) {
+  .npb-connection-config label,
+  #npb_config_general_div label,
+  #npb_config_security_div label,
+  #npb_config_homepage_div label,
+  #npb_config_audits_div label,
+  #npb_smtp_test { display: block; width: 100%; max-width: 100%; margin-bottom: 2px; }
+  .oa-theme-picker { grid-template-columns: 1fr 52px minmax(110px, 1fr); }
+  #npb_config_general_div .oa-theme-picker label { grid-column: 1 / -1; }
+}
+
+.oa-config-save-message { text-align: center; color: var(--openauditcolor); font-weight: 700; margin: 8px 0 12px; }

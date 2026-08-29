@@ -36,7 +36,32 @@ if(isset($_POST['submit_button'])) {
 	$_POST['submit_button'] is defined - i.e. FORM has been submitted - check POSTed values
 	**********************************************************************************************************/
 
-	$accent_color = GetPOSTOrDefaultValue('accent_color','#047');
+	$current_accent_color = isset($accent_color) ? trim((string)$accent_color) : '#004477';
+	$accent_picker_post = trim((string)GetPOSTOrDefaultValue('accent_color_picker', $current_accent_color));
+	$accent_text_post = trim((string)GetPOSTOrDefaultValue('accent_color', $current_accent_color));
+
+	$normalize_accent = static function ($value) {
+		$value = trim((string)$value);
+		if (preg_match('/^#([0-9a-fA-F]{3})$/', $value, $m)) {
+			$value = '#' . $m[1][0] . $m[1][0] . $m[1][1] . $m[1][1] . $m[1][2] . $m[1][2];
+		}
+		return preg_match('/^#[0-9a-fA-F]{6}$/', $value) ? strtolower($value) : null;
+	};
+
+	$current_accent_normalized = $normalize_accent($current_accent_color) ?: '#004477';
+	$picker_accent_normalized = $normalize_accent($accent_picker_post);
+	$text_accent_normalized = $normalize_accent($accent_text_post);
+
+	// The native picker posts independently, so saving works even if cached/disabled JS
+	// fails to synchronize the text field. If the text field was edited deliberately,
+	// it wins; otherwise use the picker value.
+	if ($text_accent_normalized !== null && $text_accent_normalized !== $current_accent_normalized) {
+		$accent_color = $text_accent_normalized;
+	} elseif ($picker_accent_normalized !== null) {
+		$accent_color = $picker_accent_normalized;
+	} else {
+		$accent_color = $current_accent_normalized;
+	}
 	$language_post = GetPOSTOrDefaultValue('language_post','en');
 
 	// *************** Check Security settings ************************************************
@@ -190,11 +215,19 @@ if(isset($_POST['submit_button'])) {
     echo "Cannot write to file ($filename)";
     exit;
   }
-  echo '<div style="text-align:center">' . __("The Open-AudIT config has been updated") . '</div>';
   fclose($handle);
+
+  // include.php already rendered the <head> with the previous theme color. Reload once
+  // after a successful save so the new accent is applied immediately everywhere.
+  echo '<script>window.location.replace("admin_config.php?saved=1");</script>';
+  exit;
 }
-// re include the config so the page displays the updated variables
+// re include the config so the page displays the current variables
 include "include_config.php";
+
+if (isset($_GET['saved']) && $_GET['saved'] === '1') {
+  echo '<div class="oa-config-save-message">' . __("The Open-AudIT config has been updated") . '</div>';
+}
 
 // Set tooltip values for some configuration options that need an explanation
 $tooltips = array(
@@ -267,17 +300,18 @@ echo "</select>\n";
 echo "</fieldset>\n";
 
 // Akzentfarbe
-echo "<fieldset><legend>Color Theme</legend>\n";
-echo "<label>".__("accent color").":</label><select size='1' name='accent_color'>\n";
-	$colorarray = array('#047','#066','#666','#822');
-	foreach ($colorarray as $colo) {
-		if ($accent_color == $colo) $selected='selected="selected"'; else $selected='';
-		echo '<option $selected value="'.$colo.'">'.$colo.'</option>';
-	}	
-
-echo "</select>\n";
-foreach ($colorarray as $colo) echo ' &nbsp; <span style="padding:8px;color:#fff;background-color:'.$colo.'">'.$colo.'</span>';
-
+$accentPreview = $accent_color;
+if (preg_match('/^#([0-9a-fA-F]{3})$/', $accentPreview, $m)) {
+    $accentPreview = '#' . $m[1][0] . $m[1][0] . $m[1][1] . $m[1][1] . $m[1][2] . $m[1][2];
+}
+if (!preg_match('/^#[0-9a-fA-F]{6}$/', $accentPreview)) $accentPreview = '#004477';
+echo "<fieldset class='oa-theme-fieldset'><legend>Color Theme</legend>\n";
+echo "<div class='oa-theme-picker'>";
+echo "<label for='accent_color_picker'>".__("accent color").":</label>";
+echo "<input type='color' id='accent_color_picker' name='accent_color_picker' value='".htmlspecialchars($accentPreview, ENT_QUOTES, 'UTF-8')."' aria-label='Akzentfarbe auswählen'>";
+echo "<input type='text' id='accent_color' name='accent_color' value='".htmlspecialchars($accentPreview, ENT_QUOTES, 'UTF-8')."' pattern='#[0-9A-Fa-f]{6}' maxlength='7' spellcheck='false' aria-label='Akzentfarbe als Hexwert'>";
+echo "</div>";
+echo "<small>Eine zentrale Akzentfarbe für Navigation, Links, Buttons, Fokus und Tabellen.</small>";
 echo "</fieldset>\n";
 echo "<fieldset><legend>MySQL</legend>\n";
 echo "<label>MySQL ".__("Server").":</label><input type='text' name='mysqli_server_post' size='12' value='".$mysqli_server."'/><br />\n";

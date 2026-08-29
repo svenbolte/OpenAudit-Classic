@@ -75,13 +75,6 @@ include_once("include.php");
 // set an initial 4 min extra timeout
 set_time_limit(240000);
 
-//
-// Softwaredatenbank importieren alle 120 Minuten, sonst aus dem admin menü
-//
-if (isset($_REQUEST["view"]) AND str_contains($_REQUEST["view"], "software") ) {
-	svversionenimport(120);
-}	
-
 $count_system_max="10000";
 
 // If you would like to have a new View, you have to modify 3 parts:
@@ -182,13 +175,13 @@ $page_count=0;
         $alt_searchboxes=$searchboxes_array[1]["alt"];
     }
 
-echo "<td style=\"vertical-align:top;width:100%\">\n";
+echo "<td class=\"oa-main-cell\">\n";
 echo "<div class=\"main_each\">";
 
 //IIS doesn't set $_SERVER["REQUEST_URI"] so need to use script name and query string instead
 $MY_REQUEST_URI = $_SERVER["SCRIPT_NAME"] . "?" .  $_SERVER["QUERY_STRING"];
 
-echo "<form method=\"post\" id=\"form_nav\" action=\"".htmlentities($MY_REQUEST_URI)."\" style=\"margin:0px;\">\n";
+echo "<form method=\"post\" id=\"form_nav\" class=\"oa-list-form\" action=\"".htmlentities($MY_REQUEST_URI)."\">\n";
 
 //Calculating the page-count-vars in headline
 if( ($page_count+$count_system)>$all_page_count OR (isset($show_all) AND $show_all==1)){
@@ -197,7 +190,7 @@ if( ($page_count+$count_system)>$all_page_count OR (isset($show_all) AND $show_a
   $show_page_count_to=$page_count+$count_system;
 }
 
-echo '<table  style="padding-bottom:1em"><tr><td class="contenthead">';
+echo '<table class="oa-list-heading"><tr><td class="contenthead">';
 
      //Is the headline a sql-query?
      if(isset($query_array["headline"]) AND is_array($query_array["headline"])){
@@ -219,10 +212,10 @@ echo '<table  style="padding-bottom:1em"><tr><td class="contenthead">';
   //Previous
   if($page_count!=0 AND (isset($show_all) AND $show_all!=1)){
       echo "<a href=\"#\" onclick=\"set_form_field('page_count', '".$page_prev."'); submit_form();\">";
-        echo "<img src=\"images/go-prev.png\" alt=\"".__("Previous")."\" title=\"".__("Previous")."\" style=\"border:0px;\" width=\"16\" height=\"16\" />";
+        echo "<img src=\"images/go-prev.png\" alt=\"".__("Previous")."\" title=\"".__("Previous")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />";
       echo "</a>\n";
   }else{
-    echo "<img src=\"images/go-prev-disabled.png\" alt=\"".__("Disabled")."\" title=\"".__("Disabled")."\" style=\"border:0px;\" width=\"16\" height=\"16\" />\n";
+    echo "<img src=\"images/go-prev-disabled.png\" alt=\"".__("Disabled")."\" title=\"".__("Disabled")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />\n";
   }
 
   //All
@@ -230,24 +223,24 @@ echo '<table  style="padding-bottom:1em"><tr><td class="contenthead">';
   if($all_page_count>$count_system OR $count_system==$count_system_max ){
       if($show_all!=1){
           echo "<a href=\"#\" onclick=\"set_form_field('show_all', '1'); set_form_field('page_count', '0'); submit_form();\">";
-            echo "<img src=\"images/go-all.png\" alt=\"\" title=\"".__("All")."\" style=\"border:0px;\" width=\"16\" height=\"16\" />";
+            echo "<img src=\"images/go-all.png\" alt=\"\" title=\"".__("All")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />";
           echo "</a>\n";
       }else{
           echo "<a href=\"#\" onclick=\"set_form_field('show_all', ''); set_form_field('page_count', '0'); submit_form();\">";
-            echo "<img src=\"images/go-less.png\" alt=\"".__("By Page")."\" title=\"".__("By Page")."\" style=\"border:0px;\" width=\"16\" height=\"16\" />";
+            echo "<img src=\"images/go-less.png\" alt=\"".__("By Page")."\" title=\"".__("By Page")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />";
           echo "</a>\n";
       }
   }else{
-      echo "<img src=\"images/go-all-disabled.png\" alt=\"".__("Disabled")."\" title=\"".__("Disabled")."\" style=\"border:0px;\" width=\"16\" height=\"16\" />\n";
+      echo "<img src=\"images/go-all-disabled.png\" alt=\"".__("Disabled")."\" title=\"".__("Disabled")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />\n";
   }
   //Next
   //if(($page_count+$count_system)<=$all_page_count AND (isset($show_all) AND $show_all!=1)){
   if(($page_count+$count_system)<$all_page_count AND (isset($show_all) AND $show_all!=1)){
       echo "<a href=\"#\" onclick=\"set_form_field('page_count', '".$page_next."'); submit_form();\">";
-        echo "<img src=\"images/go-next.png\" alt=\"".__("Next")."\" title=\"".__("Next")."\" style=\"border:0px;\" width=\"16\" height=\"16\" />";
+        echo "<img src=\"images/go-next.png\" alt=\"".__("Next")."\" title=\"".__("Next")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />";
       echo "</a>\n";
   }else{
-    echo "<img src=\"images/go-next-disabled.png\" alt=\"".__("Disabled")."\" title=\"".__("Disabled")."\" style=\"border:0px;\" width=\"16\" height=\"16\" />\n";
+    echo "<img src=\"images/go-next-disabled.png\" alt=\"".__("Disabled")."\" title=\"".__("Disabled")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />\n";
   }
 
   //Direct jumping to pages
@@ -279,6 +272,28 @@ echo '<table  style="padding-bottom:1em"><tr><td class="contenthead">';
 
   echo "</td></tr>";
   echo "</table>\n";
+
+  // List actions live in the document flow so they never overlap the title.
+  $can_network_export = false;
+  if (isset($_REQUEST["view"])) {
+      $network_export_markers = array("systems", "laptops", "servers", "workstations", "for_gateway", "networked", "hosts", "printers", "port", "_all");
+      foreach ($network_export_markers as $network_export_marker) {
+          if (strpos($_REQUEST["view"], $network_export_marker) !== false) {
+              $can_network_export = true;
+              break;
+          }
+      }
+  }
+
+  echo '<div class="oa-list-actions" role="toolbar" aria-label="'.__("List actions").'">';
+  echo '<a class="oa-action-link" href="#" onclick="document.forms[\'form_export\'].submit(); return false;"><i class="fa fa-file-text-o" aria-hidden="true"></i><span>'.__("Export this List to CSV").'</span></a>';
+  echo '<a class="oa-action-link" href="#" onclick="document.forms[\'form_export_xlsx\'].submit(); return false;"><i class="fa fa-file-excel-o" aria-hidden="true"></i><span>'.__("XLSX Export Excel").'</span></a>';
+  if ($can_network_export) {
+      echo '<a class="oa-action-link" href="#" onclick="document.forms[\'form_export_rdg\'].submit(); return false;"><i class="fa fa-desktop" aria-hidden="true"></i><span>'.__("Create RDG for RDCMan").'</span></a>';
+      echo '<a class="oa-action-link" href="#" onclick="document.forms[\'form_export_dia\'].submit(); return false;"><i class="fa fa-object-group" aria-hidden="true"></i><span>'.__("Create DIA Network Diagram From List").'</span></a>';
+      echo '<a class="oa-action-link" href="#" onclick="document.forms[\'form_export_inkscape\'].submit(); return false;"><i class="fa fa-line-chart" aria-hidden="true"></i><span>'.__("Create Inkscape (SVG) Picture From List").'</span></a>';
+  }
+  echo '</div>';
 
 //Table header
 $headline_1=" ";
@@ -322,8 +337,8 @@ foreach($viewdef_array["fields"] as $field) {
 }
 
  //Button to Show and Hide the searchboxes
- $headline_1 .= "<td style=\"width:20px\">";
- $headline_1 .= "<a href=\"#\" onclick=\"show_searchboxes();\" id=\"link_searchboxes\"><img src=\"".$image_searchboxes."\" id=\"arrows_searchboxes\" style=\"border:0px;\" width=\"20\" height=\"16\" alt=\"".$alt_searchboxes."\" title=\"".$alt_searchboxes."\" /></a>";
+ $headline_1 .= "<td class=\"oa-filter-toggle-cell\">";
+ $headline_1 .= "<a href=\"#\" onclick=\"show_searchboxes();\" id=\"link_searchboxes\"><img src=\"".$image_searchboxes."\" id=\"arrows_searchboxes\" class=\"oa-filter-icon\" width=\"20\" height=\"16\" alt=\"".$alt_searchboxes."\" title=\"".$alt_searchboxes."\" /></a>";
  $headline_1 .= "</td>";
 
  $count_searchboxes++;
@@ -366,13 +381,13 @@ echo "<input type=\"hidden\" name=\"sort\" value=\"".$sort."\" />\n";
 echo "<input type=\"hidden\" name=\"page_count\" value=\"".$page_count."\" />\n";
 echo "<input type=\"hidden\" name=\"show_all\" value=\"".$show_all."\" />\n";
 echo "<input type=\"hidden\" name=\"headline_addition\" value=\"".$headline_addition."\" />\n";
-echo "<table class=\"tftable\"  >\n";
+echo "<table class=\"tftable oa-data-table\">\n";
 
 echo "<tr>\n";
  echo $headline_1;
 echo "</tr>\n";
 
-  echo "<tr style=\"width:100%\">\n";
+  echo "<tr class=\"oa-filter-row\">\n";
    echo $headline_2;
   echo "</tr>\n";
 
@@ -618,7 +633,7 @@ if ($myrow = mysqli_fetch_array($result)){
 
 	// Totals
 	
-	echo "<tr style=\"font-weight:bold\">";
+	echo "<tr class=\"oa-total-row\">";
         foreach($query_array["fields"] as $field) {
             if($field["show"]!="n") {
 				echo "<td>";
@@ -635,109 +650,51 @@ if ($myrow = mysqli_fetch_array($result)){
 		}
 	echo "</tr></table></form>\n";
 
-    // Export to CSV
+    // Export forms are kept separate from the visible toolbar to avoid nested forms.
+    echo '<div class="oa-export-forms" aria-hidden="true">';
 
-    echo '<div style="position:absolute;top:110px;left:186px">';
-    echo "<table class=\"tftable\"  ><tr>\n";
     echo "<form method=\"post\" id=\"form_export\" action=\"list_export.php\">\n";
     echo "<input type=\"hidden\" name=\"sql\" value=\"".urlencode($sql)."\" />\n";
     echo "<input type=\"hidden\" name=\"view\" value=\"".$_REQUEST["view"]."\"/>\n";
-    if(isset($_REQUEST["pc"])){
-         echo "<input type=\"hidden\" name=\"pc\" value=\"".$_REQUEST["pc"]."\"/>\n";
-     }
-     if(isset($_REQUEST["other"])){
-         echo "<input type=\"hidden\" name=\"other\" value=\"".$_REQUEST["other"]."\" />\n";
-     }
-     if(isset($_REQUEST["monitor"])){
-         echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
-     }
-     echo "<br><a href=\"#\" onclick=\"document.forms['form_export'].submit();\"><i class=\"fa fa-lg fa-file-text-o\"></i> ".__("Export this List to CSV")."</a>\n";
+    if(isset($_REQUEST["pc"])) echo "<input type=\"hidden\" name=\"pc\" value=\"".$_REQUEST["pc"]."\"/>\n";
+    if(isset($_REQUEST["other"])) echo "<input type=\"hidden\" name=\"other\" value=\"".$_REQUEST["other"]."\" />\n";
+    if(isset($_REQUEST["monitor"])) echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
     echo "</form>\n";
-    echo " &nbsp; &nbsp; \n";
-
-    // Export to xlsx using simple xlsx php class
 
     echo "<form method=\"post\" id=\"form_export_xlsx\" action=\"list_export_xlsx.php\">\n";
     echo "<input type=\"hidden\" name=\"sql\" value=\"".urlencode($sql)."\" />\n";
     echo "<input type=\"hidden\" name=\"view\" value=\"".$_REQUEST["view"]."\"/>\n";
-    if(isset($_REQUEST["pc"])){
-         echo "<input type=\"hidden\" name=\"pc\" value=\"".$_REQUEST["pc"]."\"/>\n";
-     }
-     if(isset($_REQUEST["other"])){
-         echo "<input type=\"hidden\" name=\"other\" value=\"".$_REQUEST["other"]."\" />\n";
-     }
-     if(isset($_REQUEST["monitor"])){
-         echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
-     }
-	echo "<a href=\"#\" onclick=\"document.forms['form_export_xlsx'].submit();\"><i class=\"fa fa-lg fa-file-excel-o\"></i> ".__("XLSX Export Excel")."</a>\n";
+    if(isset($_REQUEST["pc"])) echo "<input type=\"hidden\" name=\"pc\" value=\"".$_REQUEST["pc"]."\"/>\n";
+    if(isset($_REQUEST["other"])) echo "<input type=\"hidden\" name=\"other\" value=\"".$_REQUEST["other"]."\" />\n";
+    if(isset($_REQUEST["monitor"])) echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
     echo "</form>\n";
-    echo " &nbsp; &nbsp; \n";
-  
-    if (isset($_REQUEST["view"])) {
-		
-		// Check to be sure that we are looking at something which we can make a diagram of
-		$pos= (strpos($_REQUEST["view"], "systems") or strpos($_REQUEST["view"], "laptops") or strpos($_REQUEST["view"], "servers") or strpos($_REQUEST["view"], "workstations") or strpos($_REQUEST["view"], "for_gateway") or strpos($_REQUEST["view"], "networked") or strpos($_REQUEST["view"], "hosts") or strpos($_REQUEST["view"], "printers") or strpos($_REQUEST["view"], "port") or strpos($_REQUEST["view"], "_all"));
-		if ($pos === true) {
 
-			// Export to RDCMan (create RDG)
+    if ($can_network_export) {
+        echo "<form method=\"post\" id=\"form_export_rdg\" action=\"list_export_rdg.php\">\n";
+        echo "<input type=\"hidden\" name=\"sql\" value=\"".urlencode($sql)."\" />\n";
+        echo "<input type=\"hidden\" name=\"view\" value=\"".$_REQUEST["view"]."\"/>\n";
+        if(isset($_REQUEST["pc"])) echo "<input type=\"hidden\" name=\"pc\" value=\"".$_REQUEST["pc"]."\"/>\n";
+        if(isset($_REQUEST["other"])) echo "<input type=\"hidden\" name=\"other\" value=\"".$_REQUEST["other"]."\" />\n";
+        if(isset($_REQUEST["monitor"])) echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
+        echo "</form>\n";
 
-			echo "<form method=\"post\" id=\"form_export_rdg\" action=\"list_export_rdg.php\">\n";
-			echo "<input type=\"hidden\" name=\"sql\" value=\"".urlencode($sql)."\" />\n";
-			echo "<input type=\"hidden\" name=\"view\" value=\"".$_REQUEST["view"]."\"/>\n";
-			if(isset($_REQUEST["pc"])){
-				 echo "<input type=\"hidden\" name=\"pc\" value=\"".$_REQUEST["pc"]."\"/>\n";
-			 }
-			 if(isset($_REQUEST["other"])){
-				 echo "<input type=\"hidden\" name=\"other\" value=\"".$_REQUEST["other"]."\" />\n";
-			 } 
-			 if(isset($_REQUEST["monitor"])){
-				 echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
-			 }
-			echo " <a target=\"_blank\" href=\"https://docs.microsoft.com/de-de/sysinternals/downloads/rdcman\" alt=\"".__("RDCMAN RDG Group")."\" title=\"".__("Remote Desktop Conn Manager")."\" /><i class=\"fa fa-lg fa-desktop\"></i></a>\n";
-			echo " <a href=\"#\" onclick=\"document.forms['form_export_rdg'].submit();\"> ".__("Create RDG for RDCMan")."</a>\n";
-			echo "</form>\n";
-			echo " &nbsp; &nbsp; \n";
+        echo "<form method=\"post\" id=\"form_export_dia\" action=\"list_export_dia.php\">\n";
+        echo "<input type=\"hidden\" name=\"sql\" value=\"".urlencode($sql)."\" />\n";
+        echo "<input type=\"hidden\" name=\"view\" value=\"".$_REQUEST["view"]."\"/>\n";
+        if(isset($_REQUEST["pc"])) echo "<input type=\"hidden\" name=\"pc\" value=\"".$_REQUEST["pc"]."\"/>\n";
+        if(isset($_REQUEST["other"])) echo "<input type=\"hidden\" name=\"other\" value=\"".$_REQUEST["other"]."\" />\n";
+        if(isset($_REQUEST["monitor"])) echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
+        echo "</form>\n";
 
-			// Export to DIA
-
-			echo "<form method=\"post\" id=\"form_export_dia\" action=\"list_export_dia.php\">\n";
-			echo "<input type=\"hidden\" name=\"sql\" value=\"".urlencode($sql)."\" />\n";
-			echo "<input type=\"hidden\" name=\"view\" value=\"".$_REQUEST["view"]."\"/>\n";
-			if(isset($_REQUEST["pc"])){
-				 echo "<input type=\"hidden\" name=\"pc\" value=\"".$_REQUEST["pc"]."\"/>\n";
-			 }
-			 if(isset($_REQUEST["other"])){
-				 echo "<input type=\"hidden\" name=\"other\" value=\"".$_REQUEST["other"]."\" />\n";
-			 } 
-			 if(isset($_REQUEST["monitor"])){
-				 echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
-			 }
-			echo " <a target=\"_blank\" href=\"http://dia-installer.de/index.html.de\" alt=\"".__("DIA Diagram")."\" title=\"".__("Click here for the latest version of DIA")."\" /><i class=\"fa fa-lg fa-object-group\"></i></a>";
-			echo " <a href=\"#\" onclick=\"document.forms['form_export_dia'].submit();\"> ".__("Create DIA Network Diagram From List")."</a>\n";
-			echo "</form>\n";
-			echo " &nbsp; &nbsp; \n";
-
-			// Export to Inkscape
-
-			echo "<form method=\"post\" id=\"form_export_inkscape\" action=\"list_export_inkscape.php\">\n";
-			echo "<input type=\"hidden\" name=\"sql\" value=\"".urlencode($sql)."\" />\n";
-			echo "<input type=\"hidden\" name=\"view\" value=\"".$_REQUEST["view"]."\"/>\n";
-			if(isset($_REQUEST["pc"])){
-				 echo "<input type=\"hidden\" name=\"pc\" value=\"".$_REQUEST["pc"]."\"/>\n";
-			 }
-			 if(isset($_REQUEST["other"])){
-				 echo "<input type=\"hidden\" name=\"other\" value=\"".$_REQUEST["other"]."\" />\n";
-			 }
-			 if(isset($_REQUEST["monitor"])){
-				 echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
-			 }
-
-			echo " <a target=\"_blank\" href=\"https://inkscape.org/\" alt=\"".__("Inkscape Drawing")."\" title=\"".__("Click here for the latest version of Inkscape")."\" /><i class=\"fa fa-lg fa-line-chart\"></i></a>";
-			echo " <a href=\"#\" onclick=\"document.forms['form_export_inkscape'].submit();\"> ".__("Create Inkscape (SVG) Picture From List")."</a>\n";
-			echo "</form>\n";
-		} else{}
-    } else{}
-	echo '</div>';
+        echo "<form method=\"post\" id=\"form_export_inkscape\" action=\"list_export_inkscape.php\">\n";
+        echo "<input type=\"hidden\" name=\"sql\" value=\"".urlencode($sql)."\" />\n";
+        echo "<input type=\"hidden\" name=\"view\" value=\"".$_REQUEST["view"]."\"/>\n";
+        if(isset($_REQUEST["pc"])) echo "<input type=\"hidden\" name=\"pc\" value=\"".$_REQUEST["pc"]."\"/>\n";
+        if(isset($_REQUEST["other"])) echo "<input type=\"hidden\" name=\"other\" value=\"".$_REQUEST["other"]."\" />\n";
+        if(isset($_REQUEST["monitor"])) echo "<input type=\"hidden\" name=\"monitor\" value=\"".$_REQUEST["monitor"]."\" />\n";
+        echo "</form>\n";
+    }
+    echo '</div>';
 
 } else {
 

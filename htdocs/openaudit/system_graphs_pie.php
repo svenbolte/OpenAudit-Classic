@@ -94,9 +94,15 @@ for ($i = $centerY; $i > $centerY - $slice; $i--) {
                  $angle, 360, $empty_dark, IMG_ARC_PIE);
 }
 
-// Letzter Slice für Licht (hier auch auf $i achten)
-imagefilledarc($image, $width / 2, $i + $wedge_offset, ..., $full_light, IMG_ARC_PIE);
-imagefilledarc($image, $width / 2 - $wedge_offset, $i, ..., $empty_light, IMG_ARC_PIE);
+// Letzter Slice für Licht
+imagefilledarc($image, $width / 2, $i + $wedge_offset,
+               $width - ($width * $width_distortion / 100),
+               $height - ($height * $height_distortion / 100),
+               0, $angle, $full_light, IMG_ARC_PIE);
+imagefilledarc($image, $width / 2 - $wedge_offset, $i,
+               $width - ($width * $width_distortion / 100),
+               $height - ($height * $height_distortion / 100),
+               $angle, 360, $empty_light, IMG_ARC_PIE);
 
 }
 

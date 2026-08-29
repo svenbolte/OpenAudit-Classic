@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**********************************************************************************************************
 Module:	include.php
 
@@ -27,70 +27,131 @@ include "include_lenovo_warranty_functions.php"; // Added by Andrew Hull to allo
 //die(var_dump($TheApp));
 
 // Funktion für Software-Versionen online download and import
-function svversionenimport($aftertime) {
-	global $db;
-	echo '<div class="messagebox" style="position:absolute;left:5px;top:500px">';
-	$filename = dirname(__FILE__).'/wordpresssoftware.csv';
-	
-	$myserver = $_SERVER['SERVER_NAME'];
-	if ($myserver == 'pat14sv') {
-		// PB Spezial Kellerserver direkt:
-		$url = 'https://wp.pbcs.de/wp-content/uploads/csv/softwareverzeichnis.csv';
-	} else {
-		$url = 'https://tech-nachrichten.de/wp-content/uploads/csv/softwareverzeichnis.csv';
-	}
-	// Lokale Datei abgleichen
-	if (file_exists($filename)) {
-		echo substr($url,0,66).' | ';
-		echo "Update: " . date ("d.m.Y H:i:s", filemtime($filename));
-		
-		$tdif = (int) (time()-filemtime($filename));
-		echo ' | '. sprintf('%02d:%02d:%02d', $tdif/3600, floor($tdif/60)%60, $tdif%60);
-		 // erst nach 5 Minuten wieder DB-Update herunterladen
-		echo ' | '. $aftertime .' min.';
-		if ($tdif > ( (int) $aftertime * 60 ) ) {  
-			$arrContextOptions=array( "ssl"=>array( "verify_peer"=>false, "verify_peer_name"=>false, ), );  
-			$source = file_get_contents($url, false, stream_context_create($arrContextOptions));
+function svversionenimport($aftertime, $returnDetails = false) {
+    global $db;
 
-			// --- Alternative Methode ---
-			// $ch = curl_init($url);
-			// curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			// curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-			// curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-			// curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-			// $source = curl_exec($ch);
-			// curl_close($ch);
+    $startedAt = microtime(true);
+    $filename = dirname(__FILE__).'/wordpresssoftware.csv';
+    $messages = array();
+    $myserver = $_SERVER['SERVER_NAME'] ?? '';
+    $url = ($myserver == 'pat14sv')
+        ? 'https://wp.pbcs.de/wp-content/uploads/csv/softwareverzeichnis.csv'
+        : 'https://tech-nachrichten.de/wp-content/uploads/csv/softwareverzeichnis.csv';
 
-			
-			if (!empty($source) && substr($source,0,15)=='Datum;Rating;id' ) file_put_contents($filename, $source); else echo ' Downloadfehler, verwende alte Datei zum Import!';
-		}
-	}
-	// Datei worpresssoftware.csv in Datenbank einlesen
-	echo ' | '.$filename;
-	$flag = true;
-	$file = fopen($filename, "r");
-	// Tabelle vorher löschen
-	$sql_all = "truncate table softwareversionen";
-	$result_all = mysqli_query($db,$sql_all);
-	// Daten schreiben in Tabelle
-	while (($emapData = fgetcsv($file, 1000000, ";", escape: "")) !== FALSE) {
-		if($flag) { $flag = false; continue; }
-		if (isset($emapData[0])) {
-			$emapData[5] = htmlentities($emapData[5]);
-			// mb_convert_encoding($emapData[5], "HTML-ENTITIES", "UTF-8");
-			//iconv( "UTF-8", "latin1Windows-1252",  );
-			
-			// emapdate 15 und 16 eintragen für supportmail und supporttel
-						
-			$sql_all = "INSERT into softwareversionen (sv_datum,sv_rating,sv_id,sv_product,sv_version,sv_bemerkungen,sv_vorinstall,sv_quelle,sv_lizenztyp,sv_lizenzgeber,sv_lizenzbestimmungen,sv_instlocation,sv_herstellerwebsite,sv_linkempf,sv_icondata,sv_supportmail,sv_supporttel)
-	 values ('$emapData[0]','$emapData[1]','$emapData[2]','$emapData[3]','$emapData[4]','$emapData[5]','$emapData[6]','$emapData[7]','$emapData[8]','$emapData[9]','$emapData[10]','$emapData[11]','$emapData[12]','$emapData[13]','$emapData[14]','$emapData[15]','$emapData[16]')";
-			$result_all = mysqli_query($db,$sql_all);
-		}	
-	}
-	fclose($file);
-	echo ' importiert</div>';
-}	
+    $details = array(
+        'ok' => true,
+        'source_url' => $url,
+        'local_file' => basename($filename),
+        'local_exists' => file_exists($filename),
+        'local_timestamp' => file_exists($filename) ? filemtime($filename) : null,
+        'download_attempted' => false,
+        'download_updated' => false,
+        'download_error' => '',
+        'imported' => 0,
+        'duration' => 0.0,
+        'messages' => array()
+    );
 
+    if (file_exists($filename)) {
+        $tdif = (int)(time() - filemtime($filename));
+        $messages[] = 'Softwarekatalog: ' . date('d.m.Y H:i:s', filemtime($filename));
+
+        if ($tdif > ((int)$aftertime * 60)) {
+            $details['download_attempted'] = true;
+            $arrContextOptions = array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false));
+            $source = @file_get_contents($url, false, stream_context_create($arrContextOptions));
+            if (!empty($source) && substr($source, 0, 15) == 'Datum;Rating;id') {
+                if (file_put_contents($filename, $source) !== false) {
+                    clearstatcache(true, $filename);
+                    $details['download_updated'] = true;
+                    $details['local_timestamp'] = filemtime($filename);
+                    $messages[] = 'Online-Katalog aktualisiert';
+                } else {
+                    $details['ok'] = false;
+                    $details['download_error'] = 'Heruntergeladener Katalog konnte lokal nicht gespeichert werden.';
+                    $messages[] = 'Download erhalten, lokales Speichern fehlgeschlagen';
+                }
+            } else {
+                $details['download_error'] = 'Download fehlgeschlagen oder die CSV-Kopfzeile ist ungueltig.';
+                $messages[] = 'Download fehlgeschlagen - lokaler Katalog wird verwendet';
+            }
+        } else {
+            $messages[] = 'Lokaler Katalog ist noch aktuell - kein Download erforderlich';
+        }
+    } else {
+        $messages[] = 'Lokaler Softwarekatalog fehlt';
+        $details['download_attempted'] = true;
+        $arrContextOptions = array('ssl' => array('verify_peer' => false, 'verify_peer_name' => false));
+        $source = @file_get_contents($url, false, stream_context_create($arrContextOptions));
+        if (!empty($source) && substr($source, 0, 15) == 'Datum;Rating;id' && file_put_contents($filename, $source) !== false) {
+            clearstatcache(true, $filename);
+            $details['local_exists'] = true;
+            $details['local_timestamp'] = filemtime($filename);
+            $details['download_updated'] = true;
+            $messages[] = 'Online-Katalog neu heruntergeladen';
+        } else {
+            $details['ok'] = false;
+            $details['download_error'] = 'Es ist kein lokaler Katalog vorhanden und der Download ist fehlgeschlagen.';
+        }
+    }
+
+    if (!file_exists($filename)) {
+        $details['ok'] = false;
+        $details['messages'] = $messages;
+        $details['duration'] = microtime(true) - $startedAt;
+        return $returnDetails ? $details : implode(' | ', $messages);
+    }
+
+    $file = fopen($filename, 'r');
+    if ($file === false) {
+        $messages[] = 'Katalog konnte nicht geoeffnet werden';
+        $details['ok'] = false;
+        $details['messages'] = $messages;
+        $details['duration'] = microtime(true) - $startedAt;
+        return $returnDetails ? $details : implode(' | ', $messages);
+    }
+
+    if (!mysqli_query($db, 'TRUNCATE TABLE softwareversionen')) {
+        fclose($file);
+        $messages[] = 'Datenbanktabelle konnte nicht geleert werden: ' . mysqli_error($db);
+        $details['ok'] = false;
+        $details['messages'] = $messages;
+        $details['duration'] = microtime(true) - $startedAt;
+        return $returnDetails ? $details : implode(' | ', $messages);
+    }
+
+    $flag = true;
+    $count = 0;
+    while (($emapData = fgetcsv($file, 1000000, ';', '"', '')) !== false) {
+        if ($flag) { $flag = false; continue; }
+        if (!isset($emapData[0])) { continue; }
+        for ($i = 0; $i <= 16; $i++) {
+            if (!isset($emapData[$i])) $emapData[$i] = '';
+        }
+        $emapData[5] = htmlentities((string)$emapData[5], ENT_QUOTES, 'UTF-8');
+        for ($i = 0; $i <= 16; $i++) {
+            $emapData[$i] = mysqli_real_escape_string($db, (string)$emapData[$i]);
+        }
+        $sql_all = "INSERT INTO softwareversionen (sv_datum,sv_rating,sv_id,sv_product,sv_version,sv_bemerkungen,sv_vorinstall,sv_quelle,sv_lizenztyp,sv_lizenzgeber,sv_lizenzbestimmungen,sv_instlocation,sv_herstellerwebsite,sv_linkempf,sv_icondata,sv_supportmail,sv_supporttel)
+            VALUES ('$emapData[0]','$emapData[1]','$emapData[2]','$emapData[3]','$emapData[4]','$emapData[5]','$emapData[6]','$emapData[7]','$emapData[8]','$emapData[9]','$emapData[10]','$emapData[11]','$emapData[12]','$emapData[13]','$emapData[14]','$emapData[15]','$emapData[16]')";
+        if (mysqli_query($db, $sql_all)) {
+            $count++;
+        } else {
+            $details['ok'] = false;
+            $messages[] = 'Mindestens ein Datensatz konnte nicht importiert werden';
+        }
+    }
+    fclose($file);
+
+    $details['imported'] = $count;
+    $details['local_exists'] = true;
+    $details['local_timestamp'] = filemtime($filename);
+    $messages[] = $count . ' Eintraege importiert';
+    $details['messages'] = $messages;
+    $details['duration'] = microtime(true) - $startedAt;
+
+    return $returnDetails ? $details : implode(' | ', $messages);
+}
 
 
 $page = GetVarOrDefaultValue($page);
@@ -144,14 +205,34 @@ if ($use_pass != "n") {
 <link rel="icon" href="favicon.ico" type="image/x-icon"/>
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon"/> 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#e1e1e1">
-<meta name="msapplication-navbutton-color" content="#e1e1e1">
-<style>:root{--openauditcolor:<?php echo $accent_color ?>;--openauditcolorlite1:<?php echo $accent_color ?>1;--openauditcolorlite2:<?php echo $accent_color ?>2;--openauditcolorlite4:<?php echo $accent_color ?>3}
 <?php
-if ($accent_color == '#066') echo '.headerbanner {filter: hue-rotate(-15deg)}';
-if ($accent_color == '#822') echo '.headerbanner {filter: grayscale(.8)}';
-if ($accent_color == '#666') echo '.headerbanner {filter: grayscale(.8)}';
+// Normalize old 3-digit values and validate custom theme colors from Settings.
+$themeAccent = isset($accent_color) ? trim((string)$accent_color) : '#004477';
+if (preg_match('/^#([0-9a-fA-F]{3})$/', $themeAccent, $m)) {
+    $themeAccent = '#' . $m[1][0] . $m[1][0] . $m[1][1] . $m[1][1] . $m[1][2] . $m[1][2];
+}
+if (!preg_match('/^#[0-9a-fA-F]{6}$/', $themeAccent)) {
+    $themeAccent = '#004477';
+}
+$themeAccent = strtolower($themeAccent);
+function oaHexToRgb($hex) {
+    $hex = ltrim($hex, '#');
+    return array(hexdec(substr($hex, 0, 2)), hexdec(substr($hex, 2, 2)), hexdec(substr($hex, 4, 2)));
+}
+list($themeR, $themeG, $themeB) = oaHexToRgb($themeAccent);
 ?>
+<meta name="theme-color" content="<?php echo htmlspecialchars($themeAccent, ENT_QUOTES, 'UTF-8'); ?>">
+<meta name="msapplication-navbutton-color" content="<?php echo htmlspecialchars($themeAccent, ENT_QUOTES, 'UTF-8'); ?>">
+<style>
+:root {
+  --openauditcolor: <?php echo $themeAccent; ?>;
+  --openaudit-rgb: <?php echo $themeR . ', ' . $themeG . ', ' . $themeB; ?>;
+  --openauditcolorlite1: rgba(<?php echo $themeR . ', ' . $themeG . ', ' . $themeB; ?>, .06);
+  --openauditcolorlite2: rgba(<?php echo $themeR . ', ' . $themeG . ', ' . $themeB; ?>, .10);
+  --openauditcolorlite4: rgba(<?php echo $themeR . ', ' . $themeG . ', ' . $themeB; ?>, .16);
+  --oa-accent-soft: rgba(<?php echo $themeR . ', ' . $themeG . ', ' . $themeB; ?>, .12);
+  --oa-accent-border: rgba(<?php echo $themeR . ', ' . $themeG . ', ' . $themeB; ?>, .28);
+}
 </style>
 <link media="screen" rel="stylesheet" type="text/css" href="default.css" />
 <link rel="stylesheet" href="/openaudit/fonts/fontawesomeplus.min.css" />
@@ -190,7 +271,15 @@ if ($page <> "setup"){
   $version = "0.1.00";
 }
 
+$oaBannerStatus = '';
+if (basename($_SERVER['PHP_SELF'] ?? '') === 'list.php' && isset($_REQUEST['view']) && str_contains((string)$_REQUEST['view'], 'software')) {
+    $oaBannerStatus = svversionenimport(120);
+}
+
 get_headerbanner();
+if ($oaBannerStatus !== '') {
+    echo '<div class="oa-banner-status" role="status">'.htmlspecialchars($oaBannerStatus, ENT_QUOTES, 'UTF-8').'</div>';
+}
 
 // Search box
 echo "<div id=\"inforechts\"><form action=\"search.php\" method=\"get\">\n";
@@ -203,157 +292,152 @@ echo "</div>\n";
 ?>		
  </div>
  
-  <table class=\"tftable\"  >
-  <tr>
-    <td style="width:170px;" rowspan="12" valign="top" id="nav">
-      <ul id="primary-nav">
-		<li><a href="index.php"><i class="fa fa-lg fa-home"></i> <?php echo strtoupper(__("Home")); ?></a></li>
+<?php
+// Modern horizontal navigation. Submenus expand downwards; third-level entries
+// stay inside the same dropdown so they cannot be clipped by the viewport.
+require_once("include_menu_array.php");
+
+function oaMenuIcon($item, $large = false) {
+    if (!isset($item['image']) || $item['image'] === '') return '';
+    $image = $item['image'];
+    if (strstr($image, 'fa-')) {
+        return '<i class="fa '.($large ? 'fa-lg ' : '').htmlspecialchars($image, ENT_QUOTES, 'UTF-8').'" aria-hidden="true"></i>';
+    }
+    return '<img class="oa-menu-icon" src="'.htmlspecialchars($image, ENT_QUOTES, 'UTF-8').'" alt="">';
+}
+
+function oaRenderMenuChildren($children) {
+    if (!is_array($children) || empty($children)) return;
+    echo '<div class="oa-dropdown-grid">';
+    foreach ($children as $child) {
+        $hasGrandchildren = isset($child['childs']) && is_array($child['childs']) && !empty($child['childs']);
+        echo '<div class="oa-dropdown-group">';
+        echo '<a class="oa-dropdown-link'.($hasGrandchildren ? ' has-children' : '').'" href="'.htmlspecialchars($child['link'], ENT_QUOTES, 'UTF-8').'"';
+        if (!empty($child['title'])) echo ' title="'.htmlspecialchars($child['title'], ENT_QUOTES, 'UTF-8').'"';
+        echo '>'.oaMenuIcon($child).'<span>'.htmlspecialchars(__($child['name']), ENT_QUOTES, 'UTF-8').'</span>';
+        if ($hasGrandchildren) echo '<i class="fa fa-angle-down oa-sub-indicator" aria-hidden="true"></i>';
+        echo '</a>';
+        if ($hasGrandchildren) {
+            echo '<div class="oa-third-level">';
+            foreach ($child['childs'] as $grandchild) {
+                echo '<a href="'.htmlspecialchars($grandchild['link'], ENT_QUOTES, 'UTF-8').'"';
+                if (!empty($grandchild['title'])) echo ' title="'.htmlspecialchars($grandchild['title'], ENT_QUOTES, 'UTF-8').'"';
+                echo '>'.oaMenuIcon($grandchild).'<span>'.htmlspecialchars(__($grandchild['name']), ENT_QUOTES, 'UTF-8').'</span></a>';
+            }
+            echo '</div>';
+        }
+        echo '</div>';
+    }
+    echo '</div>';
+}
+?>
+<nav class="oa-topnav" aria-label="Hauptnavigation">
+  <button class="oa-mobile-menu-toggle" type="button" aria-expanded="false" aria-controls="oa-primary-menu"><i class="fa fa-bars" aria-hidden="true"></i><span>Menü</span></button>
+  <div class="oa-topnav-inner" id="oa-primary-menu">
+    <a class="oa-topnav-home" href="index.php"><i class="fa fa-home" aria-hidden="true"></i><span><?php echo strtoupper(__("Home")); ?></span></a>
 <?php
 if ($pc > "0") {
-	// This query has less joins and is syntactically simpler than previous - 17/04/2009	[Nick Brown]
-	$sql = "SELECT system_uuid, system_timestamp, system_name, system.net_ip_address, net_domain
-					FROM system 
-					JOIN network_card ON net_uuid = system_uuid
-					WHERE (
-					net_mac_address ='$pc'
-					OR system_uuid = '$pc'
-					OR system_name = '$pc'
-					)
-					LIMIT 1";
-					
-  $result = mysqli_query($db,$sql);
-  $myrow = mysqli_fetch_array($result);
-  $timestamp = $myrow["system_timestamp"];
-  $GLOBAL["system_timestamp"]=$timestamp;
-  $pc = $myrow["system_uuid"];
-  $ip = $myrow["net_ip_address"];
-  $name = $myrow['system_name'];
-  $domain = $myrow['net_domain'];
-
-  //Menu-Entries for the selected PC
-  
-  require_once("include_menu_array.php");
-  echo "<li class=\"menuparent\">".
-        "<a href=\"system.php?pc=$pc&amp;view=summary\">".
-        "<span>…</span>".
-        $name.
-        "</a>\n";
-
-   echo "<ul>\n";
-    reset ($menue_array["machine"]);
-	foreach($menue_array["machine"] as $key_1 => $topic_item) {
-        if (isset($topic_item["class"])) {
-          echo "<li class=\"".$topic_item["class"]."\">";
-        } else {
-          echo "<li>";
-        }
-
-        echo "<a href=\"".$topic_item["link"]."\"";
-        if (isset($topic_item["css-class"])) {
-          echo " class=\"".$topic_item["css-class"]."\"";
-        }
-        echo ">";
-        if(isset($topic_item["childs"]) AND is_array($topic_item["childs"])){
-          echo "<span><img src=\"images/spacer.gif\" height=\"16\" width=\"0\" alt=\"\" />…</span>";
-        }
-        echo '<i class="fa '.$topic_item["image"].'"></i>&nbsp;';
-        echo __($topic_item["name"]);
-        echo "</a>\n";
-
-        if(isset($topic_item["childs"]) AND is_array($topic_item["childs"])){
-          echo "<ul>\n";
-          @reset ($topic_item["childs"]);
-
-		foreach ($topic_item["childs"] as $key_2=>$child_item) {		
-            echo "<li><a href=\"".$child_item["link"]."\"";
-            if (isset($topic_item["title"])) {
-              echo " title=\"".$topic_item["title"]."\"";
-            }
-
-			 if (strstr($child_item["image"], 'fa-')) {
-				echo '><i class="fa '.$child_item["image"].'"></i> &nbsp;';
-			  } else {	  
-				echo "><img src=\"".$child_item["image"]."\" style=\"width:16px;height:16px;border:0\" alt=\"\" />&nbsp;";
-			  }		
-
-
-            // echo "><img src=\"".$child_item["image"]."\" />&nbsp;";
-            echo __($child_item["name"]);
-            echo "</a></li>\n";
-          }
-          echo "</ul>\n";
-        }
-        echo "</li>\n";
-    
+    $sql = "SELECT system_uuid, system_timestamp, system_name, system.net_ip_address, net_domain
+            FROM system
+            JOIN network_card ON net_uuid = system_uuid
+            WHERE (net_mac_address ='$pc' OR system_uuid = '$pc' OR system_name = '$pc')
+            LIMIT 1";
+    $result = mysqli_query($db, $sql);
+    if ($result && ($myrow = mysqli_fetch_array($result))) {
+        $timestamp = $myrow['system_timestamp'];
+        $GLOBAL['system_timestamp'] = $timestamp;
+        $pc = $myrow['system_uuid'];
+        $ip = $myrow['net_ip_address'];
+        $name = $myrow['system_name'];
+        $domain = $myrow['net_domain'];
+        // Reload menu array because machine links depend on the resolved $pc value.
+        include("include_menu_array.php");
+        echo '<div class="oa-topnav-item oa-device-menu">';
+        echo '<a class="oa-topnav-trigger" href="system.php?pc='.urlencode($pc).'&amp;view=summary"><i class="fa fa-desktop" aria-hidden="true"></i><span>'.htmlspecialchars($name, ENT_QUOTES, 'UTF-8').'</span><i class="fa fa-chevron-down oa-chevron" aria-hidden="true"></i></a>';
+        echo '<div class="oa-dropdown oa-dropdown-wide">';
+        echo '<div class="oa-dropdown-title">'.htmlspecialchars(__('Device'), ENT_QUOTES, 'UTF-8').': '.htmlspecialchars($name, ENT_QUOTES, 'UTF-8').'</div>';
+        oaRenderMenuChildren($menue_array['machine']);
+        echo '</div></div>';
     }
-    
-   echo "</ul>\n";
-  echo "</li>\n";
 }
-    //Normal Menu-Entries
-    require_once("include_menu_array.php");
 
-	reset ($menue_array["misc"]);
-	foreach($menue_array["misc"] as $key_1 => $topic_item) {
-        echo "<li class=\"".$topic_item["class"]."\">";
-         echo "<a href=\"".$topic_item["link"]."\"";
-          if(isset($topic_item["title"])) {
-            echo " title=\"".$topic_item["title"]."\"";
-          }
-         echo ">";
-          if(isset($topic_item['image']) AND $topic_item["image"]!=""){
-			  if (strstr($topic_item["image"], 'fa-')) {
-				  echo '<i class="fa fa-lg '.$topic_item["image"].'"></i> &nbsp;';
-			  } else {
-				  echo "<img src=\"".$topic_item["image"]."\" style=\"width:16px;height:16px;border:0\" alt=\"\" />&nbsp;";
-			  }		
-          }
-          echo __($topic_item["name"]);
-         echo "</a>";
-        echo "<ul>\n";
-
-        // Child Einträge
-		if (isset($topic_item["childs"]) and is_array($topic_item["childs"])) {
-            @reset ($topic_item["childs"]);
-			foreach($topic_item["childs"] as $key_2 => $child_item) {
-                echo "<li>";
-                 echo "<a href=\"".$child_item["link"]."\" title=\"".$child_item["title"]."\">";
-                  if(isset($child_item["childs"]) AND is_array($child_item["childs"])){
-                      echo "<span>…</span>";
-                  }
-				  if (strstr($child_item["image"], 'fa-')) {
-					  echo '<i class="fa '.$child_item["image"].'"></i> &nbsp;';
-				  } else {	  
-					  echo "<img src=\"".$child_item["image"]."\" style=\"width:16px;height:16px;border:0\" alt=\"\" />&nbsp;";
-				  }		
-                  echo __($child_item["name"]);
-                 echo "</a>";
-				 
-                 if(isset($child_item["childs"]) AND is_array($child_item["childs"])) {
-                    echo "<ul>\n";
-                    @reset ($child_item["childs"]);
-					foreach ($child_item["childs"] as $key_3=>$child_item_2) {
-                        echo "<li>";
-                         echo "<a href=\"".$child_item_2["link"]."\" title=\"".$child_item_2["title"]."\">";
-						 if (strstr($child_item_2["image"], 'fa-')) {
-							echo '<i class="fa '.$child_item_2["image"].'"></i> &nbsp;';
-						  } else {	  
-                            echo "<img src=\"".$child_item_2["image"]."\" style=\"width:16px;height:16px;border:0\" alt=\"\" />&nbsp;";
-						  }		
-                          echo __($child_item_2["name"]);
-                         echo "</a>";
-                        echo "</li>\n";
-                    }
-                    echo "</ul>\n";
-                 }
-                echo "</li>\n";
-            }
-        }
-
-         echo "</ul>\n";
-        echo "</li>\n";
-    unset($topic_item["title"]);
+// Reload global menu after the optional machine-specific include.
+include("include_menu_array.php");
+foreach ($menue_array['misc'] as $topic_item) {
+    $hasChildren = isset($topic_item['childs']) && is_array($topic_item['childs']) && !empty($topic_item['childs']);
+    echo '<div class="oa-topnav-item'.($hasChildren ? ' has-dropdown' : '').'">';
+    echo '<a class="oa-topnav-trigger" href="'.htmlspecialchars($topic_item['link'], ENT_QUOTES, 'UTF-8').'"';
+    if (!empty($topic_item['title'])) echo ' title="'.htmlspecialchars($topic_item['title'], ENT_QUOTES, 'UTF-8').'"';
+    echo '>'.oaMenuIcon($topic_item, true).'<span>'.htmlspecialchars(__($topic_item['name']), ENT_QUOTES, 'UTF-8').'</span>';
+    if ($hasChildren) echo '<i class="fa fa-chevron-down oa-chevron" aria-hidden="true"></i>';
+    echo '</a>';
+    if ($hasChildren) {
+        echo '<div class="oa-dropdown">';
+        echo '<div class="oa-dropdown-title">'.htmlspecialchars(__($topic_item['name']), ENT_QUOTES, 'UTF-8').'</div>';
+        oaRenderMenuChildren($topic_item['childs']);
+        echo '</div>';
     }
- echo "</ul>\n";
- echo "</td>\n";
+    echo '</div>';
+}
 ?>
+  </div>
+</nav>
+<script>
+(function () {
+  var nav = document.querySelector('.oa-topnav');
+  if (!nav) return;
+  var mobileToggle = nav.querySelector('.oa-mobile-menu-toggle');
+
+  function closeSubmenus(except) {
+    nav.querySelectorAll('.oa-topnav-item.is-open').forEach(function (item) {
+      if (item !== except) item.classList.remove('is-open');
+    });
+  }
+
+  if (mobileToggle) {
+    mobileToggle.addEventListener('click', function () {
+      var open = nav.classList.toggle('is-mobile-open');
+      mobileToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (!open) closeSubmenus();
+    });
+  }
+
+  nav.addEventListener('click', function (event) {
+    var trigger = event.target.closest('.oa-topnav-trigger');
+    if (!trigger) return;
+    var item = trigger.parentNode;
+    var dropdown = item.querySelector(':scope > .oa-dropdown');
+    if (!dropdown) return;
+
+    var mobile = window.matchMedia('(max-width: 900px)').matches;
+    if (mobile || !item.classList.contains('is-open')) {
+      event.preventDefault();
+      var willOpen = !item.classList.contains('is-open');
+      closeSubmenus(item);
+      item.classList.toggle('is-open', willOpen);
+    }
+  });
+
+  document.addEventListener('click', function (event) {
+    if (!nav.contains(event.target) && !window.matchMedia('(max-width: 900px)').matches) closeSubmenus();
+  });
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+      closeSubmenus();
+      nav.classList.remove('is-mobile-open');
+      if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  window.addEventListener('resize', function () {
+    if (!window.matchMedia('(max-width: 900px)').matches) {
+      nav.classList.remove('is-mobile-open');
+      if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+})();
+</script>
+<table class="tftable oa-app-layout">
+<tr>
+

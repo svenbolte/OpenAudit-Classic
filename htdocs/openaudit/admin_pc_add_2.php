@@ -204,6 +204,23 @@ $sql = "UPDATE system SET system_timestamp = '$timestamp' WHERE system_uuid = '$
 if ($verbose == "y"){echo $sql . "<br />\n\n";}
 $db=GetOpenAuditDbConnection(); $result = mysqli_query($db,$sql);
 $sql = "";
+
+// Printer inventory is a current-state snapshot, not history.
+// Only replace it when the audit explicitly confirms that Win32_Printer was read successfully.
+$printer_inventory_complete = false;
+foreach ($input as $printer_state_line) {
+  if (substr(trim($printer_state_line), 0, 19) == "prnstate^^^complete") {
+    $printer_inventory_complete = true;
+    break;
+  }
+}
+if ($printer_inventory_complete) {
+  $uuid_sql = mysqli_real_escape_string($db, $uuid);
+  $sql = "DELETE FROM other WHERE other_type = 'printer' AND other_linked_pc = '$uuid_sql'";
+  if ($verbose == "y"){echo $sql . "<br />\n\n";}
+  $result = mysqli_query($db,$sql) or die ('Printer reset failed: ' . mysqli_error($db) . '<br />' . $sql);
+  $sql = "";
+}
 //
 foreach ($input as $split) {
 // Strip unnecesary slashes if required. 
@@ -1387,114 +1404,43 @@ function insert_sound ($split) {
 
 
 function insert_printer ($split){
-    global $timestamp, $uuid, $verbose, $printer_timestamp ,$old_timestamp, $system_name;
+    global $timestamp, $uuid, $verbose, $system_name;
     if ($verbose == "y"){echo "<h2>Printer</h2><br />";}
+
     $extended = explode('^^^',$split);
-    $printer_caption = trim($extended[1]);
-    $printer_local = trim($extended[2]); //
-    $printer_port_name = trim($extended[3]);
-    $printer_shared = trim($extended[4]);
-    $printer_share_name = trim($extended[5]);
-    $printer_system_name = strtoupper(str_replace('\\','',trim($extended[6])));
-    $printer_location = trim($extended[7]);
-	$printer_driver_name = trim($extended[8]);
-	$printer_comment = trim($extended[9]);
-	
-	// XXXXX Neue Felder auslesen, wenn Datenbank erweitert
-	
-	// $printer_networked = trim($extended[10]);
-	// $printer_vres = trim($extended[11]);
-	// $printer_default= trim($extended[12]);
-	// $printer_status = trim($extended[13]);
-	
-	// Neue Felder Ende
-	
-    $printer_name = NULL;
-    //if (strpos($printer_system_name,'\\\\') !== false ) { $printer_system_name = substr($printer_system_name, 2); }
+    $printer_caption     = isset($extended[1]) ? trim($extended[1]) : '';
+    $printer_local       = isset($extended[2]) ? trim($extended[2]) : '';
+    $printer_port_name   = isset($extended[3]) ? trim($extended[3]) : '';
+    $printer_shared      = isset($extended[4]) ? trim($extended[4]) : '';
+    $printer_share_name  = isset($extended[5]) ? trim($extended[5]) : '';
+    $printer_system_name = isset($extended[6]) ? strtoupper(str_replace('\\','',trim($extended[6]))) : '';
+    $printer_location    = isset($extended[7]) ? trim($extended[7]) : '';
+    $printer_driver_name = isset($extended[8]) ? trim($extended[8]) : '';
+    $printer_comment     = isset($extended[9]) ? trim($extended[9]) : '';
 
-    if ( (strpos($printer_caption,'__') !== false) OR 
-		(strpos($printer_caption,'Microsoft') !== false) OR (strpos($printer_caption,'in session') !== false) ) {
-    // A pdf, Terminal Server, Citrix or MS Office printer - Not physical, not inserted.
-    } else {
-    // A physical printer - insert
+    // A printer row without a name is never a valid Win32_Printer result.
+    if ($printer_caption == '') {
+      if ($verbose == "y"){echo "Skipped empty printer row.<br />\n";}
+      return;
+    }
 
-    if (strpos($printer_port_name,'IP_') !== false ) {
-      // Network Printer
-      echo "Network Printer<br />\n";
-      if (strpos($printer_caption,'\\') !== false ) { $printer_name = substr($printer_caption, 2); }
-      $printer_ip = ip_trans_to(substr($printer_port_name, 3));
-      $printer_network_name = $printer_ip;
-      if ($printer_network_name == ""){ $printer_network_name = $printer_ip; }
-      if (strpos($printer_network_name,'\\') !== false ) { $printer_network_name = substr($printer_network_name, 2);}
-      $sql = "SELECT count(other_ip_address) AS count FROM other WHERE other_ip_address = '" . ip_trans_to($printer_ip) . "'";
-      if ($verbose == "y"){echo $sql . "<br />\n\n";}
-      $db=GetOpenAuditDbConnection(); $result = mysqli_query($db,$sql) or die ('Insert Failed: ' . mysqli_error($db) . '<br />' . $sql);
-      $myrow = mysqli_fetch_array($result);
-      if ($myrow['count'] == "0"){
-        // Insert
-        $sql  = "INSERT INTO other (other_ip_address, other_description, other_location, other_value, other_type, other_model, ";
-        $sql .= "other_network_name, other_p_port_name, other_p_shared, other_p_share_name, ";
-        $sql .= "other_timestamp, other_first_timestamp) VALUES (";
-        $sql .= "'" . ip_trans_to($printer_ip) . "', '$printer_caption', '$printer_location', '$printer_comment', 'printer', '$printer_driver_name', ";
-        $sql .= "'$printer_network_name', '$printer_port_name', '$printer_shared', '$printer_share_name', ";
-        $sql .= "'$timestamp', '$timestamp')";
-        if ($verbose == "y"){echo $sql . "<br />\n\n";}
-        $db=GetOpenAuditDbConnection(); $result = mysqli_query($db,$sql) or die ('Insert Failed: ' . mysqli_error($db) . '<br />' . $sql);
-      } else {
-        // Update
-       $sql  = "UPDATE other SET other_timestamp = '$timestamp', other_p_port_name = '$printer_network_name', ";
-       $sql .= "       other_location = '$printer_location', other_value = '$printer_comment', other_description = '$printer_caption', ";
-       $sql .= "       other_p_shared = '$printer_shared', other_p_share_name = '$printer_share_name', ";
-       $sql .= "       other_model = '$printer_driver_name' ";
-       $sql .= "WHERE other_ip_address = '" . ip_trans_to($printer_ip) . "'";
-       if ($verbose == "y"){echo $sql . "<br />\n\n";}
-       $db=GetOpenAuditDbConnection(); $result = mysqli_query($db,$sql) or die ('Insert Failed: ' . mysqli_error($db) . '<br />' . $sql);
-      }
-    } else {
-      // Locally Attached Printer
-      // Below is to determine if is REALLY a local printer
-      // If not, the audit of the PC $printer_system_name will be relied
-      // upon to detect and insert the printer.
-      echo "Local Printer<br />\n";
-      if (($printer_system_name == $system_name) AND ($printer_port_name !== "FILE:") AND
-          ($printer_port_name !== "MSFAX:") AND ($printer_port_name !== "SHRFAX:") AND
-          ($printer_port_name !== "BIPORT") AND (substr($printer_port_name,0,2) !== "TS") AND
-          ($printer_port_name !== "SmarThruFaxPort") AND ($printer_port_name !== "CLIENT")) {
-        $printer_timestamp = $old_timestamp;
-        $sql  = "SELECT count(other_linked_pc) AS count FROM other WHERE other_linked_pc = '$uuid' AND ";
-        $sql .= "other_description = '$printer_caption' AND other_p_port_name = '$printer_port_name' AND ";
-        $sql .= "(other_timestamp = '$printer_timestamp' OR other_timestamp = '$timestamp')";
-        if ($verbose == "y"){echo $sql . "<br />\n\n";}
-        $db=GetOpenAuditDbConnection(); $result = mysqli_query($db,$sql) or die ('Insert Failed: ' . mysqli_error($db) . '<br />' . $sql);
-        $myrow = mysqli_fetch_array($result);
-        if ($verbose == "y"){echo "Count: " . $myrow['count'] . "<br />\n\n";}
-        if ($myrow['count'] == "0"){
-        // Insert into database
-        $sql  = "INSERT INTO other (other_linked_pc, other_description, other_type, ";
-        $sql .= "other_model, other_p_port_name, ";
-        $sql .= "other_p_shared, other_p_share_name, ";
-        $sql .= "other_network_name, other_location, other_value, ";
-        $sql .= "other_timestamp, other_first_timestamp ) VALUES (";
-        $sql .= "'$uuid', '$printer_caption', 'printer', ";
-        $sql .= "'$printer_driver_name', '$printer_port_name',";
-        $sql .= "'$printer_shared', '$printer_share_name', ";
-        $sql .= "'$printer_system_name', '$printer_location', '$printer_comment', ";
-        $sql .= "'$timestamp', '$timestamp')";
-        if ($verbose == "y"){echo $sql . "<br />\n\n";}
-        $db=GetOpenAuditDbConnection(); $result = mysqli_query($db,$sql) or die ('Insert Failed: ' . mysqli_error($db) . '<br />' . $sql);
-      } else {
-        // Already present in database - update timestamp and dynamic values
-        $sql =  "UPDATE other SET other_timestamp = '$timestamp', other_location = '$printer_location', other_value = '$printer_comment', ";
-		$sql .= "                 other_p_shared = '$printer_shared', other_p_share_name = '$printer_share_name', ";
-		$sql .= "                 other_model = '$printer_driver_name' ";
-		$sql .= "WHERE other_linked_pc = '$uuid' AND other_description = '$printer_caption' AND other_p_port_name = '$printer_port_name' ";
-		$sql .= "      AND other_timestamp = '$printer_timestamp'";
-        if ($verbose == "y"){echo $sql . "<br />\n\n";}
-        $db=GetOpenAuditDbConnection(); $result = mysqli_query($db,$sql) or die ('Insert Failed: ' . mysqli_error($db) . '<br />' . $sql);
-      }
-    } // End of local printer
-    } // End of IP detection in printer_port
-    } // End of pdf printer
+    if ($printer_system_name == '') { $printer_system_name = $system_name; }
+
+    // Every printer belongs to the machine being audited. No manufacturer/port filters.
+    // Store the complete current Win32_Printer data available in the existing 'other' schema.
+    $sql  = "INSERT INTO other (other_linked_pc, other_description, other_type, other_model, ";
+    $sql .= "other_p_port_name, other_p_shared, other_p_share_name, other_network_name, ";
+    $sql .= "other_location, other_value, other_timestamp, other_first_timestamp) VALUES (";
+    $sql .= "'$uuid', '$printer_caption', 'printer', '$printer_driver_name', ";
+    $sql .= "'$printer_port_name', '$printer_shared', '$printer_share_name', '$printer_system_name', ";
+    $sql .= "'$printer_location', '$printer_comment', '$timestamp', '$timestamp')";
+
+    if ($verbose == "y"){
+      echo "Printer: $printer_caption | Local=$printer_local | Port=$printer_port_name | Shared=$printer_shared | Share=$printer_share_name<br />\n";
+      echo $sql . "<br />\n\n";
+    }
+    $db=GetOpenAuditDbConnection();
+    $result = mysqli_query($db,$sql) or die ('Printer insert failed: ' . mysqli_error($db) . '<br />' . $sql);
   }
 
 

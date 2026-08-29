@@ -5,6 +5,8 @@ header( "Cache-Control: no-cache, must-revalidate" );
 header( "Pragma: no-cache" );
 set_time_limit(60);
 
+include_once "include_config.php";
+
 // Get image variables
 $height=$_GET["height"];
 $width=$_GET["width"];
@@ -17,15 +19,26 @@ $border = 1;
 // create image
 $image = imagecreatetruecolor ($width, $height);
 $white = imagecolorallocate($image, 255, 255, 255);
-$orange = imagecolorallocate($image, 0,96, 96);
-$edge = imagecolorallocate($image, 192,192,192 );
+
+$graphAccent = isset($accent_color) ? trim((string)$accent_color) : '#004477';
+if (preg_match('/^#([0-9a-fA-F]{3})$/', $graphAccent, $m)) {
+    $graphAccent = '#' . $m[1][0] . $m[1][0] . $m[1][1] . $m[1][1] . $m[1][2] . $m[1][2];
+}
+if (!preg_match('/^#[0-9a-fA-F]{6}$/', $graphAccent)) {
+    $graphAccent = '#004477';
+}
+$accentR = hexdec(substr($graphAccent, 1, 2));
+$accentG = hexdec(substr($graphAccent, 3, 2));
+$accentB = hexdec(substr($graphAccent, 5, 2));
+$accent = imagecolorallocate($image, $accentR, $accentG, $accentB);
+$edge = imagecolorallocate($image, 220, 224, 230);
 
 imagefilledrectangle ($image, 0, 0, $width, $height, $white);
 imagecolortransparent($image, $white);
 
 if($height-$top>$border) {
 	imagefilledrectangle ($image, 0 , $top, $width , $height, $edge);
-	DrawColorGradient($image, $border, $top + (2 * $border),$width - (2 * $border) -1,$height - $top - $border -1  ,$orange,$white,"v");
+	DrawColorGradient($image, $border, $top + (2 * $border),$width - (2 * $border) -1,$height - $top - $border -1  ,$accent,$white,"v");
 } else {
 	imagefilledrectangle ($image, 0 , $height-$border, $width , $height, $edge);
 }

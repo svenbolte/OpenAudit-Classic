@@ -769,3 +769,45 @@ function SaveConfiguration()
 		return true;
 	}
 }
+
+/* Color theme: one native picker and one validated hex field. */
+(function () {
+    function normalizeHex(value) {
+        value = String(value || '').trim();
+        if (/^#[0-9a-f]{6}$/i.test(value)) return value.toLowerCase();
+        if (/^#[0-9a-f]{3}$/i.test(value)) {
+            return ('#' + value[1] + value[1] + value[2] + value[2] + value[3] + value[3]).toLowerCase();
+        }
+        return null;
+    }
+
+    function initAccentPicker() {
+        var picker = document.getElementById('accent_color_picker');
+        var input = document.getElementById('accent_color');
+        if (!picker || !input) return;
+
+        function apply(value) {
+            var hex = normalizeHex(value);
+            if (!hex) return false;
+            picker.value = hex;
+            input.value = hex;
+            input.setCustomValidity('');
+            return true;
+        }
+
+        picker.addEventListener('input', function () { apply(picker.value); });
+        input.addEventListener('input', function () {
+            var valid = apply(input.value);
+            input.setCustomValidity(valid ? '' : 'Bitte einen Hex-Farbwert wie #2563eb eingeben.');
+        });
+        input.addEventListener('blur', function () { apply(input.value); });
+
+        apply(input.value);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAccentPicker);
+    } else {
+        initAccentPicker();
+    }
+})();

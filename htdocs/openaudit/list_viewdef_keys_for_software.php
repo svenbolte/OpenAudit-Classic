@@ -1,9 +1,9 @@
 <?php
 if(!isset($_GET["type"])) $_GET["type"]="%";
-if(!isset(@$_GET["name"])) @$_GET["name"]="%";
+if (!isset($_GET["name"])) $_GET["name"] = "%";
 
 $query_array=array("headline"=>__("List Keys for Software"),
-                   "sql"=>"SELECT ms_keys_name, ms_keys_cd_key, system_name, net_ip_address, net_user_name, system_uuid FROM ms_keys, system WHERE ms_keys_key_type LIKE '".urldecode($_GET["type"])."%' AND ms_keys_name LIKE '".urldecode(@$_GET["name"])."%' AND ms_keys_uuid = system_uuid AND ms_keys_timestamp = system_timestamp ",
+                   "sql"=>"SELECT ms_keys_name, ms_keys_cd_key, system_name, net_ip_address, net_user_name, system_uuid FROM ms_keys, system WHERE ms_keys_key_type LIKE '".urldecode($_GET["type"])."%' AND ms_keys_name LIKE '".urldecode($_GET["name"])."%' AND ms_keys_uuid = system_uuid AND ms_keys_timestamp = system_timestamp ",
                    "sort"=>"system_name",
                    "dir"=>"ASC",
                    "get"=>array("file"=>"system.php",

@@ -303,7 +303,7 @@ function SearchLdap(&$ldap_link,&$base_dn,&$filter,&$attributes)
 	$usn_high=GetHighestUsn($ldap_link);
 	$results=array();
 	
-	PagedLdapSearch(&$ldap_link,&$base_dn,$filter,&$attributes,$usn_low,$usn_high,$results);
+	PagedLdapSearch($ldap_link, $base_dn, $filter, $attributes, $usn_low, $usn_high, $results);
 	return $results;
 }
 
@@ -337,7 +337,7 @@ function PagedLdapSearch(&$ldap_link,&$base_dn,&$filter,&$attributes,&$page_usn_
 	DebugEcho($full_ldap_filter);
 	
 	set_error_handler('HandleError');
-	$search_results=ldap_search($ldap_link,$base_dn,$full_ldap_filter,&$attributes,null,1000);
+	$search_results=ldap_search($ldap_link, $base_dn, $full_ldap_filter, $attributes, 0, 1000);
 	restore_error_handler();
 	
 	if($err)
