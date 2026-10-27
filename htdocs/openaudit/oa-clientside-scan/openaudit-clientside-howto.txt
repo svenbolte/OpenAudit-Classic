@@ -1,3 +1,6 @@
+## Push client install mit Parameter oder wird abgefragt im setup
+openaudit-clientscan-setup.exe /VERYSILENT /SERVER=meinserver
+
 Falls ein Rechner nicht über WMI erreichbar ist (Access denied), 
 bitte diesen Client installieren und ihn die Daten am Server abliefern lassen.
 

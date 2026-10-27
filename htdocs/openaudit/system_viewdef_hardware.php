@@ -299,7 +299,7 @@ $query_array=array("name"=>array("name"=>__("Hardware"),
                                                     ),
                                    "printer"=>array(
                                                     "headline"=>__("Printer"),
-                                                    "sql"=>"SELECT * FROM other WHERE other_type = 'printer' AND other_linked_pc = '" . $_GET["pc"] . "' AND other_timestamp = '".$GLOBAL["system_timestamp"]."' ",
+                                                    "sql"=>"SELECT * FROM other WHERE other_type = 'printer' AND other_linked_pc = '" . $_GET["pc"] . "' ",
                                                     "image"=>"images/printer_l.png",
                                                     "table_layout"=>"horizontal",
                                                     "fields"=>array("10"=>array("name"=>"other_description", "head"=>__("Description"),),

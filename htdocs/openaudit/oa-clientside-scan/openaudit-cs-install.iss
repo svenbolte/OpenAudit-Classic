@@ -1,4 +1,4 @@
-; den Ordner oa-clientside-scan nach c:\temp kopieren und ISS Datei neu compilieren. Setup-exe in den oa-clientside ordner
+; innosetuo 7.1.0 - Den Ordner oa-clientside-scan nach c:\temp kopieren und ISS Datei neu compilieren. Setup-exe in den oa-clientside ordner
 
 #define MyAppName "Open-Audit Classic Clientside Scan"
 #define MyDateString GetDateTimeString('yyyy/mm/dd', '.', '');
@@ -45,7 +45,7 @@ Name: "desktopicon"; Description: "Desktop-Verknüpfungen erstellen"; GroupDescri
 Name: {app}; Permissions: users-full
 
 [Files]
-Source: "C:\temp\oa-clientside-scan\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\temp\oa-clientside-scan\*"; DestDir: "{app}"; Excludes: "openaudit-clientscan-setup.exe"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\OpenAudit Clientsside Task (als Admin)"; Filename: "{sys}\schtasks.exe"; Parameters: "/RUN /TN Openaudit-Clientside-Scan"; WorkingDir: "{app}"; Comment: "als Admin einen Clientside Scan ausführen"; IconFilename: "{app}\openaudit_logo.ico";
@@ -59,3 +59,122 @@ Filename: "{sys}\schtasks.exe"; Parameters: "/create /RU SYSTEM /XML ""{app}\Ope
 
 [UninstallRun]
 Filename: "{sys}\schtasks.exe"; Parameters: "/delete /TN Openaudit-Clientside-Scan"; RunOnceId: "DELCLITASK"
+
+
+; Aufruf: openaudit-clientscan-setup.exe /SERVER=meinserver
+; Ohne /SERVER wird der Servername im Setup abgefragt.
+; Der Port bleibt aus der vorhandenen audit.config erhalten (Standard :888).
+[Code]
+var
+  ServerPage: TInputQueryWizardPage;
+  ServerName: String;
+
+function GetServerParameter: String;
+var
+  I: Integer;
+  P: String;
+begin
+  Result := '';
+  for I := 1 to ParamCount do
+  begin
+    P := ParamStr(I);
+    if CompareText(Copy(P, 1, 8), '/SERVER=') = 0 then
+    begin
+      Result := Trim(Copy(P, 9, MaxInt));
+      Exit;
+    end;
+  end;
+end;
+
+function ValidServer(const Value: String): Boolean;
+var
+  I: Integer;
+begin
+  Result := (Value <> '') and (Pos('://', Value) = 0) and
+    (Pos('/', Value) = 0) and (Pos('\\', Value) = 0) and
+    (Pos(':', Value) = 0) and (Pos('"', Value) = 0) and
+    (Pos(' ', Value) = 0);
+  for I := 1 to Length(Value) do
+    if Ord(Value[I]) < 33 then Result := False;
+end;
+
+procedure InitializeWizard;
+begin
+  ServerName := GetServerParameter;
+  if ServerName = '' then
+  begin
+    ServerPage := CreateInputQueryPage(wpSelectDir,
+      'OpenAudit-Server', 'Server fuer den Clientside-Scan',
+      'Bitte den Hostnamen oder die IP-Adresse des OpenAudit-Servers eingeben.');
+    ServerPage.Add('Servername / IP:', False);
+    ServerPage.Values[0] := 'pat14sv';
+  end;
+end;
+
+function NextButtonClick(CurPageID: Integer): Boolean;
+begin
+  Result := True;
+  if (ServerName = '') and (CurPageID = ServerPage.ID) then
+  begin
+    ServerName := Trim(ServerPage.Values[0]);
+    if not ValidServer(ServerName) then
+    begin
+      MsgBox('Bitte einen gueltigen Hostnamen oder eine IP-Adresse ohne Protokoll und Port eingeben.', mbError, MB_OK);
+      ServerName := '';
+      Result := False;
+    end;
+  end;
+end;
+
+function InitializeSetup: Boolean;
+var
+  S: String;
+begin
+  Result := True;
+  S := GetServerParameter;
+  if (S <> '') and (not ValidServer(S)) then
+  begin
+    MsgBox('Ungueltiger /SERVER-Parameter: ' + S, mbError, MB_OK);
+    Result := False;
+  end;
+end;
+
+procedure PatchAuditConfig(const FileName: String);
+var
+  Lines: TArrayOfString;
+  I: Integer;
+  L, OldValue, ProtocolPort: String;
+begin
+  if not LoadStringsFromFile(FileName, Lines) then
+  begin
+    RaiseException('audit.config konnte nicht gelesen werden: ' + FileName);
+  end;
+  for I := 0 to GetArrayLength(Lines) - 1 do
+  begin
+    L := Trim(Lines[I]);
+    if Pos('audit_host=', L) = 1 then
+    begin
+      OldValue := L;
+      // Preserve the scheme and port of the packaged configuration.
+      ProtocolPort := 'http://';
+      if Pos('https://', Lowercase(OldValue)) > 0 then ProtocolPort := 'https://';
+      if Pos(':888', OldValue) > 0 then ProtocolPort := ProtocolPort + ServerName + ':888'
+      else ProtocolPort := ProtocolPort + ServerName;
+      Lines[I] := 'audit_host="' + ProtocolPort + '"';
+      if not SaveStringsToFile(FileName, Lines, False) then
+        RaiseException('audit.config konnte nicht geschrieben werden: ' + FileName);
+      Exit;
+    end;
+  end;
+  RaiseException('audit_host fehlt in ' + FileName);
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssPostInstall then
+  begin
+    PatchAuditConfig(ExpandConstant('{app}\audit.config'));
+    if FileExists(ExpandConstant('{app}\audit.config.push')) then
+      PatchAuditConfig(ExpandConstant('{app}\audit.config.push'));
+  end;
+end;

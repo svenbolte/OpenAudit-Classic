@@ -316,7 +316,7 @@ $query_array=array("name"=>array("name"=>__("Report"),
                                                     ),
                                    "printer"=>array(
                                                     "headline"=>__("Printer"),
-                                                    "sql"=>"SELECT * FROM other WHERE other_type = 'printer' AND other_linked_pc = '" . $pc . "' AND other_timestamp = '".$GLOBAL["system_timestamp"]."' ",
+                                                    "sql"=>"SELECT * FROM other WHERE other_type = 'printer' AND other_linked_pc = '" . $pc . "' ",
 													//"table_layout"=>"horizontal",
                                                     "fields"=>array("10"=>array("name"=>"other_description", "head"=>__("Description"),),
                                                                     "20"=>array("name"=>"other_p_port_name", "head"=>__("Port"),),

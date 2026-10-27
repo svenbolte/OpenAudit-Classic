@@ -86,7 +86,7 @@ if ($myrow = mysqli_fetch_array($result)){
     echo "  <td align=\"center\">" . $myrow["license_purchase_vendor"] . "</td>\n";
     echo "  <td align=\"center\">" . $myrow["license_purchase_cost_each"] . "</td>\n";
     echo "  <td align=\"center\">" . $myrow["license_purchase_type"] . "</td>\n";
-    echo "  <td align=\"center\"><a href=\"software_register_del_license.php?id=" . $myrow["license_id"] . "&amp;id2=" . $_GET["id"] . "\" onclick=\"return confirm('Do you really want to DELETE this license ?','software_register_del_license.php?id=" . $myrow["license_id"] . "&amp;id2=" . $_GET["id"] . "')\">Delete</a></td>\n";
+    echo "  <td align=\"center\"><a href=\"software_register_del_license.php?id=" . $myrow["license_id"] . "&amp;id2=" . $_GET["id"] . "\" onclick=\"return confirm('Do you really want to DELETE this license ?','software_register_del_license.php?id=" . $myrow["license_id"] . "&id2=" . $_GET["id"] . "')\">Delete</a></td>\n";
     echo "  <td>" . $myrow["license_comments"] . "</td>\n";
     echo "</tr>\n";
   } while ($myrow = mysqli_fetch_array($result));

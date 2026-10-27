@@ -13,19 +13,10 @@ Changelog:
 **********************************************************************************************************/
 
 $query_array=array("headline"=>__("Statistic for Printer models"),
-                   "sql"=>"SELECT DISTINCT other_description,
-								  COUNT( * ) AS count_item,
-								  round( 100 / (SELECT count(other_id)
-												FROM other LEFT JOIN system ON (other.other_timestamp = system.system_timestamp)
-																				AND (other.other_linked_pc = system.system_uuid)
-												WHERE (other.other_type='printer' AND other.other_timestamp = system.system_timestamp)
-													  OR (other.other_type='printer' AND other.other_linked_pc = '')
-												) * COUNT( * ),$round_to_decimal_places) AS percentage
-							FROM other LEFT JOIN system ON (other.other_timestamp = system.system_timestamp)
-															AND (other.other_linked_pc = system.system_uuid)
-							WHERE (other.other_type='printer' AND other.other_timestamp = system.system_timestamp)
-								  OR (other.other_type='printer' AND other.other_linked_pc = '')
-							GROUP BY other_description",
+                   "sql"=>"SELECT other_description, COUNT(*) AS count_item,
+                         ROUND(100.0 * COUNT(*) / NULLIF((SELECT COUNT(*) FROM other WHERE other_type='printer'),0), $round_to_decimal_places) AS percentage
+                         FROM other WHERE other_type='printer'
+                         GROUP BY other_description",
                    "sort"=>"count_item",
                    "dir"=>"DESC",
                    "get"=>array("file"=>"list.php",

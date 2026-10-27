@@ -306,13 +306,19 @@ function oaMenuIcon($item, $large = false) {
     return '<img class="oa-menu-icon" src="'.htmlspecialchars($image, ENT_QUOTES, 'UTF-8').'" alt="">';
 }
 
+// Menu definitions contain HTML entities already; decode before escaping for HTML output.
+// Otherwise &amp; becomes &amp;amp; and the browser sends an invalid 'amp;view' parameter.
+function oaMenuHref($url) {
+    return htmlspecialchars(html_entity_decode($url, ENT_QUOTES | ENT_HTML5, 'UTF-8'), ENT_QUOTES, 'UTF-8');
+}
+
 function oaRenderMenuChildren($children) {
     if (!is_array($children) || empty($children)) return;
     echo '<div class="oa-dropdown-grid">';
     foreach ($children as $child) {
         $hasGrandchildren = isset($child['childs']) && is_array($child['childs']) && !empty($child['childs']);
         echo '<div class="oa-dropdown-group">';
-        echo '<a class="oa-dropdown-link'.($hasGrandchildren ? ' has-children' : '').'" href="'.htmlspecialchars($child['link'], ENT_QUOTES, 'UTF-8').'"';
+        echo '<a class="oa-dropdown-link'.($hasGrandchildren ? ' has-children' : '').'" href="'.oaMenuHref($child['link']).'"';
         if (!empty($child['title'])) echo ' title="'.htmlspecialchars($child['title'], ENT_QUOTES, 'UTF-8').'"';
         echo '>'.oaMenuIcon($child).'<span>'.htmlspecialchars(__($child['name']), ENT_QUOTES, 'UTF-8').'</span>';
         if ($hasGrandchildren) echo '<i class="fa fa-angle-down oa-sub-indicator" aria-hidden="true"></i>';
@@ -320,7 +326,7 @@ function oaRenderMenuChildren($children) {
         if ($hasGrandchildren) {
             echo '<div class="oa-third-level">';
             foreach ($child['childs'] as $grandchild) {
-                echo '<a href="'.htmlspecialchars($grandchild['link'], ENT_QUOTES, 'UTF-8').'"';
+                echo '<a href="'.oaMenuHref($grandchild['link']).'"';
                 if (!empty($grandchild['title'])) echo ' title="'.htmlspecialchars($grandchild['title'], ENT_QUOTES, 'UTF-8').'"';
                 echo '>'.oaMenuIcon($grandchild).'<span>'.htmlspecialchars(__($grandchild['name']), ENT_QUOTES, 'UTF-8').'</span></a>';
             }
@@ -366,7 +372,7 @@ include("include_menu_array.php");
 foreach ($menue_array['misc'] as $topic_item) {
     $hasChildren = isset($topic_item['childs']) && is_array($topic_item['childs']) && !empty($topic_item['childs']);
     echo '<div class="oa-topnav-item'.($hasChildren ? ' has-dropdown' : '').'">';
-    echo '<a class="oa-topnav-trigger" href="'.htmlspecialchars($topic_item['link'], ENT_QUOTES, 'UTF-8').'"';
+    echo '<a class="oa-topnav-trigger" href="'.oaMenuHref($topic_item['link']).'"';
     if (!empty($topic_item['title'])) echo ' title="'.htmlspecialchars($topic_item['title'], ENT_QUOTES, 'UTF-8').'"';
     echo '>'.oaMenuIcon($topic_item, true).'<span>'.htmlspecialchars(__($topic_item['name']), ENT_QUOTES, 'UTF-8').'</span>';
     if ($hasChildren) echo '<i class="fa fa-chevron-down oa-chevron" aria-hidden="true"></i>';
@@ -401,6 +407,17 @@ foreach ($menue_array['misc'] as $topic_item) {
       if (!open) closeSubmenus();
     });
   }
+
+  // Normalize legacy/double-escaped query separators before navigation.
+  // Use the resolved DOM URL, not the HTML attribute serialization.
+  nav.addEventListener('click', function (event) {
+    var link = event.target.closest('a[href]');
+    if (!link || !nav.contains(link)) return;
+    var raw = link.getAttribute('href');
+    if (!raw || raw.indexOf('amp;') === -1) return;
+    var fixed = raw.replace(/&(?:amp;)+/g, '&');
+    if (fixed !== raw) link.setAttribute('href', fixed);
+  }, true);
 
   nav.addEventListener('click', function (event) {
     var trigger = event.target.closest('.oa-topnav-trigger');

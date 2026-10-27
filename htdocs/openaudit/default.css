@@ -145,10 +145,13 @@ td.main_each {
   min-height: 48px;
   padding: 5px;
   overflow: visible;
+  flex-wrap: wrap; /* Wrap at the actual available width, not a fixed viewport breakpoint. */
+  min-width: 0;
 }
 .oa-topnav-item {
   position: relative;
   flex: 0 0 auto;
+  max-width: 100%;
 }
 .oa-topnav-home,
 .oa-topnav-trigger {
@@ -164,6 +167,7 @@ td.main_each {
   line-height: 1.2;
   text-decoration: none !important;
   white-space: nowrap;
+  max-width: 100%;
   transition: background var(--oa-transition), color var(--oa-transition), box-shadow var(--oa-transition);
 }
 .oa-topnav-home:hover,

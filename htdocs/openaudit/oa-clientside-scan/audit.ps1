@@ -1,4 +1,4 @@
-<#
+﻿<#
 Open-AudIT native PowerShell conversion of audit.vbs.txt
 - No cscript/vbscript wrapper.
 - Reads audit.config (VBScript-style key/value file) from the same directory or /config_path:<path>.
@@ -802,36 +802,38 @@ function Audit([string]$Computer,[string]$User,[string]$Password){
     $printerQueryOk = $false
     $printers = @()
     try {
-        if(Is-LocalComputer $Computer){
-            $printers = @(Get-WmiObject -ComputerName $Computer -Namespace 'root\cimv2' -Query 'Select * from Win32_Printer' -ErrorAction Stop)
-        } elseif($User -and $Password){
+        # Reuse the same WMI connection logic as the other hardware inventory classes.
+        # A failed query must never be mistaken for an empty printer list.
+        $printerArgs = @{ ComputerName = $Computer; Namespace = 'root\cimv2'; Query = 'SELECT * FROM Win32_Printer'; ErrorAction = 'Stop' }
+        if($User -and $Password -and -not (Is-LocalComputer $Computer)) {
             $sec = ConvertTo-SecureString $Password -AsPlainText -Force
-            $cred = New-Object System.Management.Automation.PSCredential($User,$sec)
-            try {
-                $printers = @(Get-WmiObject -ComputerName $Computer -Namespace 'root\cimv2' -Query 'Select * from Win32_Printer' -Credential $cred -Impersonation Impersonate -Authentication PacketPrivacy -ErrorAction Stop)
-            } catch {
-                # Some older targets reject an explicit authentication level although normal WMI works.
-                $printers = @(Get-WmiObject -ComputerName $Computer -Namespace 'root\cimv2' -Query 'Select * from Win32_Printer' -Credential $cred -ErrorAction Stop)
-            }
-        } else {
-            try {
-                $printers = @(Get-WmiObject -ComputerName $Computer -Namespace 'root\cimv2' -Query 'Select * from Win32_Printer' -Impersonation Impersonate -Authentication PacketPrivacy -ErrorAction Stop)
-            } catch {
-                $printers = @(Get-WmiObject -ComputerName $Computer -Namespace 'root\cimv2' -Query 'Select * from Win32_Printer' -ErrorAction Stop)
+            $printerArgs.Credential = New-Object System.Management.Automation.PSCredential($User,$sec)
+        }
+        try {
+            $printers = @(Get-WmiObject @printerArgs)
+            $printerQueryOk = $true
+        } catch {
+            Echo ('Win32_Printer primary query failed: ' + $_.Exception.Message)
+            # Retry through CIM on hosts where WMI cmdlets are unavailable or blocked.
+            if(-not $printerArgs.ContainsKey('Credential')) {
+                $cimArgs = @{ ClassName = 'Win32_Printer'; ErrorAction = 'Stop' }
+                $cimArgs.ComputerName = $Computer
+                $printers = @(Get-CimInstance @cimArgs)
+                $printerQueryOk = $true
             }
         }
-        $printerQueryOk = $true
     } catch {
         Echo ('Win32_Printer query failed for ' + $Computer + ': ' + $_.Exception.Message)
     }
-    if($printerQueryOk){
-        Add-Fields 'prnstate' @('complete') 'Printer Info'
+    if($printerQueryOk) {
         Echo ('Printer entries found: ' + $printers.Count)
-        foreach($x in $printers){
+        # Only declare a complete inventory after a successful query.
+        Add-Fields 'prnstate' @('complete') 'Printer Info'
+        foreach($x in $printers) {
             Add-Fields 'printer' @($x.Caption,(BoolText $x.Local),$x.PortName,(BoolText $x.Shared),$x.ShareName,$x.SystemName,$x.Location,$x.DriverName,$x.Comment) 'Printer Info'
         }
     } else {
-        Echo 'Printer inventory NOT complete - printer data will not be replaced in database.'
+        Echo 'Printer inventory NOT complete - existing printer data will be preserved.'
     }
     Echo 'Share Info'; foreach($x in @(Get-Wmi $Computer 'root\cimv2' 'Select * from Win32_Share' $User $Password)){ Add-Fields 'shares' @($x.Caption,$x.Name,$x.Path) 'Share Info' }
     Echo 'Mapped Drives Info'

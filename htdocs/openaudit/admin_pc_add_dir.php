@@ -347,7 +347,7 @@ function insert_network ($split) {
   // Remove from the 'other' table if exists
   // First - get the id from the 'other' table - if it exists
   $other_id = '';
-  $sql = "SELECT other_id FROM other WHERE other_mac_address = '$net_mac_address'";
+  $sql = "SELECT other_id FROM other WHERE other_mac_address = '$net_mac_address' AND (other_type IS NULL OR other_type <> 'printer')";
   if ($verbose == "y"){echo $sql . "<br />\n\n";}
   $result = mysqli_query($db,$sql) or die ('Check Other table Failed: ' . mysqli_error($db) . '<br />' . $sql);
   if ($myrow = mysqli_fetch_array($result)){$other_id = $myrow['other_id'];}
@@ -357,7 +357,7 @@ function insert_network ($split) {
     if ($verbose == "y"){echo $sql . "<br />\n\n";}
     $result = mysqli_query($db,$sql) or die ('Update nmap_ports Failed: ' . mysqli_error($db) . '<br />' . $sql);
     // Now remove the entry from the 'other' table
-    $sql = "DELETE FROM other WHERE other_mac_address = '$net_mac_address'";
+    $sql = "DELETE FROM other WHERE other_mac_address = '$net_mac_address' AND (other_type IS NULL OR other_type <> 'printer')";
     if ($verbose == "y"){echo $sql . "<br />\n\n";}
     $result = mysqli_query($db,$sql) or die ('Update nmap_ports Failed: ' . mysqli_error($db) . '<br />' . $sql);
   }

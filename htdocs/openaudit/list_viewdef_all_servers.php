@@ -3,15 +3,19 @@
 // 						AND system_timestamp = processor_timestamp 
 
 $query_array=array("headline"=>__("List all Windows Servers"),
-                   "sql"=>"SELECT * FROM `system`, `processor`, `hard_drive` WHERE
-                          (system_os_name LIKE '%Server%') 
-                            AND system_uuid = hard_drive_uuid
-                            AND system_uuid = processor_uuid
-                            AND hard_drive_uuid = processor_uuid 
-                            AND system_timestamp = hard_drive_timestamp 
-                            AND processor_device_id = 'CPU0'
-                            AND hard_drive_index = 0
- 						",
+                   "sql"=>"SELECT system.*,
+                                  (SELECT p.processor_name FROM processor p
+                                   WHERE p.processor_uuid = system.system_uuid
+                                     AND p.processor_device_id = 'CPU0'
+                                   ORDER BY p.processor_timestamp DESC LIMIT 1) AS processor_name,
+                                  (SELECT h.hard_drive_size FROM hard_drive h
+                                   WHERE h.hard_drive_uuid = system.system_uuid
+                                     AND h.hard_drive_timestamp = system.system_timestamp
+                                     AND h.hard_drive_index = 0
+                                   LIMIT 1) AS hard_drive_size
+                           FROM system
+                           WHERE system_os_name LIKE '%Server%'
+                         ",
 
 
                    "sort"=>"system_name",

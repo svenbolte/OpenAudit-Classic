@@ -242,7 +242,7 @@ foreach ($query_array["views"] as $viewname=>$viewdef_array) {
 //					echo ($vendorlogo);
 
 					// nur bei view = summary	
-					if ($_GET['view']=="summary" and isset($system_vendor) )  {
+					if ((isset($_REQUEST['view']) ? $_REQUEST['view'] : 'summary')=="summary" and isset($system_vendor) )  {
 						if (isset($field["name"]) and ($field["name"]=="Bilder")) {echo ("<div id=\"qrfeld\">"); }
 						if (isset($field["name"])) {
 							if (strpos($system_vendor," ")!=0) {$logobild = substr($system_vendor,0,strpos($system_vendor," "));}else{$logobild=$system_vendor;}
@@ -457,17 +457,17 @@ if (isset($field["name"]) and ($field["name"]=="Bilder")) {
         echo "<input type=\"button\" name=\"edit\" value=\"Edit\"";
         echo "onclick=\"window.location.href='".$_SERVER["PHP_SELF"]."?";
         if(isset($_REQUEST["pc"])){
-            echo "pc=".$_REQUEST["pc"]."&amp;";
+            echo "pc=".$_REQUEST["pc"]."&";
         }elseif(isset($_REQUEST["other"])){
-            echo "other=".$_REQUEST["other"]."&amp;";
+            echo "other=".$_REQUEST["other"]."&";
         }elseif(isset($_REQUEST["monitor"])){
-            echo "monitor=".$_REQUEST["monitor"]."&amp;";
+            echo "monitor=".$_REQUEST["monitor"]."&";
         }elseif(isset($_REQUEST["user"])){
-            echo "user=".$_REQUEST["user"]."&amp;";
+            echo "user=".$_REQUEST["user"]."&";
         }else{
             die(__("FATAL: There's no ID-variable to identify the item. I.e pc or other"));
         }
-        echo "view=".$_REQUEST["view"]."&amp;category=".$viewname."&amp;edit=1';\" />";
+        echo "view=".(isset($_REQUEST["view"]) ? $_REQUEST["view"] : "summary")."&category=".$viewname."&edit=1';\" />";
            }
           echo "</td>\n";
          echo "</tr>\n";
