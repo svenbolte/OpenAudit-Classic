@@ -9,7 +9,7 @@ $backup_name = $_GET['backup_name'];
 
 $add_drop_tables = "n";
 
-if (isset($GET['add_drop_tables'])) {
+if (isset($_GET['add_drop_tables'])) {
     $add_drop_tables = $_GET['add_drop_tables'];
     }
 
@@ -79,7 +79,7 @@ $backup .= "-- --------------------------------------------------------$newline"
 $file_len=strlen($backup);
 
 while($tabs = mysqli_fetch_row($tables)):
-   if ($add_drop_tables = "y"){
+   if ($add_drop_tables === "y"){
    // Include the DROP TABLE IF EXISTS commands.
    $backup .= "--$newline-- ".__("Table structure for")." `$tabs[0]`".$newline."--".$newline."DROP TABLE IF EXISTS `$tabs[0]`;".$newline."CREATE TABLE IF NOT EXISTS `$tabs[0]` (".$newline;
     } else {
@@ -106,16 +106,16 @@ while($tabs = mysqli_fetch_row($tables)):
    endwhile;
    $backup .= "--$newline-- ".__("All Data from table")." `$tabs[0]`".$newline."--".$newline.$newline;
    $data = mysqli_query($db,"SELECT * FROM `$tabs[0]`");
-   while($dt = mysqli_fetch_row($data)):
-         $this_value =  preg_replace("//","//", $dt[0]);
-         $this_value = preg_replace("/'/","/'",$this_value);
-        $last_value = $this_value ;
-   
-       $backup .= "INSERT INTO $tabs[0] VALUES('".mysqli_escape_string($db,$this_value)."'";
-       for($i=1; $i<sizeof($dt); $i++):
-           $backup .= ", '".mysqli_escape_string($db,$dt[$i])."'";
-       endfor;
-       $backup .= ");".$newline;
+   while ($dt = mysqli_fetch_row($data)):
+       // NULL-Werte als SQL NULL sichern, nicht als leere Zeichenkette.
+       // Alle anderen Werte sicher fuer SQL maskieren.
+       $sql_values = array();
+       foreach ($dt as $value) {
+           $sql_values[] = ($value === null)
+               ? 'NULL'
+               : "'" . mysqli_real_escape_string($db, (string) $value) . "'";
+       }
+       $backup .= "INSERT INTO `$tabs[0]` VALUES(" . implode(', ', $sql_values) . ");" . $newline;
    endwhile;
    $backup .= $newline."-- ----------------".__("End of table")."----------------------------".$newline;
 endwhile;
