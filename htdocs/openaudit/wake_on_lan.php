@@ -20,7 +20,7 @@ $this_error = '';
 // Fire off the WOL magic packet.
 $result = WakeOnLan($hostname,$mac,$socket_number,$this_error);
 // Show the result
-		echo "<td><img src='images/tv_l.png' width='64' height='64' alt='' /><td><b>".__("Wake on LAN")."</b></td>";
+		echo "<td><i class='fa fa-circle-o' aria-hidden='true'></i><td><b>".__("Wake on LAN")."</b></td>";
 //      Show Hostname
 // tabellierung über tftable css
         echo "<tr><td>".__("Hostname").":</td><td>" .$hostname . "</td></tr>";

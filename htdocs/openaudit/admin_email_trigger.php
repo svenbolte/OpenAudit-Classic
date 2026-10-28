@@ -102,7 +102,7 @@ if ( isset($_POST['timestamp']) && isset($_POST['schedule_id']) && is_numeric($_
   $to       = explode(";",$schedules[$id]["email_list"]);
   $template = ( !empty($schedules[$id]["email_template"]) ) ?
     $schedules['id']['email_template'] :
-    './emails/audit_log.html';
+    'removed-email-templates/audit_log.html';
   $logo     = '';
   $image    = '';
   $html     = ParseEmailTemplate($variables,$template);

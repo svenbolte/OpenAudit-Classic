@@ -115,7 +115,7 @@ function GetLdapInfo($id)
 		do
 		{
 			echo "<tr class='".alternate_tr_class($tr_class)."'>";
-			echo "<td><img src='../images/".$myrow['objtype']."_".$myrow['img'].".gif'></td>";
+			echo "<td><i class='fa fa-user' aria-hidden='true'></i></td>";
 			echo "<td>".$myrow['cn']."</td>";
 			$status = ($myrow["img"] == 'active') ? "Added" : "Deleted";
 			echo "<td>".$status."</td>";
@@ -354,7 +354,7 @@ function GetSystemsNotAuditedData($id)
 			echo "	<td>".ip_trans($myrow["net_ip_address"])."</td>";
 			echo "	<td><a href=\"system.php?pc=".$myrow["system_uuid"]."&amp;view=summary\">".$myrow["system_name"]."</a></td>";
 			echo "	<td>".return_date_time($myrow["system_timestamp"])."</td>";
-			echo "	<td><img src='../images/computer_".$myrow['ldap_status'].".gif'></td>";
+			echo "	<td><i class='fa fa-info-circle' aria-hidden='true'></i></td>";
 			echo "</tr>";
 		} while ($myrow = mysqli_fetch_array($result));
 		}

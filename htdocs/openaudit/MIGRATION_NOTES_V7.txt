@@ -1,0 +1,1 @@
+V7: system type icons use Font Awesome; corrected pagination icons and broken LDAP image sources. Diagram exporters and LDAP detail image paths require separate functional verification. PHP syntax lint performed.

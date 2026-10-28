@@ -119,7 +119,7 @@ foreach ($query_array["views"] as $viewname=>$viewdef_array) {
               } else {
               $this_height = "48";
               }
-               echo "<img src=\"" .$viewdef_array["image"]. "\" alt=\"\" style=\"border:0px;\" width=\"".$this_width."\" height=\"".$this_height."\"  />\n";
+               if (strpos($viewdef_array["image"], "fa-") === 0) { echo '<i class="fa '.htmlspecialchars($viewdef_array["image"], ENT_QUOTES, 'UTF-8').' fa-2x" aria-hidden="true"></i>'; } else { echo ''; }
               echo "</td>\n";
           }
           //Headline
@@ -236,35 +236,25 @@ foreach ($query_array["views"] as $viewname=>$viewdef_array) {
 // 					if (isset ($system_os_name)) { if (strpos($system_os_name," ")!=0) {$logobild = substr($system_os_name,0,strpos($system_os_name," "));}else{$logobild=$system_os_name;} 
 //						// if (strlen($logobild)>4) {$show_value = $logobild;}
 //					 }
-//					if (isset ($system_os_name)) { if (($field["name"]=="system_os_name") and is_file("softwarelogos/".$logobild.".png")){
-//					   $vendorlogo = "<img src=\"softwarelogos/".$logobild.".png\" style=\"border:0px;\" alt=\"\" /> ";
 //					} else {$vendorlogo="";} }
 //					echo ($vendorlogo);
 
-					// nur bei view = summary	
-					if ((isset($_REQUEST['view']) ? $_REQUEST['view'] : 'summary')=="summary" and isset($system_vendor) )  {
-						if (isset($field["name"]) and ($field["name"]=="Bilder")) {echo ("<div id=\"qrfeld\">"); }
-						if (isset($field["name"])) {
-							if (strpos($system_vendor," ")!=0) {$logobild = substr($system_vendor,0,strpos($system_vendor," "));}else{$logobild=$system_vendor;}
-							if ($field["name"]=="Bilder" and is_file("softwarelogos/".$logobild.".jpg")){
-								$vendorlogo = "<img src=\"softwarelogos/".$logobild.".jpg\" style=\"border:0px;\" alt=\"\" /> ";
-							} else {$vendorlogo="";}
-						echo ($vendorlogo);
-						}
-					}	
-
- 					//if (strpos($system_system_type," ")!=0) {$logobild = substr($system_system_type,0,strpos($system_system_type," "));}else{$logobild=$system_system_type;}
-					 // if (strlen($logobild)>4) {$show_value = $logobild;}
-//					if (($field["name"]=="Bilder") and is_file("images/".$logobild.".png")){
-//					   $vendorlogo = "<img src=\"images/".$logobild.".png\" style=\"border:0px;\" alt=\"\" /> ";
-//					} else {$vendorlogo="";}
-//					echo ($vendorlogo);
+                    // Hersteller und Chassis-Icon links neben dem QR-Code.
+                    if ((isset($_REQUEST['view']) ? $_REQUEST['view'] : 'summary') === 'summary'
+                        && isset($field["name"]) && $field["name"] === "Bilder") {
+                        $qrIcon = function_exists('oa_chassis_icon')
+                            ? oa_chassis_icon(isset($system_system_type) ? $system_system_type : '')
+                            : '❔';
+                        echo '<div id="qrfeld" style="display:flex;align-items:center;gap:1.25rem;flex-wrap:wrap;">';
+                        echo '<span style="display:inline-flex;align-items:center;gap:.65rem;">';
+                        echo '<span class="oa-qr-chassis-icon" role="img" aria-label="'.htmlspecialchars((string)(isset($system_system_type) ? $system_system_type : ''), ENT_QUOTES, 'UTF-8').'" style="font-size:2.5rem;line-height:1;display:inline-block;">'.htmlspecialchars($qrIcon, ENT_QUOTES, 'UTF-8').'</span>';
+                        echo '<span style="font-size:1.3rem;font-style:italic;">'.htmlspecialchars(isset($system_vendor) ? (string)$system_vendor : '', ENT_QUOTES, 'UTF-8').'</span>';
+                        echo '</span>';
+                    }
 
 if (isset($field["name"]) and ($field["name"]=="Bilder")) {
 					// Jscript QR-Code einbauen ************************************************
 ?>
-<!-- 	<div id="qrfeld">    -->
-		 &nbsp; &nbsp; &nbsp; &nbsp;
 		<script src="jsqr-0.2-min.js" type="text/javascript"></script>
 		<script type="text/javascript">
 		// Text
@@ -301,14 +291,7 @@ if (isset($field["name"]) and ($field["name"]=="Bilder")) {
                                }
                                echo ">\n";
                                if(isset($field["get"]["image"]) AND $field["get"]["image"]!="") {
-                                   echo "<img src=\"".$field["get"]["image"]."\" alt=\"\" style=\"border:0px;\"";
-                                   if(isset($field["get"]["image_width"]) AND $field["get"]["image_width"]!="") {
-                                       echo " width=\"".$field["get"]["image_width"]."\" ";
-                                   }
-                                   if(isset($field["get"]["image_height"]) AND $field["get"]["image_height"]!="") {
-                                       echo " height=\"".$field["get"]["image_height"]."\" ";
-                                   }
-                                   echo "/>";
+                                   if (preg_match('/^fa-[a-z0-9-]+$/', $field["get"]["image"])) echo oa_icon_markup($field["get"]["image"]);
                                    echo "&nbsp;";
                                }
                                if(isset($field["get"]["head"]) AND $field["get"]["head"]!=""){

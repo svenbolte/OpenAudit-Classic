@@ -71,7 +71,7 @@ while($tabs = mysqli_fetch_row($tables)):
     
     $table_len=strlen($backup)-$file_len;
     $file_len=strlen($backup);
-    echo "<tr><td>$tabs[0]</td><td>".$table_len." ".__("Bytes")."</td><td><img src=\"images/button_success.png\" width=\"16\" height=\"16\" /></td></tr>";
+    echo "<tr><td>$tabs[0]</td><td>".$table_len." ".__("Bytes")."</td><td><i class=\"fa fa-check-circle\" aria-hidden=\"true\"></i></td></tr>";
    // tabellierung über tftable css
    while($all = mysqli_fetch_assoc($res)):
        $str = str_replace("CREATE TABLE `$tabs[0]` (", "", $all['Create Table']);

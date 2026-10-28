@@ -37,7 +37,7 @@
 // For Xampp standard installation path, try 
 //
 $inkscape_image_folder='C:\\Program Files (x86)\\xampplite\\htdocs\\openaudit\\images\\';
-//$inkscape_image_folder='./images/';
+//$inkscape_image_folder='fa-cog#';
 //
 $inkscape_newline=chr(13);
 

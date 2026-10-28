@@ -499,3 +499,12 @@
 .fa-wrench{--fa-content:"🔧"}
 .fa-y-combinator,.fa-yahoo,.fa-yoast{--fa-content:"Ⓨ"}
 .fa-youtube,.fa-youtube-play{--fa-content:"▶";--fa-bg:#f22a;--fa-color:#fff}
+
+/* OpenAudit compatibility mappings */
+.fa-object-group{--fa-content:"○"}
+.fa-exclamation-triangle{--fa-content:"⚠"}
+@keyframes oa-fa-spin{to{transform:rotate(360deg)}}
+.fa-spin{display:inline-block;animation:oa-fa-spin 1.2s linear infinite}
+
+/* OpenAudit chassis Unicode icons */
+.oa-unicode-icon{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;display:inline-block;vertical-align:middle;line-height:1.2}.oa-qr-chassis-icon{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif}

@@ -31,7 +31,7 @@ function addToCommands() {
   input_cmd.value = c_cmd;
 
   var del_img = document.createElement('img');
-  del_img.src = 'images/delete.png';
+  del_img.style.display = 'none';
   del_img.id  = s_tr.length;
   del_img.setAttribute('class','deletebutton');
   del_img.setAttribute("className","deletebutton");

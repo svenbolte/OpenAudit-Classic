@@ -106,7 +106,7 @@ Returns:	 None
 **********************************************************************************************************/
 function cronTest() {
   document.getElementById('cron_result').innerHTML = 
-   "<img class=\"busy\" src=\"images/hourglass-busy.gif\">&nbsp;&nbsp;<i>Checking cron line...</i>";
+   "<i class=\"fa fa-spinner fa-spin\"></i>&nbsp;&nbsp;<i>Checking cron line...</i>";
   if ( ajaxRequest.readyState == 4 ) {
     var invalid = /^<b>Invalid /;
     result = ajaxRequest.responseText;

@@ -1,0 +1,1 @@
+Softwareliste: sv_icondata (data:image/...;base64) hat Vorrang. Bekannte Produkte verwenden Font Awesome; unbekannte Produkte bleiben ohne Icon. Keine Dateilogo-Fallbacks. PHP-Syntaxpruefung erforderlich.

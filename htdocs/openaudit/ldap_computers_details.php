@@ -139,7 +139,7 @@ for ($computer_record_number = 0; $computer_record_number<$num_found; $computer_
 //echo "Next User:<br>";
 
 $record_number = $computer_record_number+1;
-      echo "<td><img src='images/users_l.png' width='64' height='64' alt='' />";
+      echo "<td><i class='fa fa-user' aria-hidden='true'></i>";
 	  echo "<tr><td><h3>" . $entries[$computer_record_number]["name"][0] . "</h3></td><td></td></tr>";
  	  echo "<tr><td>" .__("Full Account Details"). "</td><td></td></tr>";      
       for ($computer_record_field_number=0; $computer_record_field_number<$entries[$computer_record_number]["count"]; $computer_record_field_number++){

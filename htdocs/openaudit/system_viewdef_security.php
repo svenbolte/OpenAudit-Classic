@@ -5,7 +5,7 @@
                        "views"=>array("win_firewall"=>array(
                                                         "headline"=>__("Windows Firewall"),
                                                         "sql"=>"SELECT * FROM system WHERE system_uuid = '" . $_GET["pc"] . "' AND system_timestamp = '".$GLOBAL["system_timestamp"]."' ",
-                                                        "image"=>"./images/firewall_l.png",
+                                                        "image"=>"fa-circle-o",
                                                         "fields"=>array("10"=>array("name"=>"firewall_enabled_domain", "head"=>__("Domain - Firewall Enabled"),),
                                                                         "20"=>array("name"=>"firewall_disablenotifications_domain", "head"=>__("Domain - Notifications to User"),),
                                                                         "30"=>array("name"=>"firewall_donotallowexceptions_domain", "head"=>__("Domain - Exceptions Allowed"),),
@@ -42,7 +42,7 @@
                                                                                                   OR software_name LIKE '%Internet Security%'
                                                                                                   OR software_name LIKE '%Firewall%')",
                                                         "table_layout"=>"horizontal",
-                                                        "image"=>"./images/firewall_l.png",
+                                                        "image"=>"fa-circle-o",
                                                         "fields"=>array("10"=>array("name"=>"software_name", "head"=>__("Name"),),
                                                                         "20"=>array("name"=>"software_version", "head"=>__("Version"),),
                                                                         "30"=>array("name"=>"software_publisher", "head"=>__("Publisher"),),
@@ -52,7 +52,7 @@
                                                         "headline"=>__("Windows Security Center Registered Antivirus"),
                                                         "sql"=>"SELECT * from system WHERE system_uuid = '" . $_GET["pc"] . "' AND system_timestamp = '".$GLOBAL["system_timestamp"]."'  AND (virus_name <> '' OR virus_manufacturer <> '') ",
                                                         "table_layout"=>"horizontal",
-                                                        "image"=>"./images/antivirus_l.png",
+                                                        "image"=>"fa-circle-o",
                                                         "fields"=>array("10"=>array("name"=>"virus_name", "head"=>__("Name"),),
                                                                         "20"=>array("name"=>"virus_version", "head"=>__("Version"),),
                                                                         "30"=>array("name"=>"virus_manufacturer", "head"=>__("Manufacturer"),),
@@ -68,7 +68,7 @@
                                                                                                   OR software_name LIKE '%Virus%'
                                                                                                   OR software_name LIKE '%Client Security%')",
                                                         "table_layout"=>"horizontal",
-                                                        "image"=>"./images/firewall_l.png",
+                                                        "image"=>"fa-circle-o",
                                                         "fields"=>array("10"=>array("name"=>"software_name", "head"=>__("Name"),),
                                                                         "20"=>array("name"=>"software_version", "head"=>__("Version"),),
                                                                         "30"=>array("name"=>"software_publisher", "head"=>__("Publisher"),),
@@ -77,7 +77,7 @@
                                        "auto_updating"=>array(
                                                         "headline"=>__("Automatic Updating Client Settings"),
                                                         "sql"=>"SELECT * from auto_updating WHERE au_uuid = '" . $_GET["pc"] . "' AND au_timestamp = '".$GLOBAL["system_timestamp"]."'",
-                                                        "image"=>"./images/scsi_l.png",
+                                                        "image"=>"fa-circle-o",
                                                         "fields"=>array("10"=> array("name"=>"au_gpo_configured", "head"=>__("AU Client is configured by a GPO"),),
                                                                         "20"=> array("name"=>"au_enabled", "head"=>__("AU Client is enabled"),),
                                                                         "30"=> array("name"=>"au_behaviour", "head"=>__("AU Client behaviour"),),
@@ -98,7 +98,7 @@
                                                         "headline"=>__("Open Ports discovered by Nmap"),
                                                         "sql"=>"SELECT * from nmap_ports WHERE nmap_other_id = '" . $_REQUEST["pc"] . "' ORDER BY nmap_port_number",
                                                         "table_layout"=>"horizontal",
-                                                        "image"=>"./images/nmap_l.png",
+                                                        "image"=>"fa-circle-o",
                                                         "fields"=>array("10"=>array("name"=>"nmap_port_number", "head"=>__("Port"),),
                                                                         "20"=>array("name"=>"nmap_port_proto", "head"=>__("Protocol"),),
                                                                         "30"=>array("name"=>"nmap_port_name", "head"=>__("Service"),),

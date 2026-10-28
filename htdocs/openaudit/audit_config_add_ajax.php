@@ -116,8 +116,8 @@ $cmd_choices = @implode(",",$_POST['check_cmd']);
 
 /* Display any errors that occured, or submit the data */
 if ( isset($error_list) ) {
-  echo "<div class=\"formResult\"><p class=\"result-text\"><img src=\"images/button_fail.png\"/>
-    <strong>Please correct the following form errors</strong><img src=\"images/button_fail.png\"/></p>
+  echo "<div class=\"formResult\"><p class=\"result-text\"><i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>
+    <strong>Please correct the following form errors</strong><i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i></p>
     <ul>$error_list</ul></div>";
 }
 else {
@@ -271,7 +271,7 @@ else {
   }
 
   $form_action = ( $_POST['form_action'] == "edit" ) ? 'updated' : 'added';
-  echo "<div class=\"formResult\"><p class=\"result-text\"><img src=\"images/button_success.png\"/>
+  echo "<div class=\"formResult\"><p class=\"result-text\"><i class=\"fa fa-check-circle\" aria-hidden=\"true\"></i>
     <strong>Configuration $form_action (".date('g:i:s A T', time()) .")</strong></p></div>";
 }
 ?>

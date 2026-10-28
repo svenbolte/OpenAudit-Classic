@@ -85,7 +85,7 @@ function GetLdapConnectionsHtml($db)
 		{
 			$response .= "<tr>";
 			$response .= "<td><a id='".$myrow['ldap_connections_id']."' href=\"#\" onMouseover=\"ShowMenu(event,connection_menu);\" onMouseout=\"DelayHideMenu(event)\">";
-			$response .= "<img src=\"images/o_fileserver.png\" />".$myrow['ldap_connections_name']."</a></td>";
+			$response .= "<i class=\"fa fa-server\" aria-hidden=\"true\"></i>".$myrow['ldap_connections_name']."</a></td>";
 			$response .= "<td>".GetLdapPathsHtml($myrow['ldap_connections_id'],$db)."</td>";
 			$response .= "</tr>";
 		}	while ($myrow = mysqli_fetch_array($result));
@@ -127,7 +127,7 @@ function GetLdapPathsHtml($ConnectionGuid, $db)
 		$response = "<ul>";
 		do
 		{
-			$response .= "<li><a id='".$myrow['ldap_paths_id']."' href=\"#\" onMouseover=\"ShowMenu(event,path_menu);\" onMouseout=\"DelayHideMenu(event)\"><img src=\"images/ldap-path.jpg\" />".$myrow['ldap_paths_dn']."</a></li>";
+			$response .= "<li><a id='".$myrow['ldap_paths_id']."' href=\"#\" onMouseover=\"ShowMenu(event,path_menu);\" onMouseout=\"DelayHideMenu(event)\"><i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>".$myrow['ldap_paths_dn']."</a></li>";
 		}	while ($myrow = mysqli_fetch_array($result));
 		$response .= "</ul>";
 	}
@@ -728,7 +728,7 @@ function GetSmtpConnectionHtml($db)
 		$ssl  = ($myrow['smtp_connection_use_ssl'] == 1) ? 'Yes' : 'No';
 		$response .= "<tr>";
 		$response .= "<td><a id='".$myrow['smtp_connection_id']."' href=\"#\" onMouseover=\"ShowMenu(event,smtp_menu);\" onMouseout=\"DelayHideMenu(event)\">";
-		$response .= "<img src=\"images/mail-forward.png\" />".$myrow['smtp_connection_server']."</a></td>";
+		$response .= "<i class=\"fa fa-envelope\" aria-hidden=\"true\"></i>".$myrow['smtp_connection_server']."</a></td>";
 		$response .= "<td class=\"npb-smtp-data\">".$myrow['smtp_connection_port']."</td>";
 		$response .= "<td class=\"npb-smtp-data\">".$auth."</td>";
 		$response .= "<td class=\"npb-smtp-data\">".$ssl."</td>";
@@ -761,53 +761,8 @@ Change Log:
 	09/10/2009			New function	[Chad Sikorra]
 **********************************************************************************************************/
 function TestSmtpConnectionHtml($db)
-{	
-
-	if(!isEmailAddress($_GET["smtp_connection_email"]))
-	{
-		return "Please enter a valid email address in the 'Test Email' field";
-	}
-	if(!isEmailAddress($_GET["smtp_connection_from"]))
-	{
-		return "Please enter a valid email address for the 'From' field";
-	}
-
-	require_once("./lib/mimemessage/email_message.php");
-	require_once("./lib/mimemessage/smtp_message.php");
-	require_once("./lib/smtp/smtp.php");
-	require_once("./lib/sasl/sasl.php");
-
-	$email = new smtp_message_class;
-
-	$ssl = ($_GET["smtp_connection_use_ssl"]   == "true") ? '1' : '0';
-	$tls = ($_GET["smtp_connection_start_tls"] == "true") ? '1' : '0';
-
-	$email->smtp_host=$_GET["smtp_connection_server"];
-	$email->smtp_port=$_GET["smtp_connection_port"];
-	$email->smtp_ssl=$ssl;
-	$email->smtp_direct_delivery=0;
-	$email->smtp_debug=1;
-	$email->smtp_html_debug=1;
-	$email->timeout=5;
-
-	if ( $_GET["smtp_connection_auth"] == "true" )
-	{
-		$email->smtp_start_tls=$tls;
-		$email->authentication_mechanism=$_GET["smtp_connection_security"];
-		$email->smtp_user=$_GET["smtp_connection_user"];
-		$email->smtp_password=$_GET["smtp_connection_password"];
-		$email->smtp_realm=$_GET["smtp_connection_realm"];
-	}
-
-  preg_match("/^(.*?)@/",$_GET["smtp_connection_from"],$name);
-	$email->SetEncodedEmailHeader('From',$_GET["smtp_connection_from"],$name[1]);
-	$email->SetEncodedEmailHeader('To',$_GET["smtp_connection_email"],"");
-	$email->SetEncodedHeader('Subject','SMTP Test Message');
-
-	$message = "This is a SMTP test message from Open-AudIT.";
-	$email->AddQuotedPrintableTextPart($message);
-
-	return $email->Send();
+{
+    return "SMTP test unavailable: legacy mail library removed.";
 }
 
 /**********************************************************************************************************

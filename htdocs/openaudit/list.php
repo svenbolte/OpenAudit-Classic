@@ -16,6 +16,20 @@ if (!file_exists("include_config.php")) {
 
 include "include.php";
 
+// Prefer embedded catalog logos; never fetch logos from removed directories.
+function oa_software_icon($name, $inline = '') {
+    $inline = trim((string)$inline);
+    if (preg_match('~^data:image/(?:png|gif|jpeg|jpg|webp|svg\+xml|x-icon|vnd\.microsoft\.icon);base64,[A-Za-z0-9+/=]+$~i', $inline)) {
+        return '<img src="'.htmlspecialchars($inline, ENT_QUOTES, 'UTF-8').'" alt="" style="width:16px;height:16px;object-fit:contain;vertical-align:middle" /> ';
+    }
+    $n = strtolower((string)$name);
+    $icons = array('windows'=>'fa-windows','microsoft'=>'fa-windows','linux'=>'fa-linux','ubuntu'=>'fa-linux','debian'=>'fa-linux','apple'=>'fa-apple','macos'=>'fa-apple','android'=>'fa-android','wordpress'=>'fa-wordpress','chrome'=>'fa-chrome','firefox'=>'fa-firefox','edge'=>'fa-edge','docker'=>'fa-cubes','java'=>'fa-coffee','database'=>'fa-database','mysql'=>'fa-database','pdf'=>'fa-file-pdf-o','office'=>'fa-file-text-o','excel'=>'fa-file-excel-o','word'=>'fa-file-word-o');
+    foreach ($icons as $needle => $icon) {
+        if (strpos($n, $needle) !== false) return '<i class="fa '.$icon.'" aria-hidden="true"></i> ';
+    }
+    return ''; // Unknown product: no icon rather than an incorrect logo.
+}
+
 // ------------------------ Input handling ------------------------
 $software = filter_input(INPUT_GET, 'software', FILTER_UNSAFE_RAW);
 $software = is_string($software) ? $software : "";
@@ -152,9 +166,9 @@ $page_count=0;
     $this_page_count = ($page_current * $count_system) - $all_page_count;
 
     //Show Searchboxes, if search is used on the calling page
-    $searchboxes_array[0]["image"]="images/searchbox_hide.png";
+    $searchboxes_array[0]["image"]="fa-search";
     $searchboxes_array[0]["alt"]=__("Discard Search");
-    $searchboxes_array[1]["image"]="images/searchbox_show.png";
+    $searchboxes_array[1]["image"]="fa-search";
     $searchboxes_array[1]["alt"]=__("Search in this View");
 
     //Check for searchvalues
@@ -212,10 +226,10 @@ echo '<table class="oa-list-heading"><tr><td class="contenthead">';
   //Previous
   if($page_count!=0 AND (isset($show_all) AND $show_all!=1)){
       echo "<a href=\"#\" onclick=\"set_form_field('page_count', '".$page_prev."'); submit_form();\">";
-        echo "<img src=\"images/go-prev.png\" alt=\"".__("Previous")."\" title=\"".__("Previous")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />";
+        echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>";
       echo "</a>\n";
   }else{
-    echo "<img src=\"images/go-prev-disabled.png\" alt=\"".__("Disabled")."\" title=\"".__("Disabled")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />\n";
+    echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>\n";
   }
 
   //All
@@ -223,24 +237,24 @@ echo '<table class="oa-list-heading"><tr><td class="contenthead">';
   if($all_page_count>$count_system OR $count_system==$count_system_max ){
       if($show_all!=1){
           echo "<a href=\"#\" onclick=\"set_form_field('show_all', '1'); set_form_field('page_count', '0'); submit_form();\">";
-            echo "<img src=\"images/go-all.png\" alt=\"\" title=\"".__("All")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />";
+            echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>";
           echo "</a>\n";
       }else{
           echo "<a href=\"#\" onclick=\"set_form_field('show_all', ''); set_form_field('page_count', '0'); submit_form();\">";
-            echo "<img src=\"images/go-less.png\" alt=\"".__("By Page")."\" title=\"".__("By Page")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />";
+            echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>";
           echo "</a>\n";
       }
   }else{
-      echo "<img src=\"images/go-all-disabled.png\" alt=\"".__("Disabled")."\" title=\"".__("Disabled")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />\n";
+      echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>\n";
   }
   //Next
   //if(($page_count+$count_system)<=$all_page_count AND (isset($show_all) AND $show_all!=1)){
   if(($page_count+$count_system)<$all_page_count AND (isset($show_all) AND $show_all!=1)){
       echo "<a href=\"#\" onclick=\"set_form_field('page_count', '".$page_next."'); submit_form();\">";
-        echo "<img src=\"images/go-next.png\" alt=\"".__("Next")."\" title=\"".__("Next")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />";
+        echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>";
       echo "</a>\n";
   }else{
-    echo "<img src=\"images/go-next-disabled.png\" alt=\"".__("Disabled")."\" title=\"".__("Disabled")."\" class=\"oa-nav-icon\" width=\"16\" height=\"16\" />\n";
+    echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>\n";
   }
 
   //Direct jumping to pages
@@ -317,7 +331,7 @@ foreach($viewdef_array["fields"] as $field) {
             $headline_1 .= "</a>\n";
         }
         if($sort==$field["name"]){
-            $headline_1 .= "<img src=\"images/".strtolower($dir).".png\" height=\"4\" width=\"7\" style=\"padding-bottom:3px; border:0px\" alt=\"\" />";
+            $headline_1 .= "<i class=\"fa fa-caret-down\" aria-hidden=\"true\"></i>";
         }
         $headline_1 .= "</td>\n";
 
@@ -338,7 +352,7 @@ foreach($viewdef_array["fields"] as $field) {
 
  //Button to Show and Hide the searchboxes
  $headline_1 .= "<td class=\"oa-filter-toggle-cell\">";
- $headline_1 .= "<a href=\"#\" onclick=\"show_searchboxes();\" id=\"link_searchboxes\"><img src=\"".$image_searchboxes."\" id=\"arrows_searchboxes\" class=\"oa-filter-icon\" width=\"20\" height=\"16\" alt=\"".$alt_searchboxes."\" title=\"".$alt_searchboxes."\" /></a>";
+ $headline_1 .= "<a href=\"#\" onclick=\"show_searchboxes();\" id=\"link_searchboxes\"><i id=\"arrows_searchboxes\" class=\"fa ".$image_searchboxes." oa-filter-icon\" title=\"".$alt_searchboxes."\" aria-hidden=\"true\"></i></a>";
  $headline_1 .= "</td>";
 
  $count_searchboxes++;
@@ -366,7 +380,7 @@ echo "<script type=\"text/javascript\">\n";
                     document.getElementById(\"searchboxes_\"+i).style.display = action;
                 }
                 //Show Image
-                document.getElementById('arrows_searchboxes').src=img_src;
+                document.getElementById('arrows_searchboxes').className='fa '+img_src+' oa-filter-icon';
                 document.getElementById('arrows_searchboxes').alt=img_alt;
                 document.getElementById('arrows_searchboxes').title=img_alt;
             }else{
@@ -573,15 +587,10 @@ if ($myrow = mysqli_fetch_array($result)){
 						$logobild = preg_replace('/[^A-Za-z0-9\-_]/', '', $logobild);
 				}	
 
-				if ( $field["name"]=="software_name" or $field["head"]=="Software" or $field["name"]=="system_os_name" ) {
-					$show_value = '';
-					if (isset($sv_icondata) && $sv_icondata !== "") $show_value .= " <img src=\"".$sv_icondata."\" alt=\"\" /> ";
-					elseif (is_file("softwarelogos/".$logobild.".png")) {
-					   $show_value .= "<img src=\"softwarelogos/".$logobild.".png\" alt=\"\" /> ";
-					} 
-						
-					$show_value .= '<span style="font-size:.95em">'.$software_name.'</span>';
-				}
+                if ($field["name"]=="software_name" || $field["head"]=="Software" || $field["name"]=="system_os_name") {
+                    $show_value = oa_software_icon(isset($software_name) ? $software_name : '', isset($sv_icondata) ? $sv_icondata : '');
+                    $show_value .= '<span style="font-size:.95em">'.htmlspecialchars((string)(isset($software_name) ? $software_name : ''), ENT_QUOTES, 'UTF-8').'</span>';
+                }
 				
 				if (isset($software_title)) {
 					if (strpos($software_title," ")!=0) {
@@ -595,9 +604,9 @@ if ($myrow = mysqli_fetch_array($result)){
 						} 
 						$logobild = preg_replace('/[^A-Za-z0-9\-_]/', '', $logobild);
 				}	
-				if (($field["name"]=="software_title") and is_file("softwarelogos/".$logobild.".png")){
-				   $show_value = "<img src=\"softwarelogos/".$logobild.".png\" style=\"border:0px;\" alt=\"\" /> ".$software_title;
-				}
+                if ($field["name"]=="software_title") {
+                    $show_value = oa_software_icon($software_title, isset($sv_icondata) ? $sv_icondata : '') . htmlspecialchars((string)$software_title, ENT_QUOTES, 'UTF-8');
+                }
 								
 				}
 				if(isset($field["link"]) AND $field["link"]=="y"){
@@ -605,7 +614,7 @@ if ($myrow = mysqli_fetch_array($result)){
                     echo "<a href=\"".$link_uri."\" title=\"".$get_array["title"]."\" onclick=\"".$get_array["onclick"]." ; this.target='".$get_array["target"]."';\" $a_misc>";
                 }
                 if(isset($field["image"]) AND $field["image"]!=""){
-                    echo "<img src=\"".$field["image"]."\" style=\"border:0px;\" alt=\"\" />";
+                    echo (strpos($field["image"], "fa-") === 0) ? oa_icon_markup($field["image"]) : "";
                 }else{
                     echo $show_value;
                 }

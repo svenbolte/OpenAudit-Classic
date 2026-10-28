@@ -197,7 +197,7 @@ $query_array=array("name"=>array("name"=>__("Report"),
                                   "network_card"=>array(
                                                     "headline"=>__("Network Card"),
                                                     "sql"=>"SELECT * FROM network_card WHERE net_uuid = '" . $_GET["pc"] . "' AND net_timestamp = '".$GLOBAL["system_timestamp"]."' ORDER BY net_index ",
-                                                    "image"=>"images/network_device_l.png",
+                                                    "image"=>"fa-sitemap",
                                                     "fields"=>array("10"=> array("name"=>"net_connection_id", "head"=>__("Connection ID"),),
                                                                     //"20"=> array("name"=>"net_index", "head"=>__("Index"),),
                                                                     "30"=> array("name"=>"net_description", "head"=>__("Description"),),

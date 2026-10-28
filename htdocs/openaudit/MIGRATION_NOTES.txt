@@ -1,0 +1,4 @@
+OpenAudit V4: replaced SVG data URIs with fa-* icon identifiers (Font Awesome Plus).
+Remaining generic icons: 118
+PHP syntax errors: ['wake_on_lan.php', 'ldap_computers_details.php']
+Browser/runtime checks outstanding. Email sending remains disabled.

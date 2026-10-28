@@ -24,7 +24,7 @@
             $i++;
             echo "<tr>\n";
             echo "<td align=\"left\" style=\"width:20px;\">\n";
-            echo "<img src=\"".$topic_item["image"]."\" width=\"16\" height=\"16\" style=\"border:0px;\" alt=\"\" />\n";
+            echo (strpos($topic_item["image"], "fa-") === 0) ? '<i class="fa '.htmlspecialchars($topic_item["image"], ENT_QUOTES, 'UTF-8').'" aria-hidden="true"></i>' : '';
             echo "</td>\n";
 
             echo "<td>\n";

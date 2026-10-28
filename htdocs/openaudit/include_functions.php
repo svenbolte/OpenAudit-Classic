@@ -314,16 +314,16 @@ function ConvertSpecialField($myrow, $field, $db, $page)
 		case "other_type":
 			if($page=="list") {
 				if (strlen($myrow[$field["name"]]) > 20) {$typebild="router";} else {$typebild = str_replace(" ","_",$myrow[$field["name"]]);}
-				return " <img src=\"images/o_".$typebild.".png\" alt=\"".$myrow[$field["name"]]."\" title=\"".$myrow[$field["name"]]."\" width=\"16\" height=\"16\"/> ".$myrow[$field["name"]]."";
+				return oa_icon_markup("fa-sitemap") . " " . htmlspecialchars((string)$myrow[$field["name"]], ENT_QUOTES, "UTF-8");
 			} else {return $myrow[$field["name"]];}
 		case "other_ip_address":
 			return ip_trans($myrow[$field["name"]]);
 		case "delete":
-			return "<img src=\"images/button_delete_out.png\" id=\"button".rand(0,999999999)."\" width=\"58\" height=\"22\" border=\"0\" alt=\"\" />";
+			return oa_icon_markup("fa-trash-o");
 		case "ldap_user_status":
-			return "<img src='../images/user_".$myrow[$field["name"]].".gif'>";			
+			return oa_icon_markup("fa-user");			
 		case "ldap_computer_status":
-			return "<img src='../images/computer_".$myrow[$field["name"]].".gif'>";			
+			return oa_icon_markup("fa-desktop");			
 		case "startup_location":
 			if(substr($myrow[$field["name"]],0,2) == "HK") return __("Registry");
 		case "percentage":
@@ -472,233 +472,79 @@ foreach($systems as $key => $val) {
     return $os_returned;
 }
 
-function determine_img($os,$system_type) {
 
-    $image="button_fail.png";
-    $title=__("Unknown");
-
-    if (strpos($os, "Windows")!== false) {
-        $image="desktop.png";
-        $title=$system_type . ' | ' . determine_os($os);
+function oa_chassis_icon($type) {
+    // Unicode-only chassis icons; keys are SMBIOS/DMI chassis type names.
+    $icons = array(
+        'other' => '❔',
+        'unknown' => '❓',
+        'desktop' => '🖥️',
+        'low profile desktop' => '▱',
+        'pizza box' => '📦',
+        'mini tower' => '🗄️',
+        'tower' => '🏢',
+        'portable' => '🧳',
+        'laptop' => '💻',
+        'notebook' => '📓',
+        'hand held' => '📱',
+        'docking station' => '🔌',
+        'all in one' => '🖥️',
+        'sub notebook' => '📔',
+        'space-saving' => '🗃️',
+        'lunch box' => '🧰',
+        'main system chassis' => '🏠',
+        'expansion chassis' => '🧩',
+        'subchassis' => '🗂️',
+        'bus expansion chassis' => '🔀',
+        'peripheral chassis' => '🖨️',
+        'storage chassis' => '💾',
+        'rack mount chassis' => '🗄',
+        'sealed-case pc' => '🔒',
+        'multi-system chassis' => '🖧',
+        'compact pci' => '💳',
+        'advanced tca' => '⚙️',
+        'blade' => '🗡️',
+        'blade enclosure' => '🗃',
+        'tablet' => '📲',
+        'convertible' => '🔄',
+        'detachable' => '🧲',
+        'iot gateway' => '📡',
+        'embedded pc' => '🔧',
+        'mini pc' => '🖲️',
+        'stick pc' => '🖊️',
+    );
+    $key = strtolower(trim((string)$type));
+    if (isset($icons[$key])) return $icons[$key];
+    if (strpos($key, '2-in-1') !== false) return '🔄';
+    if (strpos($key, 'server') !== false) return '🖧';
+    return '❔';
+}
+function oa_system_icon($os, $type) {
+    // System icon is determined by the chassis, never by the operating system.
+    return oa_chassis_icon($type);
+}
+function oa_icon_markup($icon, $title = '') {
+    if (!preg_match('/^fa-[a-z0-9-]+$/', (string)$icon)) {
+        return '<span class="oa-unicode-icon" role="img" title="'.htmlspecialchars((string)$title, ENT_QUOTES, 'UTF-8').'">'.htmlspecialchars((string)$icon, ENT_QUOTES, 'UTF-8').'</span>';
     }
-    if (strpos($os, "Server")!== false) {
-        $image="server.png";
-        $title=$system_type . ' | ' . determine_os($os);
-    }
-    if (strpos($system_type, "Notebook")!== false or strpos($system_type, "Portable")!== false or strpos($system_type, "Laptop")!== false) {
-        $image="laptop.png";
-        $title=$system_type . ' | ' . determine_os($os);
-    }
-	if (strpos($system_type, "Tablet-PC")!== false) {
-        $image="ultrabook.png";
-        $title=$system_type . ' | ' . determine_os($os);
-    }
-
-    //Substring match
-    $systems_substr=array( "CentOS"=>"CentOS",
-                           "Debian"=>"Debian",
-                           "Fedora"=>"Fedora",
-                           "Gentoo"=>"Gentoo",
-                           "Mandrake"=>"Mandrake",
-                           "Mandriva"=>"Mandriva",
-                           "Novell"=>"Novell",
-                           "Red Hat"=>"Red Hat",
-						   "RedHat"=>"Fedora",        //Fedora 13 Beta 
-                           "Slackware"=>"Slackware",
-                           "Suse"=>"Suse",
-                           "SuSE"=>"SuSE",
-                           "SUSE"=>"SUSE",
-                           "Ubuntu"=>"Ubuntu",);
-    reset ($systems_substr);
-	foreach($systems_substr as $key => $val) {
-        if(substr_count($os,$key)){
-            $image="linux_".strtolower($val).".png";
-            $title=$system_type . ' | ' . determine_os($os);
-        }
-    }
-    $ret = "<img src=\"images/".$image."\" width=\"16\" height=\"16\" alt=\"".$title."\" title=\"".$title."\" /> ".$system_type;
-    return $ret;
+    $icon = preg_match('/^fa-[a-z0-9-]+$/', (string)$icon) ? $icon : '';
+    if ($icon === '') return '';
+    return '<i class="fa '.$icon.'" aria-hidden="true" title="'.htmlspecialchars((string)$title, ENT_QUOTES, 'UTF-8').'"></i>';
+}
+function determine_img($os, $system_type) {
+    // List icons follow the chassis type, never the operating system.
+    $type = trim((string)$system_type);
+    $icon = oa_chassis_icon($type);
+    $title = $type !== '' ? $type : __('Unknown');
+    return oa_icon_markup($icon, $title) . ($type !== '' ? ' ' . htmlspecialchars($type, ENT_QUOTES, 'UTF-8') : '');
 }
 
-function determine_dia_img($os,$system_type) {
+function determine_dia_img($os,$system_type) { return ""; }
 
-    if (is_file("images/o_".$system_type.".png")){
-    $image="o_".$system_type.".png";
-    $title=__("$system_type");
-    }
-    else
-    {
-    $system_type= str_replace(" ","_",$system_type);
-    $image="o_".$system_type.".png";
-//    $image="button_fail.png";
-    $title=__("Unknown");
-    }
-    if (!is_file("images/o_".$system_type.".png")){
-    $image="button_fail.png";
-    } else {}
-
-    $image="button_fail.png";
-    $title=__("Unknown");
-
-    if (strpos($os, "Windows")!== false) {
-        $image="desktop.png";
-        $title=determine_os($os);
-    }
-    if (strpos($os, "Server")!== false) {
-        $image="server.png";
-        $title=determine_os($os);
-    }
-    if (strpos($system_type, "Notebook")!== false or strpos($system_type, "Portable")!== false or strpos($system_type, "Laptop")!== false) {
-        $image="laptop.png";
-        $title=determine_os($os);
-    }
-	if (strpos($system_type, "Tablet-PC")!== false) {
-        $image="ultrabook.png";
-        $title=$system_type . ' | ' . determine_os($os);
-    }
-
-    //Substring match
-    $systems_substr=array( "CentOS"=>"CentOS",
-                           "Debian"=>"Debian",
-                           "Fedora"=>"Fedora",
-                           "Gentoo"=>"Gentoo",
-                           "Mandrake"=>"Mandrake",
-                           "Mandriva"=>"Mandriva",
-                           "Novell"=>"Novell",
-                           "Red Hat"=>"Red Hat",
-                           "Slackware"=>"Slackware",
-                           "Suse"=>"Suse",
-                           "SuSE"=>"SuSE",
-                           "SUSE"=>"SUSE",
-                           "Ubuntu"=>"Ubuntu",);
-    reset ($systems_substr);
-	foreach($systems_substr as $key => $val) {
-        if(substr_count($os,$key)){
-            $image="linux_".strtolower($val).".png";
-            $title=determine_os($os);
-        }
-    }
-
-    $ret = $image;
-    return $ret;
-
+function determine_inkscape_img($os, $system_type) {
+    return oa_icon_markup(oa_system_icon($os, $system_type));
 }
 
-function determine_inkscape_img($os,$system_type) {
-
-// Assume we dont know what this is
-    $image_folder="images";
-
-    $image="button_fail.png";
-    $title=__("Unknown");
-
-// Now we try to find out..
-
-// Does the system_type map to a local PNG
-    if (is_file($image_folder."/o_".$system_type.".png")){
-    $image="o_".$system_type.".png";
-    $title=__("$system_type");
-    }
-    else
-    {
-    $system_type= str_replace(" ","_",$system_type);
-    $image="o_".$system_type.".png";
-//    $image="button_fail.png";
-    $title=__("Unknown ".$system_type);
-    }
-    if (!is_file($image_folder."/o_".$system_type.".png")){
-    $image="button_fail.png";
-    } else {}
-
-// Does the os map to a local PNG
-    if (is_file($image_folder."/o_".$os.".png")){
-    $image="o_".$os.".png";
-    $title=__("$os");
-    }
-    else
-    {
-    $os= str_replace(" ","_",$os);
-    $image="o_".$os.".png";
-//    $image="button_fail.png";
-    $title=__("Unknown ".$os);
-    }
-    if (!is_file($image_folder."/o_".$os.".png")){
-    $image="button_fail.png";
-    } else {}
-
-// Lets see if we can work it out from the OS
-//
-    $image="button_fail.png";
-    $title=__("Unknown");
-
-    if (strpos($os, "Windows")!== false) {
-        $image="desktop.png";
-        $title=determine_os($os);
-    }
-    if (strpos($os, "Server")!== false) {
-        $image="server.png";
-        $title=determine_os($os);
-    }
-    if (strpos($system_type, "Notebook")!== false or strpos($system_type, "Portable")!== false or strpos($system_type, "Laptop")!== false) {
-        $image="laptop.png";
-        $title=determine_os($os);
-    }
-	if (strpos($system_type, "Tablet-PC")!== false) {
-        $image="ultrabook.png";
-        $title=$system_type . ' | ' . determine_os($os);
-    }
-
-    //Substring match
-    $systems_substr=array( "CentOS"=>"CentOS",
-                           "Debian"=>"Debian",
-                           "Fedora"=>"Fedora",
-                           "Gentoo"=>"Gentoo",
-                           "Mandrake"=>"Mandrake",
-                           "Mandriva"=>"Mandriva",
-                           "Novell"=>"Novell",
-                           "Red Hat"=>"Red Hat",
-                           "Slackware"=>"Slackware",
-                           "Suse"=>"Suse",
-                           "SuSE"=>"SuSE",
-                           "SUSE"=>"SUSE",
-                           "Ubuntu"=>"Ubuntu",);
-    reset ($systems_substr);
-	foreach($systems_substr as $key => $val) {
-        if(substr_count($os,$key)){
-            $image="linux_".strtolower($val).".png";
-            $title=determine_os($os);
-        }
-    }
-// If we got here, we must have a .png image, even if it is not what we want.
-// So now we will look to see if we can find a scaleable image to give is a better looking output
-// In other words, lets take the name of the .png, and replace it with a suitable Tango .svg if it exists.
-/*
-if (is_file($image_folder."\dell-ultrasharp.svg")){
-    switch($image){
-    case "laptop.png" :
-        $image = "computer-laptop-dell-inspiron.svg";
-        break;
-    case "computer.png" :
-        $image = "computer-dell-dimension-E521.svg";
-        break;
-    case "network-server.png" :
-        $image = "dell-ultrasharp.svg";
-        break;
-    }
-
-   }
-*/
-    $ret = $image;
-    return $ret;
-
-}
-
-
-
-
-
-
-//Integrating Search-Values in the SQL-Query (WHERE)
 function sql_insert_search($sql_query, $filter){
 
     //Generating the WHERE-Clause
@@ -1261,7 +1107,7 @@ function DisplayError($error_msg)
 {
 	global $show_tips;
 	
-	echo "<td><div class='error'><img src='images/emblem_important.png'/>";
+	echo "<td><div class='error'><i class='fa fa-exclamation-triangle' aria-hidden='true'></i>";
 	echo $error_msg."</div></td>";
 	
 	die;

@@ -78,7 +78,7 @@
                    <td><a href=\"system.php?other=".$myrow["other_id"]."&amp;view=other_system\">" . ip_trans($myrow["other_ip_address"]) . "</a></td>
                    <td>" . $myrow["other_network_name"] . "</td>
                    <td>" . $myrow["other_description"] . "</td>
-                   <td><img src=\"images/o_" .$typebild. ".png\" alt=\"\" border=\"0\" width=\"16\" height=\"16\"  /></td>
+                   <td><i class=\"fa fa-desktop\" aria-hidden=\"true\"></i></td>
                    <td>" . return_date_time($myrow["other_timestamp"]) . "</td>
                    <td>" . human_timing($datetime1) ."</td>
                 </tr>\n";

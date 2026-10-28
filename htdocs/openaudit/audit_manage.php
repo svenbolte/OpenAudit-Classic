@@ -20,13 +20,13 @@ require "include_audit_functions.php";
 
     if (!is_null($cfg)) {
       ?>
-      <p id="log-link-holder"><a href="#" id="log-dialog-open"><img src="images/notes.png"/>View the Web-Schedule Log...</a></p>
+      <p id="log-link-holder"><a href="#" id="log-dialog-open"><i class="fa fa-circle-o" aria-hidden="true"></i>View the Web-Schedule Log...</a></p>
       <label>
         Toggle Web-Schedule Status
-        <img id="ws-status-img" onClick="toggleWsService(this,'normal')"/>
+        <i id="ws-status-img" class="fa fa-circle-o" role="button" tabindex="0" onClick="toggleWsService()" aria-hidden="true"></i>
       </label>
       <span id="toggle-service">
-        <img class="busy" src="images/hourglass-busy.gif"/>
+        <i class="fa fa-circle-o" aria-hidden="true"></i>
         Changing Web-Schedule Status...
       </span>
       <br /><br />

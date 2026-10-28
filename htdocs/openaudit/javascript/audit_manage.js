@@ -138,10 +138,10 @@ Returns:  None
 function toggleSchedule(selected,sched_id) {
   var ToggleSchedule = new XmlRequestor('audit_manage_ajax.php?action=toggle_schedule&schedule_id=' + sched_id);
   if(ToggleSchedule.GetValue("action") == 'Activated') {
-    selected.src = (ToggleSchedule.GetValue("result") == 'true') ? "images/start.png" : "images/stop.png";
+    selected.className = (ToggleSchedule.GetValue("result") == 'true') ? "fa fa-check-circle" : "fa fa-times-circle";
   }
   else {
-    selected.src = (ToggleSchedule.GetValue("result") == 'true') ? "images/stop.png" : "images/start.png";
+    selected.className = (ToggleSchedule.GetValue("result") == 'true') ? "fa fa-check-circle" : "fa fa-times-circle";
   }
   alert(ToggleSchedule.GetValue("message"));
 }
@@ -177,17 +177,17 @@ function toggleWsService() {
       var xmlResult = $(msg).find('result').text() 
       $('#toggle-service').hide(); 
       if($(msg).find('action').text() == 'start'){
-        img     = ( xmlResult == 'true' ) ? "images/start.png" : "images/stop.png"; 
+        img     = ( xmlResult == 'true' ) ? "fa-check-circle" : "fa-times-circle"; 
         message = ( xmlResult == 'true' ) ?
           "Started the Web-Schedule service" : "Unable to start the Web-Schedule service";
       }
       else {
-        img = ( xmlResult == 'true' || xmlResult == 'pending' ) ? "images/stop.png" : "images/start.png"; 
+        img = ( xmlResult == 'true' || xmlResult == 'pending' ) ? "fa-check-circle" : "fa-times-circle"; 
         if ( xmlResult == 'true'    ) { message = "Stopped the Web-Schedule service";        }
         if ( xmlResult == 'pending' ) { message = "Service will stop on next DB poll";       }
         if ( xmlResult == 'false'   ) { message = "Unable to stop the Web-Schedule service"; }
       }
-      $("#ws-status-img").attr("src",img); 
+      $("#ws-status-img").removeClass("fa-check-circle fa-times-circle fa-circle-o").addClass("fa " + img); 
       alert(message);
     }
   });
@@ -203,8 +203,8 @@ Returns:  None
 **********************************************************************************************************/
 function getWsStatus() {
   var WsStatus = new XmlRequestor('audit_manage_ajax.php?action=ws_status');
-  var img = ( WsStatus.GetValue("result") == 'running' ) ?  "images/start.png" : "images/stop.png";
-  $("#ws-status-img").attr("src",img); 
+  var img = ( WsStatus.GetValue("result") == 'running' ) ?  "fa-check-circle" : "fa-times-circle";
+  $("#ws-status-img").removeClass("fa-check-circle fa-times-circle fa-circle-o").addClass("fa " + img); 
 }
 
 /**********************************************************************************************************

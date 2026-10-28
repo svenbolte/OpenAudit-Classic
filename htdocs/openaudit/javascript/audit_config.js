@@ -484,7 +484,7 @@ function TestResult(selected,test_type) {
       'type': test_type
     },
     'beforeSend': function(){
-      var html = "<br><br><img class=\"busy\" src=\"images/hourglass-busy.gif\"><i>Fetching Results...</i>";
+      var html = "<br><br><i class=\"fa fa-spinner fa-spin\"></i><i>Fetching Results...</i>";
       $('#' + test_type + '_result').html(html);
     },
     'success': function(msg){

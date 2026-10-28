@@ -74,7 +74,7 @@ function addToQuery() {
   // Left most cell with image element
   var cellLeft = row.insertCell(0);
   el[0] = document.createElement('img');
-  el[0].src = 'images/delete.png';
+  el[0].style.display = 'none';
   el[0].id  = s_tr.length;
   el[0].setAttribute('class','deletebutton');
   el[0].onclick = function() { removeQueryOpt(el[0]) };

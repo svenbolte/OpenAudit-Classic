@@ -193,7 +193,7 @@ foreach($query_array as $view_master) {
       $buffer .= "<td class=\"contenthead\" width=\"30\" align=\"right\">\n";
        $buffer .= $count_items_category;
       $buffer .= "</td\n>";
-      $buffer .= "<td align=\"right\"><a href=\"javascript://\" onclick=\"switchUl('f".$view_count."');\"><img src=\"images/down.png\" width=\"16\" height=\"16\" border=\"0\" alt=\"\" /></a></td\n>";
+      $buffer .= "<td align=\"right\"><a href=\"javascript://\" onclick=\"switchUl('f".$view_count."');\"><i class=\"fa fa-arrow-down\" aria-hidden=\"true\"></i></a></td\n>";
      $buffer .= "</tr\n>";
     $buffer .= "</table\n>";
 

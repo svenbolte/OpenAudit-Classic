@@ -81,7 +81,7 @@ if ( $email_log ) {
 
 /* At least verify they're trying to use an image */
 if ( ! empty($_POST['select_email_logo']) ) {
-  $img = getimagesize("./emails/images/{$_POST['select_email_logo']}");
+  $img = false;
   if ( empty($img) ) {
     $error_list .= "<li>The logo doesn't seem to be an image file.</li>";
   }
@@ -89,8 +89,8 @@ if ( ! empty($_POST['select_email_logo']) ) {
 
 /* Display any errors that occured, or submit the data */
 if ( isset($error_list) ) {
-  echo "<div id=\"form-result\"><p class=\"result-text\"><img src=\"images/button_fail.png\"/>
-    <strong>Please correct the following form errors</strong><img src=\"images/button_fail.png\"/></p>
+  echo "<div id=\"form-result\"><p class=\"result-text\"><i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>
+    <strong>Please correct the following form errors</strong><i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i></p>
     <ul>$error_list</ul></div>";
 } else {
   /* Add the schedule to the table now */
@@ -150,7 +150,7 @@ if ( isset($error_list) ) {
   $db = GetOpenAuditDbConnection();
   mysqli_query($db,$sql) or die("Could not add/update schedule: " . mysqli_error($db) . "<br>");
   $form_action = ( $_POST['form_action'] == "edit" ) ? 'updated' : 'added';
-  echo "<div id=\"form-result\"><p class=\"result-text\"><img src=\"images/button_success.png\"/>
+  echo "<div id=\"form-result\"><p class=\"result-text\"><i class=\"fa fa-check-circle\" aria-hidden=\"true\"></i>
     <strong>Schedule $form_action (".date('g:i:s A T', time()) .")</strong></p></div>";
 }
 ?>

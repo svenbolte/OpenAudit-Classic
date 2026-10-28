@@ -26,7 +26,7 @@ $query_array=array("headline"=>array("name"=>__("IE BHO's"),
 
                                    "30"=>array("name"=>"Google",
                                                "head"=>__("Google"),
-                                               "image"=>"images/button_google.gif",
+                                               "image"=>"fa-circle-o",
                                                "align"=>"center",
                                                "show"=>"y",
                                                "link"=>"y",

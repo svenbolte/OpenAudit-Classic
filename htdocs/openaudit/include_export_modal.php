@@ -43,7 +43,7 @@
       <input title="Separate email addresses with a semi-colon" type="text" id="export-email-list" class="text ui-widget ui-widget-content ui-corner-all ui-dialog-content-button"/>
       <center>
         <span id="export-result" class="export-error"></span>
-        <img src="images/hourglass-busy.gif" style="display: none; height: 2em; height: 2em;" id="export-sending">
+        <i class="fa fa-circle-o" aria-hidden="true"></i>
       </center>
       <input type="hidden" value="n" id="export-page-form"/>
       <input type="hidden" value="" id="export-page"/>

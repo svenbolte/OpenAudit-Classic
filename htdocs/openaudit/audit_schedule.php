@@ -174,7 +174,7 @@
       <input type="text" size="20" value="<?php echo $cfg[$id]['email_list'] ?>"  id="input_email_list" name="input_email_list"/>
       <br />
       <label for="select_email_logo">Email Header Logo</label>
-        <?php get_file_list('./emails/images','select_email_logo', $cfg[$id]['email_logo']); ?>
+        <?php echo '<select id="select_email_logo" name="select_email_logo"><option value="">No logo</option></select>';  ?>
       <br />
       <label for="select_tt_html">Email Template File</label>
         <?php get_file_list('./emails','select_email_template', $cfg[$id]['email_template']); ?>

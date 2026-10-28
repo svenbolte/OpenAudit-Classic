@@ -52,7 +52,7 @@ function Update_Commands($db) {
     }
   }
 
-  echo "<p><img src=\"images/button_success.png\"/>
+  echo "<p><i class=\"fa fa-check-circle\" aria-hidden=\"true\"></i>
     <strong>Commands updated (".date('g:i:s A T', time()) .")</strong></p>";
 }
 

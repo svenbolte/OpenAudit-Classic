@@ -6,7 +6,7 @@ $query_array=array("name"=>array("name"=>__("User"),
                    "views"=>array("manual"=>array(
                                                     "headline"=>__("Account Data"),
                                                     "sql"=>"SELECT * FROM auth WHERE `auth_id` = '" . $_GET["user"] . "'",
-                                                    "image"=>"images/users.png",
+                                                    "image"=>"fa-user",
                                                     "edit"=>"y",
                                                     "fields"=>array("10"=>array("name"=>"auth_id",
                                                                                 "show"=>"n",

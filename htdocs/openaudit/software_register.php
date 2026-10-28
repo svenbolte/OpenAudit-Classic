@@ -66,11 +66,8 @@ if ($myrow = mysqli_fetch_array($result)){
 	echo '<tr>';
     echo "<td ><nobr>";
 
-	if (strpos($myrow["software_title"]," ")!=0) {$logobild = substr($myrow["software_title"],0,strpos($myrow["software_title"]," "));} else {$logobild=$myrow["software_title"];}
-	if (is_file("softwarelogos/".$logobild.".png")){
-	   echo "<img src=\"softwarelogos/".$logobild.".png\" style=\"border:0px;\" alt=\"\" /> ";
-	}
-	
+    // No external logo files; unknown products intentionally have no icon.
+
 	echo "<a href=\"software_register_details.php?id=" . $myrow["software_reg_id"] . "\">" . $myrow["software_title"] . "</a>&nbsp;</nobr></td>";
     if ($number_purchased == -1) {
       echo "<td align=\"center\">Free</td>";

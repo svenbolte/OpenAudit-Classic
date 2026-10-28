@@ -72,8 +72,7 @@ ksort($info[0]);
 <td>
 <div class='ldap_details'>
 <div>
-<img src='<?php echo GetImage($info[0][$image_link_ldap_attribute][0]);?>' 
-alt='<?php echo $info[0][$image_link_ldap_attribute][0];?>'/>
+<i class="fa fa-user" aria-hidden="true"></i>
 <?php 
 echo ($_GET["full_details"] == "y" ? __("Full") : __("Partial")) ;
 echo __(' LDAP details for '). $info[0][$image_link_ldap_attribute][0]." [".$ldap_info["name"]."]";
@@ -120,27 +119,7 @@ Change Log:
                         most users.  [AJH]
 	17/04/2009			Minor change. Removed a few lines of redundant code.	[Nick Brown]
 **********************************************************************************************************/
-function GetImage($name)
-{
-	// First, assume we dont know what ldap object we have
-	$default_file= 'images/o_unknown.png';
-	if ($_GET["record_type"] == "computer")
-	{
-    // We have established it is a computer, so set the defaults for computers
-    $default_file= 'images/o_terminal_server.png';
-		$this_file = './images/equipment/'.$name.'.jpg';
-		if (is_file($this_file)) {return $this_file;} 
-  }
-  else if ($_GET["record_type"] == "user")
-  {
-		// We have established object is a user, so set the defaults for user
-    $default_file= 'images/groups_l.png';
-		$this_file = './images/people/'.$name.'.jpg';
-		if (is_file($this_file)) {return $this_file;} 
-  }
-  // Return default. 
-	return $default_file;
-}
+function GetImage($name) { return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23777' d='M4 4h16v16H4z'/%3E%3C/svg%3E"; }
 
 /**********************************************************************************************************
 Function Name:

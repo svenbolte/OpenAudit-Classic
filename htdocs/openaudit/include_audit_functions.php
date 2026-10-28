@@ -100,7 +100,7 @@ function get_command_info($db){
         <tr id=\"$id\">
           <td><input type=\"text\" value=\"".$name."\" size=\"20\" id=\"cmdname$count\"/></td>
           <td><input type=\"text\" class=\"command-value\" value=\"".$command."\" id=\"cmd$count\"/></td>
-          <td><img src=\"images/delete.png\" onClick=\"removeCommand(this)\" id=\"$count\" class=\"deletebutton\"/></td>
+          <td><i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i></td>
         </tr>
       ";
       $count++;
@@ -197,7 +197,7 @@ function Get_mysqli_Queries($db,$cfg_id) {
 
       echo "<tr id=\"{$id}\">\n
               <td>\n
-                <img src=\"images/delete.png\" id=\"$count\" class=\"deletebutton\" onclick=\"removeQueryOpt(this)\" ></td>\n
+                <i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i></td>\n
               <td>\n
                 <select class=\"mysql\" id=\"qtbl$count\" onChange=\"setFieldSelect(this,'cellfield$count','qfld$count')\">\n";
                 foreach ( $tables as $line ) {
@@ -365,11 +365,8 @@ function Get_Manage_Configs() {
               <td><a href=\"audit_configuration.php?config_id=$key\">{$cfg['name']}</a></td>
               <td>$audit_action</td>
               <td>$audit_type</td>
-              <td>&nbsp;&nbsp;&nbsp;<img src=\"images/audit.png\" id=\"manage-img\"".
-              " onClick=\"confirmRunConfig($key,'{$cfg['name']}')\"/></td>
-              <td>&nbsp;&nbsp;&nbsp;<img src=\"images/button_fail.png\" id=\"manage-img\"".
-              "alt=\"Delete this Configuration\" ".
-              "onClick=\"confirmDeleteConfig(this,$key,'{$cfg['name']}')\"/></td>
+              <td>&nbsp;&nbsp;&nbsp;<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i></td>
+              <td>&nbsp;&nbsp;&nbsp;<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i></td>
             </tr>";
     }
     echo "</tbody></table>";
@@ -430,8 +427,8 @@ function Get_Manage_Schedules() {
               <td>{$type_map[$cfg['type']]}</td>
               <td>$run_time</td>
               <td>$next_run</td>
-              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src=\"images/$status_image.png\" id=\"manage-img\" onClick=\"toggleSchedule(this,$key,'{$cfg['name']}')\"/></td>
-              <td>&nbsp;&nbsp;&nbsp;<img src=\"images/button_fail.png\" id=\"manage-img\" onClick=\"confirmDeleteSchedule(this,$key,'{$cfg['name']}')\"/></td>
+              <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i></td>
+              <td>&nbsp;&nbsp;&nbsp;<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i></td>
             </tr>";
     }
     echo "</tbody></table></div>";

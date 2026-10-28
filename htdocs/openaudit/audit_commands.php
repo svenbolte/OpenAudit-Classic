@@ -19,7 +19,7 @@ require_once "include_audit_functions.php";
   <br>
   <label>Command</label>
   <div><input size="30" type="text" id="input-cmd"/>
-    <img src="images/add.png" onClick="addToCommands('cmd_table')" id="add-img"/>
+    <i class="fa fa-plus" aria-hidden="true"></i>
   </div><br>
   <form action="javascript:submitCommands();" method="post" id="form_cmd">
     <table class=\"tftable\"  id="cmd_table">

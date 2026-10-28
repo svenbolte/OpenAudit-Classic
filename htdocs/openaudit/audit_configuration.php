@@ -199,8 +199,8 @@
       if ( @mysqli_num_rows($result) != 0 ) {
         echo "<div id=\"commandContainer\">
                 <div id=\"sortButtons\">
-                  <div><img src=\"images/up.png\" onclick=\"boxUp()\" class=\"sort\"/></div>
-                  <div><img src=\"images/down.png\" onclick=\"boxDown()\" class=\"sort\"/></div>
+                  <div><i class=\"fa fa-arrow-up\" aria-hidden=\"true\"></i></div>
+                  <div><i class=\"fa fa-arrow-down\" aria-hidden=\"true\"></i></div>
                 </div>";
         echo "<div id=\"DragContainer\">";
                 @Get_Commands($db,$cfg[$id]['command_ids']);
@@ -303,7 +303,7 @@
       <br />
       <label>Search for Data</label>
       <input class="mysql" size="15" type="text" id="input_field_value">
-      <img src="images/add.png" class="addbutton" onclick="addToQuery()">
+      <i class="fa fa-plus" aria-hidden="true"></i>
       <br />
       <br />
       <center>

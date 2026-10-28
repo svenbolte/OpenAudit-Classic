@@ -678,7 +678,7 @@ div.npb_section_heading a,
 div.npb_section_heading a:visited { color: var(--oa-text); }
 div.npb_section_heading a:hover { color: var(--openauditcolor); text-decoration: none; }
 div.npb_section_shadow { box-shadow: var(--oa-shadow-sm); }
-div.npb_section_heading img[src="images/down.png"] { position: absolute; right: 20px; padding: 0; }
+div.npb_section_heading img[src="fa-arrow-down"] { position: absolute; right: 20px; padding: 0; }
 div.npb_section_data {
   padding: 12px;
   border-top: 0;
@@ -691,7 +691,7 @@ div.npb_content_data table { width: 100%; border-collapse: collapse; }
 #CenterColumn, .ldap_details table { width: 100%; }
 div#graph img { border: 0; }
 div#AuditedSystems { padding: 15px 0 5px; text-align: center; }
-div#AuditedSystems img[src="images/hourglass-busy.gif"] { width: 32px; height: 32px; border: 0; vertical-align: bottom; }
+div#AuditedSystems .fa { width: 32px; height: 32px; border: 0; vertical-align: bottom; }
 
 /* Accessibility helpers */
 .sr-only {

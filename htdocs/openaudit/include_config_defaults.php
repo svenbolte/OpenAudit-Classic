@@ -81,7 +81,7 @@ $timezone = 'Europe/London';
 $show_summary_barcode = FALSE ;
 /* 
  [AJH] 12th Feb 2010 Included the GPLed liberation-fonts from RedHat, you can still pick a local font, but these are now the defaults
-  These are included in './lib/fonts-ttf/' 
+  These are included in 'removed-library/fonts-ttf/' 
   Valid font names are.. 
     LiberationSerif-Bold.ttf
 	LiberationSans-Regular.ttf
@@ -97,7 +97,7 @@ $show_summary_barcode = FALSE ;
 	LiberationMono-Italic.ttf
 	*/
 	
-$summary_barcode_font = './lib/fonts-ttf/LiberationSerif-Bold.ttf';
+$summary_barcode_font = '';
 //
 $summary_barcode = "name";
 ?>

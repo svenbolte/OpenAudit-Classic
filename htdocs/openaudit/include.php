@@ -303,7 +303,7 @@ function oaMenuIcon($item, $large = false) {
     if (strstr($image, 'fa-')) {
         return '<i class="fa '.($large ? 'fa-lg ' : '').htmlspecialchars($image, ENT_QUOTES, 'UTF-8').'" aria-hidden="true"></i>';
     }
-    return '<img class="oa-menu-icon" src="'.htmlspecialchars($image, ENT_QUOTES, 'UTF-8').'" alt="">';
+    return ''; // no external icon files
 }
 
 // Menu definitions contain HTML entities already; decode before escaping for HTML output.

@@ -44,7 +44,7 @@ if(isset($license_text) AND $license_text!="") {
 // If no license specified, use the gpl.txt file. 
 
 $license_text = "help.txt";
-// echo "<img src=\"images/gplv3-88x31.png\" alt=\"\" style=\"border:0px;\" width=\"48\" height=\"48\"  />\n";              
+// echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>\n";              
 }
 
 echo "<iframe class=\"main_each\" SRC=\"".$license_text."\" width=\"90%\" height=\"600\" framespacing=0 frameborder=no border=0 scrolling=auto name=license_frame longdesc=\"http://www.gnu.org/licenses/licenses.html#GPL\"></iframe>";
@@ -52,7 +52,7 @@ echo "<iframe class=\"main_each\" SRC=\"".$license_text."\" width=\"90%\" height
 echo "<br><center>Versions and Tips&Tricks: (".$license_text.") </center><br>";
 
 if(isset($license_text) AND $license_text="gpl.txt") {
-echo "<img src=\"images/gplv3-88x31.png\" alt=\"\" style=\"border:0px;\" width=\"88\" height=\"31\"  />\n";              
+echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>\n";              
 // We can alter things here if the file doesn't exist or whatever
 // currently do nothing
 } else {

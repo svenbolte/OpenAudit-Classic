@@ -31,7 +31,7 @@ if ($myrow = mysqli_fetch_array($result)){
         }
       echo "<tr><td>";
       echo "<img src=\"system_graphs_pie.php?disk_percent=".$percent_free."&width=140&height=140\" alt\"\"/>";
-      echo "<img src=\"images/graph_side.gif\" alt=\"\" />";
+      echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>";
 
     }
     $disk_percent = $myrow['disk_percent'];

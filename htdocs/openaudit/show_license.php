@@ -49,7 +49,7 @@ framespacing=0 frameborder=no border=0 scrolling=auto name=license_frame longdes
 echo "<br><center>Open Audit License (".$license_text.") </center><br>";
 
 if(isset($license_text) AND $license_text="gpl.txt") {
-echo "<img src=\"images/gplv3-88x31.png\" alt=\"\" style=\"border:0px;\" width=\"88\" height=\"31\"  />\n";              
+echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>\n";              
 // We can alter things here if the file doesn't exist or whatever
 // currently do nothing
 } else {

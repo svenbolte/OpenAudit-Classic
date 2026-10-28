@@ -127,7 +127,7 @@ else {
   );
 
   $subject = "Open-AudIT CSV Report";
-  $html    = ParseEmailTemplate($variables,'./emails/export_file.html');
+  $html    = ParseEmailTemplate($variables,'removed-email-templates/export_file.html');
 
   $attachment = array(
    "Data"         => $csv_data,

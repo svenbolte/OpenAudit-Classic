@@ -53,7 +53,7 @@ if ($myrow = mysqli_fetch_array($result)){
     echo "   <option value=\"60\">60</option>\n";
     echo "  </select>\n";
     echo " </td>\n";
-    echo " <td align=\"center\"><div id=\"sub_" . $myrow['system_uuid'] . "\"><a href=\"#\" onclick=\"sendRequest('" . $myrow["system_uuid"] . "');\"><img src=\"images/button_success.png\" border=\"0\"/></a></div></td>\n";
+    echo " <td align=\"center\"><div id=\"sub_" . $myrow['system_uuid'] . "\"><a href=\"#\" onclick=\"sendRequest('" . $myrow["system_uuid"] . "');\"><i class=\"fa fa-check-circle\" aria-hidden=\"true\"></i></a></div></td>\n";
     echo "</tr>\n";
   } while ($myrow = mysqli_fetch_array($result));
 }    

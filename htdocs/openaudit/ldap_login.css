@@ -14,7 +14,7 @@ img.logo {
 
 /* Apply orange line throught the header (& logo) */
 div.npb_ldap_login_header{
-	background-image: url(images/grad.png); 
+	background-image: none; 
 	background-repeat: repeat-x;
 	padding:	7px;
 }
@@ -30,7 +30,7 @@ div.npb_ldap_login
 	width: 350px;
 	margin: 20px auto 20px auto;
 	padding:	15px;
-	background: url(images/Shading3.png) repeat-x top left;
+	background: none repeat-x top left;
 }
 
 /* Size and style the login (key) IMG */
