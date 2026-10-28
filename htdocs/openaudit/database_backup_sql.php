@@ -1,185 +1,140 @@
 <?php
-//    Open Audit Backup Database
-//    backup to folder with current timestamp.
-include "include.php";
-//$this_page="https://".$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-//echo "<meta name=\"refresh\" content=\"10;".$this_page."\">";
-//
-$backup_name = $_GET['backup_name'];
-
-$add_drop_tables = "n";
-
-if (isset($_GET['add_drop_tables'])) {
-    $add_drop_tables = $_GET['add_drop_tables'];
-    }
-
-
-//function microtime_float()
-//{
-//    list($usec, $sec) = explode(" ", microtime());
-//    return ((float)$usec + (float)$sec);
-//}
-
-
-$newline = "\r\n";
-$page = "database_backup_sql.php";
- 
-// This is a bit crude... FIXME I need to find a more interactive method for this, rather than just leaving the script for 10 mins, and then timing out if no result.
+// OpenAudit: feste Sicherung der Datenbanken openaudit und wordpress.
+include 'include.php';
 set_time_limit(600);
-$backup = '';
 
-echo "<td style=\"vertical-align:top;width:100%\">$newline";
-echo "<div class=\"main_each\">$newline";
-echo "<table>$newline";
-echo "  <tr><td class=\"contenthead\">".__("Backing up the Database")."</td></tr>";
-echo "  <tr><td colspan=\"3\">&nbsp;</td></tr></table>";
-echo '<table class="tftable"><tr>';
- echo "<td class=\"views_tablehead\">".__("Tables")."</td>\n";
- echo "<td class=\"views_tablehead\">".__("Size")."</td>\n";
- echo "<td class=\"views_tablehead\">".__("Backup")."</td>\n";
-echo "</tr>\n";
-
-mysqli_select_db($db,$backup_name);
-
-$today = date("_d-m-Y_H-i-s");
-$backup_dir = './backup/';
-
-if (!file_exists($backup_dir)) {
-   mkdir($backup_dir);
+function oa_backup_identifier($identifier) {
+    return '`' . str_replace('`', '``', $identifier) . '`';
 }
-define ('Name','Name');
-define ('Auto_increment','Auto_increment');
 
-$backup_filename = $backup_dir.$backup_name.'_Backup'.$today.'.sql';
-$handle = fopen($backup_filename, "w");
-$table_len=strlen($backup);
-
-$tab_status = mysqli_query($db,"SHOW TABLE STATUS");
-while($all = mysqli_fetch_assoc($tab_status)):
-   $tbl_stat[$all[Name]] = $all[Auto_increment];
-endwhile;
-unset($backup);
-
-//$tables = mysqli_list_tables($mysqli_database); Depreciated... use SHOW TABLES FROM instead...
-
-$tables = mysqli_query($db,"SHOW TABLES FROM $backup_name");
-
-$date_time = date('l dS \of F Y h:i:s A');
-
-$backup = '';
-$url = $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-$backup .= "-- -------------------http://www.open-audit.org//-------------------$newline";
-$backup .= "-- --------------------------------------------------------$newline";
-$backup .= "-- ----------  $date_time   -----------$newline";
-$backup .= "-- ----------  ".__("Open Audit Database Backup")."  -----------$newline";
-$backup .= "-- ----Database Name --".$backup_name."----$newline";
-$backup .= "-- Created by .. $url --$newline";
-$backup .= "-- --------------------------------------------------------$newline";
-
-$file_len=strlen($backup);
-
-while($tabs = mysqli_fetch_row($tables)):
-   if ($add_drop_tables === "y"){
-   // Include the DROP TABLE IF EXISTS commands.
-   $backup .= "--$newline-- ".__("Table structure for")." `$tabs[0]`".$newline."--".$newline."DROP TABLE IF EXISTS `$tabs[0]`;".$newline."CREATE TABLE IF NOT EXISTS `$tabs[0]` (".$newline;
-    } else {
-    // Include DROP TABLE IF EXISTS commands only as comments.
-   $backup .= "--$newline-- ".__("Table structure for")." `$tabs[0]`".$newline."--".$newline."-- DROP TABLE IF EXISTS `$tabs[0]`;".$newline."CREATE TABLE IF NOT EXISTS `$tabs[0]` (".$newline;
+function oa_backup_write($handle, $text) {
+    $length = strlen($text);
+    $written = 0;
+    while ($written < $length) {
+        $count = fwrite($handle, substr($text, $written));
+        if ($count === false || $count === 0) {
+            throw new RuntimeException('Schreiben der Sicherungsdatei fehlgeschlagen.');
+        }
+        $written += $count;
     }
-    
-   $res = mysqli_query($db,"SHOW CREATE TABLE `$tabs[0]`");
-   //echo "<tr><td>". __($tabs[0])."</td><td>$tabs[0]</td></tr>";
-
-    $table_len=strlen($backup)-$file_len;
-    $file_len=strlen($backup);
-    echo "<tr>
-           <td>$tabs[0]</td><td>".$table_len." ".__("Bytes")."</td>
-           <td align=\"center\"><img src=\"images/button_success.png\" width=\"16\" height=\"16\" /></td>
-          </tr>";
-   // tabellierung über tftable css
-   while($all = mysqli_fetch_assoc($res)):
-       $str = str_replace("CREATE TABLE `$tabs[0]` (", "", $all['Create Table']);
-       $str = str_replace(",", ", ".$newline."", $str);
-       $str2 = str_replace("`) ) TYPE=MyISAM ", "`)".$newline." ) TYPE=MyISAM ", $str);
-       $backup .= $str2.";".$newline;
-       //" AUTO_INCREMENT=".$tbl_stat[$tabs[0]].";".$newline.$newline;
-   endwhile;
-   $backup .= "--$newline-- ".__("All Data from table")." `$tabs[0]`".$newline."--".$newline.$newline;
-   $data = mysqli_query($db,"SELECT * FROM `$tabs[0]`");
-   while ($dt = mysqli_fetch_row($data)):
-       // NULL-Werte als SQL NULL sichern, nicht als leere Zeichenkette.
-       // Alle anderen Werte sicher fuer SQL maskieren.
-       $sql_values = array();
-       foreach ($dt as $value) {
-           $sql_values[] = ($value === null)
-               ? 'NULL'
-               : "'" . mysqli_real_escape_string($db, (string) $value) . "'";
-       }
-       $backup .= "INSERT INTO `$tabs[0]` VALUES(" . implode(', ', $sql_values) . ");" . $newline;
-   endwhile;
-   $backup .= $newline."-- ----------------".__("End of table")."----------------------------".$newline;
-endwhile;
-$backup .= $newline."-- ----------------".__("End of backup")."----------------------------".$newline.$newline;
-// Let's make sure the file exists and is writable first.
-
-echo "  <tr><td colspan=\"3\"><hr /></td></tr>\n";
-
-if (is_writable($backup_filename)) {
-
-   // tabellierung über tftable css
-   if (!$handle = fopen($backup_filename, 'w+')) {
-         echo "<tr><td colspan=\"3\"  >".__("Could not open file (").$backup_filename.")</td></tr>\n";
-         exit;
-   }else{
-       echo "<tr>\n";
-        echo "<td  >".__("Create File")." '".$backup_filename."'</td>\n";
-        echo "<td  ></td>\n";
-        echo "<td align=\"center\"  ><img src=\"images/button_success.png\" width=\"16\" height=\"16\" /></td>\n";
-       echo "</tr>\n";
-   }
-
-   // tabellierung über tftable css
-   // Write $somecontent to our opened file.
-   if (fwrite($handle, $backup) === FALSE) {
-       echo "<tr><td colspan=\"3\"  >".__("Could not write to file (").$backup_filename.")</td></tr>\n";
-       exit;
-   }else{
-       echo "<tr>\n";
-        echo "<td  >".__("Write File")." '".$backup_filename."'</td>\n";
-        echo "<td  ></td>\n";
-        echo "<td align=\"center\"  ><img src=\"images/button_success.png\" width=\"16\" height=\"16\" /></td>\n";
-       echo "</tr>\n";
-   }
-   $database_length = strlen($backup);
-   // tabellierung über tftable css
-
-   echo "<tr>\n";
-    echo "<td  >".__("Success, wrote ").$database_length." ".__("bytes to file")."</td>\n";
-    echo "<td  ></td>\n";
-    echo "<td align=\"center\"  ><img src=\"images/button_success.png\" width=\"16\" height=\"16\" /></td>\n";
-   echo "</tr>\n";
-
-   fclose($handle);
-
-   // tabellierung über tftable css
-   echo "<tr><td colspan=\"3\">&nbsp;</td></tr>\n";
-   // tabellierung über tftable css
-   echo "<tr><td class=\"contentsubtitle\">".__("Backup Completed")."</td><td></td><td></td></tr>\n";
-   echo "<tr>";
-    echo "<td>".__("Database Backed up ").". </td>\n";
-    echo "<td  ></td>\n";
-    echo "<td align=\"center\"><img src=\"images/button_success.png\" width=\"16\" height=\"16\" /></td>\n";
-   echo "</tr>\n";
-} else {
-   echo "<tr><td colspan=\"3\">".__("The file")." ".$backup_filename." ".__("is not writable")."</td></tr>\n";
 }
 
-echo "</tr></td></table>\n";
+function oa_backup_database($db, $database, $directory, $withDrop) {
+    $dbSql = oa_backup_identifier($database);
+    if (!mysqli_select_db($db, $database)) {
+        throw new RuntimeException('Datenbank nicht erreichbar: ' . $database . ' (' . mysqli_error($db) . ')');
+    }
+    // UTF-8 auch für Umlaute und WordPress-Inhalte.
+    if (!mysqli_set_charset($db, 'utf8mb4')) {
+        throw new RuntimeException('UTF-8-Zeichensatz konnte nicht gesetzt werden: ' . mysqli_error($db));
+    }
+    $filename = $directory . DIRECTORY_SEPARATOR . $database . '_Backup_' . date('Y-m-d_H-i-s') . '.sql';
+    $handle = fopen($filename, 'wb');
+    if ($handle === false) {
+        throw new RuntimeException('Sicherungsdatei konnte nicht erstellt werden: ' . $filename);
+    }
+    $tableCount = 0;
+    try {
+        oa_backup_write($handle, "-- OpenAudit SQL Backup\n-- Database: " . $database . "\n-- Date: " . date('c') . "\nSET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS=0;\nCREATE DATABASE IF NOT EXISTS " . $dbSql . ";\nUSE " . $dbSql . ";\n\n");
+        $result = mysqli_query($db, 'SHOW FULL TABLES FROM ' . $dbSql);
+        if ($result === false) {
+            throw new RuntimeException('Tabellen konnten nicht gelesen werden: ' . mysqli_error($db));
+        }
+        while ($table = mysqli_fetch_row($result)) {
+            $tableName = $table[0];
+            $tableSql = oa_backup_identifier($tableName);
+            $isView = isset($table[1]) && strtoupper($table[1]) === 'VIEW';
+            $createResult = mysqli_query($db, 'SHOW CREATE ' . ($isView ? 'VIEW ' : 'TABLE ') . $tableSql);
+            if ($createResult === false) {
+                throw new RuntimeException('Tabellenstruktur konnte nicht gelesen werden (' . $tableName . '): ' . mysqli_error($db));
+            }
+            $create = mysqli_fetch_assoc($createResult);
+            mysqli_free_result($createResult);
+            $definition = $isView ? ($create['Create View'] ?? '') : ($create['Create Table'] ?? '');
+            if ($definition === '') {
+                throw new RuntimeException('Leere Definition für ' . $tableName);
+            }
+            if ($withDrop) {
+                oa_backup_write($handle, 'DROP ' . ($isView ? 'VIEW' : 'TABLE') . ' IF EXISTS ' . $tableSql . ";\n");
+            }
+            oa_backup_write($handle, $definition . ";\n");
+            if (!$isView) {
+                $data = mysqli_query($db, 'SELECT * FROM ' . $tableSql, MYSQLI_USE_RESULT);
+                if ($data === false) {
+                    throw new RuntimeException('Daten konnten nicht gelesen werden (' . $tableName . '): ' . mysqli_error($db));
+                }
+                while ($values = mysqli_fetch_row($data)) {
+                    $encoded = array();
+                    foreach ($values as $value) {
+                        $encoded[] = $value === null ? 'NULL' : "'" . mysqli_real_escape_string($db, (string) $value) . "'";
+                    }
+                    oa_backup_write($handle, 'INSERT INTO ' . $tableSql . ' VALUES (' . implode(', ', $encoded) . ");\n");
+                }
+                mysqli_free_result($data);
+            }
+            oa_backup_write($handle, "\n");
+            $tableCount++;
+        }
+        mysqli_free_result($result);
+        oa_backup_write($handle, "SET FOREIGN_KEY_CHECKS=1;\n");
+    } catch (Throwable $error) {
+        fclose($handle);
+        @unlink($filename);
+        throw $error;
+    }
+    if (!fclose($handle)) {
+        @unlink($filename);
+        throw new RuntimeException('Sicherungsdatei konnte nicht abgeschlossen werden: ' . $filename);
+    }
+    return array('file' => $filename, 'tables' => $tableCount, 'bytes' => filesize($filename));
+}
 
-// 
+function oa_backup_html($value) {
+    return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
 
-echo "</body>\n</html>\n";
+$backupDir = __DIR__ . DIRECTORY_SEPARATOR . 'backup';
+$errors = array();
+$success = array();
+$withDrop = isset($_POST['add_drop_tables']) && $_POST['add_drop_tables'] === 'y';
 
-
-
+echo '<td style="vertical-align:top;width:100%"><div class="main_each"><table class="tftable">';
+echo '<tr><td class="contenthead" colspan="3">Sichern der Datenbanken openaudit und wordpress</td></tr>';
+echo '<tr><th>Datenbank</th><th>Ergebnis</th><th>Datei</th></tr>';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['submit_button'])) {
+    echo '<tr><td colspan="3">Bitte das Backup über die Backup-Seite starten.</td></tr>';
+} elseif ((!is_dir($backupDir) && !mkdir($backupDir, 0750, true)) || !is_writable($backupDir)) {
+    echo '<tr><td colspan="3">Fehler: Der Backup-Ordner ist nicht beschreibbar.</td></tr>';
+} else {
+    foreach (array('openaudit', 'wordpress') as $database) {
+        $backupConnection = null;
+        try {
+            if ($database === 'wordpress') {
+                // Gleiches Passwort und gleicher Server wie OpenAudit, aber Benutzer root.
+                // Zugangsdaten kommen aus include_config.php, nicht aus dieser Datei.
+                $backupConnection = mysqli_init();
+                if (!$backupConnection || !@mysqli_real_connect(
+                    $backupConnection, $mysqli_server, 'root', $mysqli_password, 'wordpress'
+                )) {
+                    throw new RuntimeException('Verbindung zur Datenbank wordpress mit Benutzer root fehlgeschlagen.');
+                }
+            } else {
+                // Bereits authentifizierte OpenAudit-Verbindung verwenden.
+                $backupConnection = $db;
+            }
+            $result = oa_backup_database($backupConnection, $database, $backupDir, $withDrop);
+            $success[] = $database;
+            echo '<tr><td>' . oa_backup_html($database) . '</td><td>Erfolgreich: ' . (int) $result['tables'] . ' Tabellen/Views, ' . (int) $result['bytes'] . ' Bytes</td><td>' . oa_backup_html(basename($result['file'])) . '</td></tr>';
+        } catch (Throwable $error) {
+            $errors[] = $database;
+            echo '<tr><td>' . oa_backup_html($database) . '</td><td>FEHLER: ' . oa_backup_html($error->getMessage()) . '</td><td>Keine vollständige Sicherung</td></tr>';
+        } finally {
+            if ($database === 'wordpress' && $backupConnection instanceof mysqli) {
+                mysqli_close($backupConnection);
+            }
+        }
+    }
+    echo '<tr><td colspan="3"><strong>' . (count($errors) ? 'Backup nicht vollständig!' : 'Beide Datenbanken gesichert.') . '</strong></td></tr>';
+}
+echo '</table></div></td>';
 ?>

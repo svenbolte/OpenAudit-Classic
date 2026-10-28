@@ -1391,7 +1391,7 @@ function GetDetectedXpAvData($id)
 	$tr_class='npb_highlight_row';
 
   $sql  = "SELECT system_name, system_timestamp, net_ip_address, system_uuid, virus_name, virus_uptodate FROM system ";
-  $sql .= "WHERE (virus_name = '' OR virus_uptodate = 'False') AND system_os_name LIKE 'Microsoft Windows%' ";
+  $sql .= "WHERE LOWER(TRIM(COALESCE(virus_uptodate, ''))) IN ('false', '0', 'no') AND system_os_name LIKE 'Microsoft Windows%' ";
   $sql .= "ORDER BY system_name";
 	
 	$result = mysqli_query($db,$sql) or die (mysqli_error($db));

@@ -1,201 +1,38 @@
 <?php
-/**********************************************************************************************************
-Module:	index.php
-Description:	Home page for Open Audit application.
-**********************************************************************************************************/
-
-$page = "";
-$extra = "";
-$software = "";
-$count = 0;
-$total_rows = 0;
-$latest_version = "10.09.01";
-
-// Check for config, otherwise run setup
-if (!file_exists("include_config.php")) {
-	header("Location: setup.php");
-	exit;
-}
-
-include "include.php";
-
-$software = GetGETOrDefaultValue("software", "");
-$sort     = GetGETOrDefaultValue("sort", "system_name");
-
-//******* Display Graph *****************************************************
-function DisplayAuditGraph(): void
-{
-	global $systems_audited_days;
-	echo "<div class='npb_section_shadow'>";
-	echo "	<div class='npb_section_content'>";
-	echo "		<div class='npb_section_heading'>";
-	echo "			<a>Systems Audited in the last " . $systems_audited_days . " Days</a>";
-	echo "		</div>";
-	echo "		<div class='npb_section_data' id='AuditedSystems'>";
-	echo "			<img class='npb_auditedsystems_hourglass' alt=' Retrieving...' src='images/hourglass-busy.gif'/>";
-	echo "		</div>";
-	echo "	</div>";
-	echo "</div>";
-}
-
-/******* Generic display section function *****************************************************
-	$SwitchID			- String	-	Unique element ID to be used by switchUl() function
-	$Display			-	String	-	Section description (heading) string to be displayed
-	$DivID				-	String	-  Unique element ID used by the HttpRequestor object
-	$TotalString		- String	- String used in "total" description
-	$RssUrl				- String	- RSS URL string
-**********************************************************************************************/
-function DisplaySection(string $SwitchID, string $Display, string $DivID, string $TotalString, string $RssUrl = ''): void
-{
-	echo "<div class='npb_section_shadow'>";
-	echo "	<div class='npb_section_content'>";
-	echo "		<div class='npb_section_heading'>";
-
-	// Only for sections with RSS feed
-	if ($RssUrl !== '') {
-		$rssUrl = htmlspecialchars($RssUrl, ENT_QUOTES, 'UTF-8');
-		echo "<a href='{$rssUrl}'><img class='npb_rss' src=\"images/feed-icon.png\" alt=\"RSS Feed\" /></a>";
-	}
-
-	// Note: $Display is typically composed from translated strings + numbers; keep behavior as-is.
-	$switchEsc = htmlspecialchars($SwitchID, ENT_QUOTES, 'UTF-8');
-	$divEsc    = htmlspecialchars($DivID, ENT_QUOTES, 'UTF-8');
-
-	echo "			<a href=\"javascript://\" onclick=\"switchUl('{$switchEsc}');\">{$Display}</a>";
-	echo "			<i class='fa fa-arrow-down' style='float:right;margin-top:6px;cursor:pointer' onclick=\"switchUl('{$switchEsc}');\"></i>";
-	echo "		</div>";
-	echo "		<div class='npb_section_data' id='{$divEsc}'>";
-	echo "			<p class='npb_section_summary'>" . __($TotalString) . ": <img class='npb_hourglass' alt='Retrieving...' src='images/hourglass-busy.gif'/></p>";
-	echo "		</div>";
-	echo "	</div>";
-	echo "</div>";
-}
-
-/**
- * Build a safe JS variable name from a DOM id.
- * Example: RecentlyDiscoveredSystems -> RecentlyDiscoveredSystemsXml
- */
-function JsVarName(string $divId): string
-{
-	$base = preg_replace('/\W+/', '', $divId) ?: 'Section';
-	return $base . 'Xml';
-}
-
+/** Fast cockpit shell: the browser can paint the spinner before statistics are queried. */
+if (!is_file(__DIR__ . '/include_config.php')) { header('Location: setup.php'); exit; }
+include __DIR__ . '/include.php';
 ?>
-
+<style>
+.oa-cockpit{padding:22px 24px 42px;font-family:inherit;color:#243249;max-width:1650px;margin:0 auto}.oa-cockpit *{box-sizing:border-box}
+.oa-hero{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:20px;flex-wrap:wrap}.oa-hero h1{font-size:28px;line-height:1.2;margin:0 0 7px;font-weight:750;color:#18263d}.oa-muted,.oa-hero p{color:#69788c;margin:0;font-size:13px}.oa-hero .oa-date{font-size:12px;color:#69788c}
+.oa-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.oa-tile{display:flex;flex-direction:column;min-height:155px;padding:19px 20px;border:1px solid #e0e6ee;border-radius:15px;background:#fff;color:inherit;text-decoration:none!important;box-shadow:0 2px 12px rgba(20,35,65,.045);transition:transform .15s,border-color .15s}.oa-tile:hover,.oa-bar-row:hover{border-color:#8bb1eb;transform:translateY(-2px)}.oa-tile-icon{font-size:21px;line-height:1}.oa-tile-label{font-size:13px;color:#607087;margin:10px 0 6px}.oa-tile-value{font-size:30px;line-height:1.1;color:#1e3659}.oa-tile-detail{font-size:12px;color:#416fb2;margin-top:auto;padding-top:10px}
+.oa-section-title{font-size:17px;font-weight:700;margin:28px 0 13px;color:#263b58}.oa-charts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.oa-panel{border:1px solid #e0e6ee;border-radius:15px;padding:20px;background:#fff;min-width:0;box-shadow:0 2px 12px rgba(20,35,65,.035)}.oa-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:17px}.oa-panel-head h2{font-size:16px;margin:0;color:#253b59}.oa-panel-head a{font-size:12px;color:#416fb2;text-decoration:none}.oa-bars{display:grid;gap:12px}.oa-bar-row{display:grid;grid-template-columns:minmax(115px,1fr) minmax(100px,2fr) 55px;gap:10px;align-items:center;text-decoration:none!important;color:#34445c;padding:5px;border:1px solid transparent;border-radius:7px;transition:transform .15s}.oa-bar-name{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.oa-bar-svg{width:100%;height:18px}.oa-bar-row strong{font-size:12px;text-align:right}.oa-insights{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.oa-insight{border:1px solid #e0e6ee;border-radius:12px;background:#fff;overflow:hidden}.oa-insight summary{padding:15px 17px;cursor:pointer;font-weight:650;font-size:13px;list-style:none;display:flex;justify-content:space-between}.oa-insight summary::after{content:'＋';color:#416fb2}.oa-insight[open] summary::after{content:'−'}.oa-insight-content{padding:0 14px 15px;overflow:auto;max-height:360px;font-size:12px}.oa-insight-content table{width:100%}.oa-insight-content a{color:#416fb2}.oa-loading{color:#75859b;padding:12px;display:flex;align-items:center;gap:10px}.oa-spinner{display:inline-block;width:17px;height:17px;border:2px solid #dce6f4;border-top-color:#416fb2;border-radius:50%;animation:oa-spin .7s linear infinite;flex-shrink:0}@keyframes oa-spin{to{transform:rotate(360deg)}}.oa-page-loading{position:fixed;right:22px;bottom:22px;z-index:9999;background:#fff;border:1px solid #dce6f4;box-shadow:0 5px 22px #223a6022;border-radius:12px;padding:12px 17px;display:flex;align-items:center;gap:11px;color:#345174;font-size:13px;transition:opacity .2s}.oa-page-loading[hidden]{display:none}.oa-insight-content .npb_content_data{display:block!important}.oa-insight-content .tftable{font-size:12px}.oa-unicode-icon{display:inline-block;font-family:"Segoe UI Symbol","Arial Unicode MS",sans-serif;font-size:1.1em;line-height:1;vertical-align:middle;color:#416fb2;margin:0 3px}
+@media(max-width:1050px){.oa-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:720px){.oa-cockpit{padding:14px}.oa-kpis,.oa-charts,.oa-insights{grid-template-columns:1fr}.oa-bar-row{grid-template-columns:minmax(80px,1fr) minmax(70px,1fr) 40px}}
+</style>
+<style>
+.oa-start-overlay{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(244,247,251,.95);font-family:Arial,sans-serif;color:#27405f}
+.oa-start-box{display:flex;align-items:center;gap:16px;background:white;border:1px solid #dce5f0;border-radius:16px;padding:24px 30px;box-shadow:0 12px 40px #172d4920}
+.oa-start-box strong{display:block;font-size:17px}.oa-start-box small{display:block;margin-top:6px;color:#718096;font-size:12px}
+.oa-start-box .oa-spinner{width:32px;height:32px;border-width:3px}
+</style>
+<td id="CenterColumn" class="main_each"><main class="oa-cockpit" id="oa-cockpit-content" aria-busy="true"></main></td></table>
+<div class="oa-start-overlay" id="oa-start-overlay" role="status" aria-live="polite"><div class="oa-start-box"><span class="oa-spinner" aria-hidden="true"></span><div><strong>OpenAudit-Cockpit wird geladen …</strong><small>Inventar und Statistiken werden abgefragt</small></div></div></div>
 <script>
-function switchUl(param) {
-  // Select element that matches ID + class
-  const el = document.querySelector(`#${param}.npb_content_data`);
-
-  if (el) {
-    if (window.getComputedStyle(el).display === 'none') {
-      el.style.display = 'block';
-    } else {
-      el.style.display = 'none';
-    }
-  } else {
-    console.warn(`Element mit ID #${param} und Klasse .npb_content_data nicht gefunden.`);
-  }
-}
+(function(){
+ var host=document.getElementById('oa-cockpit-content'), overlay=document.getElementById('oa-start-overlay');
+ function showError(){host.innerHTML='<section class="oa-panel"><h2>Cockpit konnte nicht geladen werden</h2><p>Bitte die Serverprotokolle prüfen und die Seite erneut laden.</p><button type="button" onclick="location.reload()">Erneut versuchen</button></section>';}
+ fetch('index_cockpit_data.php',{credentials:'same-origin',cache:'no-store'})
+ .then(function(r){if(!r.ok)throw Error('HTTP '+r.status);return r.text()})
+ .then(function(html){
+  var doc=new DOMParser().parseFromString(html,'text/html');
+  var scripts=Array.from(doc.querySelectorAll('script'));
+  scripts.forEach(function(e){e.remove()});
+  host.innerHTML=doc.body.innerHTML;
+  scripts.forEach(function(s){var n=document.createElement('script');n.textContent=s.textContent;document.body.appendChild(n);n.remove();});
+  host.setAttribute('aria-busy','false');
+ }).catch(function(e){console.error('OpenAudit cockpit:',e);showError();})
+ .finally(function(){overlay.remove();});
+})();
 </script>
-
-<?php
-// ---------- Section configuration (single source of truth) ----------
-$sections = [
-	// key => [enabled, type, div, title, total, rss]
-	'f1'  => ['enabled' => ($show_system_discovered === 'y'),     'type' => 'section', 'div' => 'RecentlyDiscoveredSystems', 'title' => __("Systems Discovered in the last ") . $system_detected . __(" Days"), 'total' => 'Systems',       'rss' => 'rss_new_systems.php'],
-	'f2'  => ['enabled' => ($show_other_discovered === 'y'),      'type' => 'section', 'div' => 'OtherDiscovered',          'title' => __("Other Items Discovered in the last ") . $other_detected . __(" Days"),  'total' => 'Other Items',   'rss' => 'rss_new_other.php'],
-	'f3'  => ['enabled' => ($show_systems_not_audited === 'y'),   'type' => 'section', 'div' => 'SystemsNotAudited',        'title' => __("Systems Not Audited in the last ") . $days_systems_not_audited . __(" Days"), 'total' => 'Systems'],
-	'f4'  => ['enabled' => ($show_partition_usage === 'y'),       'type' => 'section', 'div' => 'PartitionUsage',          'title' => __("Partition free space less than ") . $partition_free_space . __(" MB"), 'total' => 'Partitions'],
-	'f5'  => ['enabled' => ($show_software_detected === 'y'),     'type' => 'section', 'div' => 'DetectedSoftware',         'title' => __("Software detected in the last ") . $days_software_detected . __(" Days"), 'total' => 'Packages',      'rss' => 'rss_new_software.php'],
-
-	// Detected servers group
-	'f6'  => ['enabled' => ($show_detected_servers === 'y'),      'type' => 'section', 'div' => 'WebServers',               'title' => __("Web Servers"),                     'total' => 'Systems'],
-	'f7'  => ['enabled' => ($show_detected_servers === 'y'),      'type' => 'section', 'div' => 'FtpServers',               'title' => __("FTP Servers"),                     'total' => 'Systems'],
-	'f8'  => ['enabled' => ($show_detected_servers === 'y'),      'type' => 'section', 'div' => 'TelnetServers',            'title' => __("Telnet Servers"),                  'total' => 'Systems'],
-	'f9'  => ['enabled' => ($show_detected_servers === 'y'),      'type' => 'section', 'div' => 'EmailServers',             'title' => __("Email Servers"),                   'total' => 'Systems'],
-	'f10' => ['enabled' => ($show_detected_servers === 'y'),      'type' => 'section', 'div' => 'VncServers',               'title' => __("VNC Servers"),                     'total' => 'Systems'],
-	'f12' => ['enabled' => ($show_detected_servers === 'y' && $show_detected_rdp === 'y'), 'type' => 'section', 'div' => 'RDPServers',  'title' => __('RDP and Terminal Servers'), 'total' => 'Systems'],
-	'f13' => ['enabled' => ($show_detected_servers === 'y'),      'type' => 'section', 'div' => 'DbServers',                'title' => __('Database Servers'),                'total' => 'Systems'],
-
-	'f11' => ['enabled' => ($show_detected_xp_av === 'y'),        'type' => 'section', 'div' => 'DetectedXpAv',             'title' => __("windows systems without up to date AntiVirus"), 'total' => 'Systems'],
-	'f15' => ['enabled' => ($show_ldap_changes === 'y'),          'type' => 'section', 'div' => 'AdInfo',                   'title' => __("LDAP Directory changes in the last " . $ldap_changes_days . " days"), 'total' => 'Accounts', 'rss' => 'rss_ldap_directory_changes.php'],
-
-	// Graph (has its own renderer but same data loader)
-	'f14' => ['enabled' => ($show_systems_audited_graph === 'y'),  'type' => 'graph',   'div' => 'AuditedSystems'],
-
-	'f16' => ['enabled' => ($show_hard_disk_alerts === 'y'),      'type' => 'section', 'div' => 'HardDisksAlerts',          'title' => __("Hard Disks Alerts detected in the last ") . $hard_disk_alerts_days . __(" Days"), 'total' => 'Systems', 'rss' => 'rss_hard_disk_alerts.php'],
-];
-?>
-
-<!-- Create HttpRequestors -->
-<script>//<![CDATA[
-<?php
-foreach ($sections as $key => $cfg) {
-	if (empty($cfg['enabled'])) continue;
-	$div = $cfg['div'];
-	$var = JsVarName($div);
-	echo "var {$var}=new HttpRequestor('{$div}');\n";
-}
-?>
-//]]></script>
-
-<?php
-$title = "";
-$show_all = "1";
-if (isset($_GET["show_all"])) {
-	$count_system = '10000';
-}
-if (isset($_GET["page_count"])) {
-	$page_count = (int)$_GET["page_count"];
-} else {
-	$page_count = 0;
-}
-$page_prev = $page_count - 1;
-if ($page_prev < 0) {
-	$page_prev = 0;
-}
-$page_next = $page_count + 1;
-$page_current = $page_count;
-$page_count = $page_count * $count_system;
-
-echo '<style>.mehrspaltig {display: grid;grid-template-columns: repeat(auto-fit, minmax(580px, 1fr));gap: 5px}</style>';
-echo '<td id="CenterColumn" class="main_each" ><div class="mehrspaltig">';
-
-// Render sections (data-driven)
-foreach ($sections as $key => $cfg) {
-	if (empty($cfg['enabled'])) continue;
-
-	if (($cfg['type'] ?? 'section') === 'graph') {
-		DisplayAuditGraph();
-		continue;
-	}
-
-	DisplaySection(
-		$key,
-		$cfg['title'],
-		$cfg['div'],
-		$cfg['total'],
-		$cfg['rss'] ?? ''
-	);
-}
-
-echo '</div>';
-echo "</td></table>\n";
-?>
-
-<script type='text/javascript'>//<![CDATA[
-<?php
-// Initiate retrieval of data for each enabled section
-foreach ($sections as $key => $cfg) {
-	if (empty($cfg['enabled'])) continue;
-	$div = $cfg['div'];
-	$var = JsVarName($div);
-	echo "{$var}.send('index_data.php?sub={$key}');\n";
-}
-?>
-//]]></script>
-
-</body>
-</html>
+</body></html>
