@@ -222,69 +222,7 @@ echo '<table class="oa-list-heading"><tr><td class="contenthead">';
      echo " (".($page_count+1)."-".$show_page_count_to."/".$all_page_count.")\n";
   echo "</td><td align=\"right\" >\n";
 
-  //Navigation-buttons
-  //Previous
-  if($page_count!=0 AND (isset($show_all) AND $show_all!=1)){
-      echo "<a href=\"#\" onclick=\"set_form_field('page_count', '".$page_prev."'); submit_form();\">";
-        echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>";
-      echo "</a>\n";
-  }else{
-    echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>\n";
-  }
-
-  //All
-  //if($all_page_count>=$count_system OR $count_system==$count_system_max ){
-  if($all_page_count>$count_system OR $count_system==$count_system_max ){
-      if($show_all!=1){
-          echo "<a href=\"#\" onclick=\"set_form_field('show_all', '1'); set_form_field('page_count', '0'); submit_form();\">";
-            echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>";
-          echo "</a>\n";
-      }else{
-          echo "<a href=\"#\" onclick=\"set_form_field('show_all', ''); set_form_field('page_count', '0'); submit_form();\">";
-            echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>";
-          echo "</a>\n";
-      }
-  }else{
-      echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>\n";
-  }
-  //Next
-  //if(($page_count+$count_system)<=$all_page_count AND (isset($show_all) AND $show_all!=1)){
-  if(($page_count+$count_system)<$all_page_count AND (isset($show_all) AND $show_all!=1)){
-      echo "<a href=\"#\" onclick=\"set_form_field('page_count', '".$page_next."'); submit_form();\">";
-        echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>";
-      echo "</a>\n";
-  }else{
-    echo "<i class=\"fa fa-circle-o\" aria-hidden=\"true\"></i>\n";
-  }
-
-  //Direct jumping to pages
-  //Don't show if there is only one-page or show_all==1
-  //if( ($all_page_count>=$count_system OR $count_system==$count_system_max) AND (isset($show_all) AND $show_all!=1) ){
-  //    for ($i = 0; $i <= $all_page_count; $i=$i+$count_system) {
-  if( ($all_page_count>$count_system OR $count_system==$count_system_max) AND (isset($show_all) AND $show_all!=1) ){
-      for ($i = 0; $i < $all_page_count; $i=$i+$count_system) {
-
-          $last_goto_page=0;
-          if( ($i<=($count_system*4)) OR ($i>=($all_page_count-($count_system*3))) ){
-              if($i==$page_count){ $style_for_direct_jump="color:red;";}else{$style_for_direct_jump="";};
-              $goto_page=($i/$count_system+1);
-              echo "&nbsp;<a href=\"#\" onclick=\"set_form_field('page_count', '".($i/$count_system)."'); set_form_field('show_all', '0'); submit_form();\" style=\"$style_for_direct_jump\" title=\"".__("Go to Page")." ".$goto_page."\">";
-              echo $goto_page;
-              echo "</a>";
-          }else{
-              if(isset($dots_for_direct_jump_is_sown) AND $dots_for_direct_jump_is_sown!=1){
-                  $dots_for_direct_jump_is_sown=1;
-                  echo "...";
-              }
-          }
-      }
-      unset($style_for_direct_jump);
-      echo "&nbsp;&nbsp;\n";
-      echo "<input type=\"text\" name=\"page_count_tmp\" value=\"".($page_current+1)."\" style=\"width:16px;\" />\n";
-      echo "<input type=\"button\" name=\"tmp_submit\" value=\">\" style=\"width:16px;\" onclick=\"set_form_field('page_count', (document.forms['form_nav'].elements['page_count_tmp'].value-1)); submit_form();\" />\n";
-  }
-
-  echo "</td></tr>";
+  echo "</tr>";
   echo "</table>\n";
 
   // List actions live in the document flow so they never overlap the title.
@@ -408,10 +346,6 @@ echo "</tr>\n";
 //Table body
 $rownumber=0;
 if ($myrow = mysqli_fetch_array($result)){
-  if(!$show_all) {
-    mysqli_data_seek($result,$page_count);
-    $myrow = mysqli_fetch_array($result);
-  }
     do{
         // tabellierung über tftable css
         echo '<tr>';
@@ -638,7 +572,7 @@ if ($myrow = mysqli_fetch_array($result)){
         echo "</td>\n";
         echo " </tr>\n";
       $rownumber ++;
-    } while ($myrow = mysqli_fetch_array($result) and ($show_all or $rownumber < $count_system));
+    } while ($myrow = mysqli_fetch_array($result));
 
 	// Totals
 	

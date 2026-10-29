@@ -546,92 +546,50 @@ function determine_inkscape_img($os, $system_type) {
 }
 
 function sql_insert_search($sql_query, $filter){
-
-    //Generating the WHERE-Clause
-    $sql_where =" ( 1 ";
-    @reset($filter);
-	foreach ($filter as $filter_var=>$filter_val) {
-        if($filter_val!=""){
-            //Delete all "-" if the Searchbox is a timestamp
-            if(strpos($filter_var, "timestamp")!== false) { $filter_val=str_replace("-","",$filter_val); }
-            $sql_where.= " AND ".$filter_var." LIKE '%".$filter_val."%' ";
-            $filter_query=1;
+    // Apply filters to the final result set, including queries using WITH/CTEs.
+    // The outer SELECT avoids inserting WHERE after an existing ORDER BY,
+    // or confusing a WHERE inside a CTE with the final SELECT's WHERE.
+    if (!is_array($filter)) { return $sql_query; }
+    $conditions = array();
+    foreach ($filter as $field => $value) {
+        if (!is_scalar($value) || (string)$value === '') { continue; }
+        // Field names come from list configuration, never from arbitrary SQL.
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/D', $field)) { continue; }
+        if (strpos($field, 'timestamp') !== false) {
+            $value = str_replace('-', '', (string)$value);
+        }
+        global $db;
+        $escaped = mysqli_real_escape_string($db, (string)$value);
+        $conditions[] = "`" . $field . "` LIKE '%" . $escaped . "%'";
+    }
+    if (!$conditions) { return $sql_query; }
+    // WITH queries need their CTE definitions before the final SELECT.
+    // Find the last SELECT at parenthesis depth zero, ignoring quoted text.
+    $depth = 0; $quote = ''; $lastSelect = false;
+    $length = strlen($sql_query);
+    for ($i = 0; $i < $length; $i++) {
+        $ch = $sql_query[$i];
+        if ($quote !== '') {
+            if ($ch === '\\') { $i++; continue; }
+            if ($ch === $quote) {
+                if ($i + 1 < $length && $sql_query[$i + 1] === $quote) { $i++; }
+                else { $quote = ''; }
+            }
+            continue;
+        }
+        if ($ch === "'" || $ch === '"' || $ch === '`') { $quote = $ch; continue; }
+        if ($ch === '(') { $depth++; continue; }
+        if ($ch === ')') { $depth--; continue; }
+        if ($depth === 0 && strtoupper(substr($sql_query, $i, 6)) === 'SELECT'
+            && ($i === 0 || !preg_match('/[a-zA-Z0-9_]/', $sql_query[$i-1]))
+            && ($i + 6 === $length || !preg_match('/[a-zA-Z0-9_]/', $sql_query[$i+6]))) {
+            $lastSelect = $i;
         }
     }
-    $sql_where.=" ) ";
-
-    //Searching the WHERE, walking through the statement
-    $brackets=0;
-    $pos_where=0;
-    //Check for WHERE
-    if(strpos(strtoupper($sql_query),"WHERE")){
-        for ($c=0; $c<strlen($sql_query); $c++) {
-            if ($sql_query[$c] =='('){
-                ++$brackets;
-            }elseif ($sql_query[$c] ==')'){
-                --$brackets;
-            }
-            if($brackets==0 AND substr(strtoupper($sql_query),$c+1,5)=="WHERE" ){
-                $pos_where=$c+6;
-            }
-        }
-    }
-
-    //IF there's no WHERE, check for GROUP BY
-    //Searching the GROUP BY, walking through the statement
-    if($pos_where==0){
-        $brackets=0;
-        $pos_groupby=0;
-        //Check for GROUP BY
-        if(strpos(strtoupper($sql_query),"GROUP BY")){
-            for ($c=0; $c<strlen($sql_query); $c++) {
-                if ($sql_query[$c] =='('){
-                    ++$brackets;
-                }elseif ($sql_query[$c] ==')'){
-                    --$brackets;
-                }
-                if($brackets==0 AND substr(strtoupper($sql_query),$c+1,8)=="GROUP BY" ){
-                    $pos_groupby=$c;
-                }
-            }
-        }
-
-        //Check for JOIN
-        $brackets=0;
-        $pos_join=0;
-        if(strpos(strtoupper($sql_query),"JOIN")){
-            for ($c=0; $c<strlen($sql_query); $c++) {
-                if ($sql_query[$c] =='('){
-                    ++$brackets;
-                }elseif ($sql_query[$c] ==')'){
-                    --$brackets;
-                }
-                if($brackets==0 AND substr(strtoupper($sql_query),$c+1,4)=="JOIN" ){
-                    $pos_join=$c;
-                }
-            }
-        }
-    }
-
-    //Insert search after WHERE
-    if($pos_where>0){
-        $sql_query = substr($sql_query,0,$pos_where).$sql_where." AND ".substr($sql_query,$pos_where);
-    //or Insert search before GROUP BY
-    }elseif($pos_groupby>0 AND $pos_join==0 AND $pos_where>0){
-        $sql_query = substr($sql_query,0,$pos_groupby).$sql_where.substr($sql_query,$pos_groupby);
-    //or before GROUP BY with WHERE
-    }elseif($pos_groupby>0 AND $pos_join==0 AND $pos_where==0){
-        $sql_query = substr($sql_query,0,$pos_groupby)." WHERE ".$sql_where.substr($sql_query,$pos_groupby);
-    //or before GROUP BY with AND
-    }elseif($pos_groupby>0 AND $pos_join>0){
-        $sql_query = substr($sql_query,0,$pos_groupby)." AND ".$sql_where.substr($sql_query,$pos_groupby);
-    //or at the end
-    }else{
-        $sql_query = $sql_query." WHERE ".$sql_where;
-    }
-
-    return $sql_query;
-
+    if ($lastSelect === false) { return $sql_query; }
+    $prefix = substr($sql_query, 0, $lastSelect);
+    $select = rtrim(substr($sql_query, $lastSelect), " \t\r\n;");
+    return $prefix . 'SELECT * FROM (' . $select . ') AS oa_filtered WHERE ' . implode(' AND ', $conditions);
 }
 
  // check whether input is a valid email address
