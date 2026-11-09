@@ -3,7 +3,7 @@
 include_once "include_config_defaults.php";
 
 // ****************  General Settings *******************************************
-$accent_color = '#066';
+$accent_color = '#006666';
 $language = 'de_de';
 $mysqli_server = 'localhost';
 $mysqli_user = 'openaudit';

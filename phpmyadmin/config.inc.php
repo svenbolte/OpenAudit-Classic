@@ -18,9 +18,9 @@ $i = 0;
 $i++;
 
 /* Authentication type and info */
-$cfg['Servers'][$i]['auth_type'] = 'config';
-$cfg['Servers'][$i]['user'] = 'root';
-$cfg['Servers'][$i]['password'] = 'flocke';
+// $cfg['Servers'][$i]['auth_type'] = 'config';
+// $cfg['Servers'][$i]['user'] = 'benutzer';
+// $cfg['Servers'][$i]['password'] = 'passwort';
 $cfg['Servers'][$i]['extension'] = 'mysqli';
 $cfg['Servers'][$i]['AllowNoPassword'] = false;
 $cfg['Lang'] = '';

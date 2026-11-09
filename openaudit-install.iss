@@ -1,10 +1,10 @@
-; Innosetup Compiler 6.7.0
+; Innosetup Compiler 7.1.0
 
 #define MyAppName "Open-Audit Classic"
 #define MyDateString GetDateTimeString('yyyy/mm/dd', '.', '');
 #define MyAppPublisher "OpenAudit Classic GPL3 Projekt"
 #define MyAppURL "https://github.com/svenbolte/Open-Audit-Classic"
-#define Inhalte "Apache 2.4.66x64-VS18/libcurl8.12, MySQLMariaDB 10.11.16x64(LTS), PHP 8.4.18x64-thsafe, phpMyAdmin 5.2.3x64, NMap 7.98, NPCap 1.85 (für nmap), Wordpress 6.9, VC17Runtimes 02/26, MariaDB ODBC 3.2.8"
+#define Inhalte "Apache 2.4.69x64-VS18/libcurl8.12, MySQLMariaDB 10.11.19x64(LTS), PHP 8.4.27-1-x64-thsafe, phpMyAdmin 5.2.3x64, NMap 7.991, NPCap 1.89 (für nmap), Wordpress 7.1.4, VC17Runtimes aktuell, MariaDB ODBC 3.2.9"
 
 [Setup]
 PrivilegesRequired=admin
@@ -52,15 +52,14 @@ Source: "C:\temp\xampplite\*"; DestDir: "{app}"; Components: nuropenaudit; Exclu
 
 [Icons]
 Name: "{group}\OpenAudit cl Oberfläche SSL"; Filename: "https://{code:GetComputerName}:4443/openaudit"; Comment: "SSL Netzwerkverknüpfung zum Open-Audit-Server"
-Name: "{group}\OpenAudit cl Oberfläche lokal"; Filename: "http://localhost:888/openaudit"; Comment: "HTTP Netzwerkverknüpfung zum Open-Audit-Server localhost"
 Name: "{group}\OpenAudit cl Konsole"; Filename: "cmd.exe"; WorkingDir: "{app}\htdocs\openaudit\scripts"; Comment: "als angemeldeter User"
 Name: "{group}\OpenAudit cl Konsole (Admin)"; Filename: "%windir%\system32\cmd.exe"; Parameters: "/k pushd ""{app}\htdocs\openaudit\scripts\"""; WorkingDir: "{app}\htdocs\openaudit\scripts"; IconFilename: "{app}\openaudit_logo.ico"; Comment: "mit elevated rights"
 Name: "{group}\OpenAudit cl Explorer (Ordner)"; Filename: "%windir%\explorer.exe"; Parameters: "/e,""C:\Program Files (x86)\xampplite\htdocs\openaudit\scripts"" "; WorkingDir: "{app}\htdocs\openaudit\scripts"; IconFilename: "{app}\openaudit_logo.ico"; Comment: "Ordner mit scripts öffnen"
 Name: "{group}\PC-IP-Listfile.txt manuell ändern"; Filename: "{app}\htdocs\openaudit\scripts\pc_list_file.txt";  Comment: "nur im Notfall, lässt sich besser über Oberfläche erzeugen"
 Name: "{group}\SSL-Zertifikat erneuern"; Filename: "{app}\apache/makecert2.cmd"; Comment: "openssl Zertifikat für 2 Jahre"
+Name: "{group}\PC-List-File erzeugen"; Filename: "https://{code:GetComputerName}:4443/openaudit/export-ipliste-4-openaudit.php"; Comment: "Netzwerke eingeben und Liste erzeugen SSL"
 Name: "{commondesktop}\OpenAudit cl Oberfläche"; Filename: "https://{code:GetComputerName}:4443/openaudit"; Tasks: desktopicon; Comment: "Netzwerkverknüpfung zum Open-Audit-Server"
 Name: "{commondesktop}\OpenAudit cl Konsole"; Filename: "cmd.exe"; WorkingDir: "{app}\htdocs\openaudit\scripts"; Comment: "als angemeldeter User"; Tasks: desktopicon
-Name: "{commondesktop}\PC-List-File erzeugen"; Filename: "https://{code:GetComputerName}:4443/openaudit/export-ipliste-4-openaudit.php"; Tasks: desktopicon; Comment: "Netzwerke eingeben und Liste erzeugen SSL"
 Name: "{commondesktop}\Aufgabenplanung"; Filename: "%windir%\system32\taskschd.msc"; Parameters: "/s"; Tasks: desktopicon; Comment: "OpenAudit Aufgaben auf Domain-admin umstellen: PC-Scan und optional NMAP Scan bearbeiten"
 
 [Run]
@@ -71,7 +70,7 @@ Filename: "{app}\apache\makecert2.cmd"; Flags: shellexec postinstall runascurren
 Filename: "{app}\apache\oa-importcert.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Zertifikat in Browser importieren"; Check: NoRunSwitch
 Filename: "{app}\apache\apache_installservice-win10.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "Apache ab Win10 als Dienst und starten"; Check: NoRunSwitch
 Filename: "{app}\mysql\mysql_installservice-win10.cmd"; Flags: shellexec postinstall runascurrentuser; Description: "MySQL ab Win10 als Dienst und starten"; Check: NoRunSwitch
-Filename: "{app}\nmap\npcap-1.85.exe"; Flags: shellexec postinstall runascurrentuser; Description: "für NMAP benötigtes NPCap installieren"; Check: NoRunSwitch
+Filename: "{app}\nmap\npcap-1.89.exe"; Flags: shellexec postinstall runascurrentuser; Description: "für NMAP benötigtes NPCap installieren"; Check: NoRunSwitch
 Filename: "{app}\vcruntimes\vc_redist.x86.exe"; Parameters: "/q /norestart"; Flags: waituntilterminated shellexec postinstall; Description: "VC Runtime 2019 x86 für NMAP installieren"; StatusMsg: "Installing VC2019/x86 Redist for NMAP"; Check: VC2013RedistNeedsInstall
 
 [Types]

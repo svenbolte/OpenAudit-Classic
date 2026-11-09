@@ -455,7 +455,7 @@ echo "<div class=\"npb_config_col\">".__("Days").":<input type='text' name='hard
 echo "</div>";
 ?>
 	<div id='npb_config_save_div'>
-  	<input type='submit' value="Save" name='submit_button'>
+  	<input type='submit' value="<?php echo htmlspecialchars(__("Save"), ENT_QUOTES, "UTF-8"); ?>" name='submit_button'>
 	</div>
 </form>
 
@@ -517,7 +517,7 @@ function CheckedIfYes(&$var)
 							<label for="ldap_connection_use_ssl">Use secure connection:</label>
 							<input type='checkbox' id='ldap_connection_use_ssl' onclick='CheckOpenSslStatus(this);'/>&nbsp;&nbsp;(requires independent configuration of OpenSSL)<br />
 							<button type="button" onclick="TestLdapConnection();">Test Connection</button>
-							<button type="button" onclick="SaveLdapConnection();">Save</button>
+							<button type="button" onclick="SaveLdapConnection();"><?php echo htmlspecialchars(__("Save"), ENT_QUOTES, "UTF-8"); ?></button>
 							<button type="button" onclick="CloseConnectionDivs();">Abbruch</button>
 						</div>
 					</fieldset>	

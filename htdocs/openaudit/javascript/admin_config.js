@@ -24,27 +24,14 @@ Recent Changes:
 
 **********************************************************************************************************/
 
-$(document).ready(function() {
-	$("#npb_config_save_error").dialog({
-		width: 350,
-		bgiframe: true,
-		draggable: false,
-		resizable: false,
-		autoOpen: false,
-		dialogClass: 'ui-state-error',
-		modal: true,
-		title: 'Error Saving Configuration',
-		buttons: { 'Ok' : function() { $('#npb_config_save_error').dialog('close'); } }, 
-		position: ['center','middle']
-	}).prev().addClass('ui-state-error');
-
-	$("#admin_config").submit(function() { if ( !SaveConfiguration() ) { return false; } });
-	$('a.tooltip').tooltip({
-		'showURL' : false,
-		'extraClass' : 'tooltip-style',
-		'delay' : 0,
-		'fade' : 250
-	}).click( function() { return false; });
+document.addEventListener('DOMContentLoaded', function () {
+    var form = document.getElementById('admin_config');
+    if (form) form.addEventListener('submit', function (event) {
+        if (!SaveConfiguration()) event.preventDefault();
+    });
+    document.querySelectorAll('a.tooltip').forEach(function (link) {
+        link.addEventListener('click', function (event) { event.preventDefault(); });
+    });
 });
 
 /**********************************************************************************************************
@@ -745,29 +732,32 @@ Change Log:
 **********************************************************************************************************/
 function SaveConfiguration()
 {
-	var config_params = '&' + $('#admin_config').serialize();
-	var ConfigSave = new XmlRequestor('admin_config_data.php?sub=f17' + config_params);
-	$('#npb_config_save_error').html('');
-
-	// Check returned XML for result, list errors if any
-	if(ConfigSave.GetValue("result")=="false")
-	{
-		var error_list;
-		error_list  = '<p><span class="ui-icon ui-icon-alert npb-save-alert">'
-		error_list += '</span><strong>Please correct the following errors</strong></p>';
-		error_list += '<div id="npb-save-error-div"><ul id="npb-save-error-list">';
-		$(ConfigSave.XmlDomObject).find('error').each(function(){
-			error_list += '<li>' + $(this).text() + '</li>';
-		});
-		error_list += '</ul></div>';
-		$('#npb_config_save_error').append(error_list);
-		$("#npb_config_save_error").dialog('open');
-		return false;
-	}
-	else
-	{
-		return true;
-	}
+    var form = document.getElementById('admin_config');
+    if (!form) return true;
+    var config_params = new URLSearchParams(new FormData(form)).toString();
+    var ConfigSave = new XmlRequestor('admin_config_data.php?sub=f17&' + config_params);
+    var errorBox = document.getElementById('npb_config_save_error');
+    if (errorBox) errorBox.textContent = '';
+    if (ConfigSave.GetValue('result') == 'false') {
+        var errors = ConfigSave.XmlDomObject ? ConfigSave.XmlDomObject.getElementsByTagName('error') : [];
+        var messages = Array.prototype.map.call(errors, function (node) { return node.textContent || ''; });
+        if (errorBox) {
+            var heading = document.createElement('strong');
+            heading.textContent = 'Please correct the following errors';
+            errorBox.appendChild(heading);
+            var list = document.createElement('ul');
+            messages.forEach(function (message) {
+                var item = document.createElement('li');
+                item.textContent = message;
+                list.appendChild(item);
+            });
+            errorBox.appendChild(list);
+            errorBox.style.display = 'block';
+            errorBox.setAttribute('role', 'alert');
+        }
+        return false;
+    }
+    return true;
 }
 
 /* Color theme: one native picker and one validated hex field. */

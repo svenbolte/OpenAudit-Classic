@@ -823,3 +823,10 @@ div#AuditedSystems .fa { width: 32px; height: 32px; border: 0; vertical-align: b
   .oa-third-level { margin-left: 19px; }
   .oa-third-level a { font-size: 13px; }
 }
+
+/* Shared theme color for module-specific primary buttons. */
+.andro-btn-primary, .andro-btn-primary:hover, .andro-btn-primary:focus {
+  background-color: var(--openauditcolor, #004477);
+  border-color: var(--openauditcolor, #004477);
+  color: #fff;
+}
